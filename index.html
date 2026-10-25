@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>HispanApp — Los Ritmos del Flamenco | Jordan Migues</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,500;0,600;0,700;1,400&family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Firebase SDKs (Compat para Firestore) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            coverBg: '#14151F',
+            coverCard: '#1C1E2C',
+            coverBorder: '#2B2E42',
+            flamencoRed: '#C83214',
+            flamencoBlue: '#0B5596',
+            flamencoBlueLight: '#1874C4'
+          },
+          fontFamily: {
+            brand: ['Montserrat', 'sans-serif'],
+            serif: ['Lora', 'serif'],
+            sans: ['Inter', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #14151F;
+      color: #FFFFFF;
+      font-family: 'Inter', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .beat-group {
+      transition: background-color 0.08s ease;
+      border-radius: 6px;
+    }
+    .beat-group.active-beat {
+      background-color: rgba(200, 50, 20, 0.12);
+    }
+    .note-active {
+      fill: #C83214 !important;
+      stroke: #C83214 !important;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+<script src="/_aistudio-iframe.js?v=6634132a"></script></head>
+<body class="min-h-screen flex flex-col justify-between pb-24">
+
+  <!-- ========================================== -->
+  <!-- PANTALLA DE BIENVENIDA / REGISTRO FIREBASE -->
+  <!-- ========================================== -->
+  <div id="welcomeSplashScreen" class="fixed inset-0 z-50 bg-coverBg flex flex-col items-center justify-center p-6 overflow-y-auto transition-opacity duration-500">
+    <div class="max-w-sm w-full flex flex-col items-center space-y-6">
+      
+      <!-- Logo Oficial Hispana Percusión en blanco -->
+      <div class="shrink-0 flex items-center justify-center w-24 h-24 text-white">
+        <svg viewBox="0 0 100 95" class="w-full h-full" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter">
+          <path d="M 43 15 L 43 6 L 82 6 L 82 56 L 73 56" />
+          <rect x="24" y="21" width="42" height="50" fill="none" />
+          <polygon points="24,21 43,21 43,56 24,71" fill="#FFFFFF" />
+          <line x1="43" y1="56" x2="66" y2="56" />
+          <line x1="24" y1="71" x2="14" y2="81" stroke-width="3" />
+        </svg>
+      </div>
+
+      <div class="text-center">
+        <h1 class="font-brand text-3xl sm:text-4xl font-extrabold tracking-wider text-white">
+          Hispan<span class="text-flamencoRed">App</span>
+        </h1>
+        <p class="font-brand text-[10px] sm:text-[11px] tracking-[0.25em] uppercase text-gray-300 mt-1">
+          LOS RITM<span class="text-flamencoRed font-bold">8</span>S DEL FLAMENCO
+        </p>
+      </div>
+
+      <!-- Formulario de Registro (Primera Vez) -->
+      <div id="firstTimeForm" class="w-full space-y-5 hidden">
+        <div class="text-center space-y-1">
+          <h2 class="font-serif text-xl sm:text-2xl font-bold text-white">Configura tu perfil de práctica</h2>
+          <p class="text-xs text-gray-400">Ingresa tus datos para registrarte en la plataforma</p>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <label class="block font-brand text-[10px] tracking-wider text-gray-400 uppercase mb-1.5 font-bold">1. TU NOMBRE O APODO: <span class="text-flamencoRed">*</span></label>
+            <input type="text" id="registerName" placeholder="ej. Carmen, Marcos, Ana..." class="w-full bg-coverCard border border-coverBorder rounded-xl px-4.5 py-3.5 text-sm font-medium text-white placeholder-gray-500 focus:outline-none focus:border-flamencoRed transition" required>
+          </div>
+
+          <div>
+            <label class="block font-brand text-[10px] tracking-wider text-gray-400 uppercase mb-1.5 font-bold">2. TU EMAIL: <span class="text-flamencoRed">*</span></label>
+            <input type="email" id="registerEmail" placeholder="ej. nombre@correo.com" class="w-full bg-coverCard border border-coverBorder rounded-xl px-4.5 py-3.5 text-sm font-medium text-white placeholder-gray-500 focus:outline-none focus:border-flamencoRed transition" required>
+          </div>
+
+          <div>
+            <label class="block font-brand text-[10px] tracking-wider text-gray-400 uppercase mb-1.5 font-bold">3. TU TELÉFONO: <span class="text-flamencoRed">*</span></label>
+            <input type="tel" id="registerPhone" placeholder="ej. +54 9 11..." class="w-full bg-coverCard border border-coverBorder rounded-xl px-4.5 py-3.5 text-sm font-medium text-white placeholder-gray-500 focus:outline-none focus:border-flamencoRed transition" required>
+          </div>
+        </div>
+
+        <button onclick="saveUserProfile()" class="w-full bg-flamencoRed hover:bg-red-700 text-white font-brand text-xs font-bold uppercase tracking-widest py-4.5 rounded-xl transition shadow-lg cursor-pointer">
+          GUARDAR Y COMENZAR A PRACTICAR
+        </button>
+
+        <p class="text-center text-[11px] text-gray-400 mt-2 font-medium">
+          ¿Ya tienes un código PRO? <button onclick="openPromoFromRegister()" class="text-white hover:underline underline-offset-4 decoration-flamencoRed cursor-pointer">Ingrésalo aquí</button>
+        </p>
+      </div>
+
+      <!-- Pantalla de Bienvenida Recurrente -->
+      <div id="returningWelcome" class="w-full text-center space-y-6 hidden">
+        <div class="space-y-1.5">
+          <h2 id="welcomeReturningTitle" class="font-serif text-2xl sm:text-3xl font-bold text-white">¡Bienvenido de nuevo!</h2>
+          <p id="returningDetails" class="text-xs text-gray-400">Preparando tus compases flamencos...</p>
+        </div>
+
+        <div class="w-full bg-coverCard h-1 rounded-full overflow-hidden border border-coverBorder/30">
+          <div id="welcomeProgressBar" class="h-full bg-flamencoRed w-0 transition-all duration-700 ease-out"></div>
+        </div>
+
+        <button onclick="enterPracticing()" id="enterPracticingBtn" class="w-full bg-flamencoRed hover:bg-red-700 text-white font-brand text-xs font-bold uppercase tracking-widest py-4 rounded-xl transition shadow-lg opacity-0 pointer-events-none transform translate-y-2 cursor-pointer">
+          ▶ ENTRAR A PRACTICAR
+        </button>
+
+        <p class="text-center text-[11px] text-gray-400 mt-2">
+          ¿No eres tú? <button onclick="resetProfileForm()" class="text-white hover:underline cursor-pointer">Cambiar usuario</button>
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- HEADER PRINCIPAL -->
+  <header class="border-b border-coverBorder bg-coverBg/95 backdrop-blur sticky top-0 z-30">
+    <div class="max-w-5xl mx-auto px-3.5 py-2.5 flex items-center justify-between gap-2">
+      <div class="flex items-center gap-3.5 min-w-0">
+        <div class="shrink-0 flex items-center justify-center w-10 h-10 text-white cursor-pointer" onclick="openProfileEdit()">
+          <svg viewBox="0 0 100 95" class="w-7 h-7" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter">
+            <path d="M 43 15 L 43 6 L 82 6 L 82 56 L 73 56" />
+            <rect x="24" y="21" width="42" height="50" fill="none" />
+            <polygon points="24,21 43,21 43,56 24,71" fill="#FFFFFF" />
+            <line x1="43" y1="56" x2="66" y2="56" />
+            <line x1="24" y1="71" x2="14" y2="81" stroke-width="3" />
+          </svg>
+        </div>
+
+        <div class="min-w-0">
+          <div class="flex items-center gap-1.5">
+            <span class="font-brand text-sm sm:text-base font-extrabold tracking-wider text-white">
+              Hispan<span class="text-flamencoRed">App</span>
+            </span>
+            <button onclick="openProfileEdit()" id="headerUserBadge" class="text-[10px] font-medium text-gray-400 hover:text-white truncate max-w-[110px] flex items-center gap-1 bg-coverCard px-2 py-0.5 rounded border border-coverBorder cursor-pointer">
+              👤 Hola
+            </button>
+          </div>
+          <p class="font-brand text-[9px] sm:text-[10px] tracking-[0.18em] uppercase text-gray-300 truncate">
+            Los Ritm<span class="text-flamencoRed font-bold">8</span>s del Flamenco
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button onclick="toggleTrainerModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-coverBorder bg-coverCard hover:border-flamencoRed text-xs font-medium transition cursor-pointer">
+          <span class="w-1.5 h-1.5 rounded-full bg-gray-500" id="trainerStatusDot"></span>
+          <span class="hidden sm:inline">Entrenador</span>
+        </button>
+
+        <button onclick="toggleMethodModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-coverBorder bg-coverCard hover:border-flamencoBlue text-xs font-medium transition cursor-pointer">
+          <span>📖 Método</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="max-w-5xl w-full mx-auto px-3.5 pt-3 space-y-3.5 flex-1">
+    <section class="bg-coverCard rounded-xl border border-coverBorder p-3.5 shadow-lg space-y-3">
+      <div class="flex items-center justify-between gap-1 overflow-x-auto pb-1 no-scrollbar">
+        <div id="rhythmPillsContainer" class="flex items-center gap-1.5 w-full justify-between sm:justify-start"></div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-2 border-t border-coverBorder">
+        <div class="flex-1">
+          <select id="rhythmSelect" onchange="onRhythmSelect(this.value)" class="w-full bg-coverBg border border-coverBorder rounded-lg px-3 py-2 text-sm font-semibold text-white focus:outline-none focus:border-flamencoRed">
+          </select>
+        </div>
+
+        <div class="flex items-center justify-between sm:justify-end gap-2 shrink-0">
+          <div id="countModeContainer" class="flex items-center gap-1 bg-coverBg px-2.5 py-1 rounded-lg border border-coverBorder">
+            <span class="text-[11px] text-gray-400">Cuenta:</span>
+            <button onclick="setCountMode('phonetic')" id="countBtn-phon" class="px-2 py-0.5 rounded text-[11px] font-serif font-bold bg-flamencoRed text-white cursor-pointer">2, 1, 2</button>
+            <button onclick="setCountMode('traditional')" id="countBtn-trad" class="px-2 py-0.5 rounded text-[11px] font-serif text-gray-400 cursor-pointer">12, 1, 2</button>
+          </div>
+
+          <div class="flex items-center gap-1 bg-coverBg px-2 py-1 rounded-lg border border-coverBorder">
+            <span class="text-[11px] text-gray-400">Palmas:</span>
+            <button onclick="setPalmaTone('secas')" id="toneBtn-secas" class="px-2 py-0.5 rounded text-[11px] font-semibold bg-flamencoBlue text-white cursor-pointer">Secas</button>
+            <button onclick="setPalmaTone('sordas')" id="toneBtn-sordas" class="px-2 py-0.5 rounded text-[11px] font-medium text-gray-400 cursor-pointer">Sordas</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="flex bg-coverCard p-1 rounded-xl border border-coverBorder text-xs">
+      <button onclick="setViewMode('split')" id="viewBtn-split" class="flex-1 py-1.5 rounded-lg font-semibold bg-flamencoBlue text-white transition cursor-pointer">Ambos</button>
+      <button onclick="setViewMode('staff')" id="viewBtn-staff" class="flex-1 py-1.5 rounded-lg font-medium text-gray-400 hover:text-white transition cursor-pointer">Partitura</button>
+      <button onclick="setViewMode('clock')" id="viewBtn-clock" class="flex-1 py-1.5 rounded-lg font-medium text-gray-400 hover:text-white transition cursor-pointer">Reloj</button>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+      <div id="staffPanel" class="lg:col-span-7 bg-coverCard rounded-xl border border-coverBorder p-4 shadow-lg space-y-3 overflow-hidden">
+        <div class="flex flex-wrap items-center justify-between gap-2.5">
+          <div class="bg-white text-black px-3.5 py-1.5 rounded-lg shadow-sm inline-block">
+            <h2 id="scoreBadgeTitle" class="font-sans text-sm sm:text-base font-bold tracking-tight leading-snug">
+              Compás de 12 - I - Alegrías / Soleá por Bulería
+            </h2>
+          </div>
+          
+          <div class="flex items-center gap-2">
+            <button onclick="handleVideoRequest()" class="px-3.5 py-1.5 rounded-lg bg-flamencoBlue hover:bg-flamencoBlueLight text-white text-xs font-semibold flex items-center gap-1.5 shadow transition cursor-pointer">
+              <span>▶ Video Demo</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-coverBg/80 border border-coverBorder rounded-lg px-3 py-2">
+          <span class="font-brand text-[9px] tracking-[0.2em] uppercase text-gray-400 block mb-0.5">Palos que se acompañan con este ritmo:</span>
+          <p id="palosFullList" class="font-serif text-xs sm:text-sm text-gray-100 font-medium">Cargando...</p>
+        </div>
+
+        <div id="monogramSheetContainer" class="bg-white text-black rounded-xl p-3 sm:p-4 shadow-inner overflow-x-auto flex flex-row items-center no-scrollbar scroll-smooth"></div>
+
+        <div onclick="openEbooksInHotmart()" class="bg-coverBg/40 border border-dashed border-coverBorder rounded-xl p-3 flex items-center justify-between gap-2 cursor-pointer hover:border-flamencoRed transition">
+          <div class="min-w-0">
+            <span class="font-brand text-[8px] tracking-widest text-flamencoRed uppercase font-bold">MÉTODO OFICIAL</span>
+            <p id="bannerContextTitle" class="text-xs text-gray-300 font-serif italic truncate">📘 Consigue el Pack de Libros de Jordan Migues para dominar todos los patrones de cajón y variaciones →</p>
+          </div>
+          <span class="text-xs text-flamencoRed font-bold shrink-0">Ver →</span>
+        </div>
+      </div>
+
+      <div id="clockPanel" class="lg:col-span-5 bg-coverCard rounded-xl border border-coverBorder p-4 shadow-lg flex flex-col items-center">
+        <div class="w-full flex items-center justify-between mb-1">
+          <span class="font-brand text-[10px] tracking-[0.2em] uppercase text-gray-400">Ciclo de Compás</span>
+          <span id="cycleCounterBadge" class="text-xs font-serif text-gray-300">Vuelta: 1</span>
+        </div>
+
+        <div class="relative w-60 h-60 sm:w-64 sm:h-64 my-1 flex items-center justify-center">
+          <svg id="flamencoClockSvg" viewBox="0 0 260 260" class="w-full h-full"></svg>
+          <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+            <span id="clockCenterCount" class="font-serif text-4xl font-bold text-white leading-none">—</span>
+            <span id="clockCenterHit" class="font-brand text-[10px] tracking-[0.2em] uppercase text-flamencoRed mt-1.5 font-bold">PALMAS</span>
+          </div>
+        </div>
+
+        <div class="w-full flex items-center justify-center gap-5 pt-2 border-t border-coverBorder text-[11px] text-gray-300">
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-flamencoRed inline-block"></span> Acento (&gt;)</span>
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-flamencoBlueLight inline-block"></span> Pulso</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- BARRA INFERIOR -->
+  <footer class="fixed bottom-0 inset-x-0 bg-coverBg/95 backdrop-blur border-t border-coverBorder z-30 shadow-2xl">
+    <div class="max-w-5xl mx-auto px-3 py-2 flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5 shrink-0">
+        <button onclick="togglePlay()" id="playBtn" class="w-11 h-11 rounded-full bg-flamencoRed text-white flex items-center justify-center shadow-lg hover:brightness-110 active:scale-95 transition shrink-0 cursor-pointer">
+          <svg id="playIcon" class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          <svg id="stopIcon" class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
+        </button>
+        <div>
+          <div class="flex items-baseline gap-1">
+            <span id="bpmValueDisplay" class="font-serif text-xl sm:text-2xl font-bold text-white tabular-nums leading-none">92</span>
+            <span class="font-brand text-[9px] tracking-widest uppercase text-gray-400 font-semibold">BPM</span>
+          </div>
+          <div class="flex items-center gap-1 mt-0.5">
+            <button onclick="toggleCountIn()" id="countInBtn" class="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded transition text-white bg-flamencoBlue border border-flamencoBlue cursor-pointer" title="Cuenta previa">🗣️ Cuenta</button>
+            <span id="bpmRecommendedBadge" class="text-[10px] font-serif italic text-gray-400 block leading-tight">60–220 BPM</span>
+          </div>
+        </div>
+      </div>
+
+      <input id="bpmSlider" type="range" min="35" max="240" value="92" oninput="setBpm(this.value)" class="hidden md:block flex-1 max-w-xs accent-[#C83214] cursor-pointer mx-2" />
+
+      <div class="flex items-center gap-1 sm:gap-1.5 shrink-0">
+        <button onclick="adjustBpm(-5)" class="w-8 sm:w-9 h-9 rounded-lg border border-coverBorder bg-coverCard hover:border-flamencoBlue text-white font-semibold text-xs active:scale-95 transition cursor-pointer">-5</button>
+        <button onclick="adjustBpm(-1)" class="w-8 sm:w-9 h-9 rounded-lg border border-coverBorder bg-coverCard hover:border-flamencoBlue text-white font-semibold text-xs active:scale-95 transition cursor-pointer">-1</button>
+        <button onclick="adjustBpm(1)" class="w-8 sm:w-9 h-9 rounded-lg border border-coverBorder bg-coverCard hover:border-flamencoBlue text-white font-semibold text-xs active:scale-95 transition cursor-pointer">+1</button>
+        <button onclick="adjustBpm(5)" class="w-8 sm:w-9 h-9 rounded-lg border border-coverBorder bg-coverCard hover:border-flamencoBlue text-white font-semibold text-xs active:scale-95 transition cursor-pointer">+5</button>
+        <button onclick="handleTapTempo()" class="px-2.5 sm:px-3.5 h-9 rounded-lg bg-flamencoBlue hover:bg-flamencoBlueLight text-white text-[11px] font-brand font-bold tracking-wider uppercase transition cursor-pointer">Tap</button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MODAL: VIDEO DEMOSTRATIVO -->
+  <div id="videoModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-coverCard border border-coverBorder rounded-2xl max-w-lg w-full p-4.5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-coverBorder pb-3 text-white">
+        <div>
+          <span class="font-brand text-[10px] tracking-wider uppercase text-flamencoRed font-bold">MÉTODO HISTÓRICO</span>
+          <h3 id="videoModalTitle" class="font-serif text-base sm:text-lg font-bold">Video Demostrativo</h3>
+        </div>
+        <button onclick="closeVideoModal()" class="text-gray-400 hover:text-white text-2xl leading-none cursor-pointer">&times;</button>
+      </div>
+      <div class="relative aspect-video w-full rounded-xl overflow-hidden bg-black border border-coverBorder">
+        <iframe id="videoIframe" class="absolute inset-0 w-full h-full" src="" title="Hispana Video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+      </div>
+      <div class="flex flex-col sm:flex-row gap-2">
+        <a id="videoDirectBtn" href="#" target="_blank" class="flex-1 py-2.5 bg-coverBg text-white border border-coverBorder hover:border-flamencoBlue text-xs font-brand tracking-wider font-bold rounded-xl text-center flex items-center justify-center gap-1.5 transition">
+          <span>Abrir directamente en YouTube ↗</span>
+        </a>
+        <button onclick="closeVideoModal()" class="py-2.5 px-6 bg-flamencoRed text-white text-xs font-brand tracking-wider font-bold rounded-xl transition cursor-pointer">Entendido</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL MINIMALISTA: VENTANA DE PAGO PRO / ACTIVACIÓN DE CÓDIGO -->
+  <div id="promoModal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-coverCard border border-coverBorder rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4 text-white">
+      <div class="flex items-center justify-between border-b border-coverBorder pb-2.5">
+        <div>
+          <span class="font-brand text-[9px] tracking-wider uppercase text-flamencoRed font-bold">VERSIÓN PRO</span>
+          <h3 class="font-serif text-lg font-bold">Desbloquear Ritmo</h3>
+        </div>
+        <button onclick="closePromoModal()" class="text-gray-400 hover:text-white text-xl leading-none cursor-pointer">&times;</button>
+      </div>
+
+      <p class="text-xs text-gray-300 font-sans leading-relaxed">
+        Los ritmos II, III, IV, V, VII y VIII forman parte de <strong class="text-white">HispanApp PRO</strong>. Puedes acceder adquiriendo el Pack Completo o activando tu código de alumno.
+      </p>
+
+      <div class="space-y-2">
+        <a href="https://hispanapercusion.lemonsqueezy.com/checkout/buy/f3479c51-4a7d-46cf-9326-66280e31926e" target="_blank" class="block w-full py-3 bg-flamencoRed hover:bg-red-700 text-center text-white font-brand text-xs font-bold uppercase tracking-widest rounded-xl transition shadow-lg">
+          💳 ACCEDER A LA VERSIÓN PRO
+        </a>
+      </div>
+
+      <div class="border-t border-coverBorder/80 pt-3 space-y-2">
+        <label class="block font-brand text-[9px] text-gray-400 uppercase tracking-wider font-semibold">Tengo un código:</label>
+        <div class="flex gap-2">
+          <input type="text" id="promoCodeInput" placeholder="Código" class="flex-1 bg-coverBg border border-coverBorder rounded-xl px-3.5 py-2 text-xs font-semibold uppercase focus:outline-none focus:border-flamencoRed text-white">
+          <button onclick="validatePromoCode()" class="px-4 bg-flamencoBlue hover:bg-flamencoBlueLight font-brand text-[10px] font-bold uppercase tracking-wider rounded-xl transition cursor-pointer">Activar</button>
+        </div>
+        <span id="promoErrorMessage" class="text-xs text-flamencoRed font-serif italic hidden">Código incorrecto. Vuelve a intentarlo.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: MÉTODO (EBOOKS, PATREON, WHATSAPP) -->
+  <div id="methodModal" class="fixed inset-0 bg-black/85 backdrop-blur-xs z-40 hidden items-center justify-center p-4">
+    <div class="bg-coverCard border border-coverBorder rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4 text-white overflow-y-auto max-h-[90vh] no-scrollbar">
+      <div class="flex items-center justify-between border-b border-coverBorder pb-3">
+        <div>
+          <span class="font-brand text-[10px] tracking-wider uppercase text-flamencoRed font-bold">Jordan Migues</span>
+          <h3 class="font-serif text-lg font-bold">Hispana Percusión</h3>
+        </div>
+        <button onclick="toggleMethodModal()" class="text-gray-400 hover:text-white text-xl cursor-pointer">&times;</button>
+      </div>
+
+      <div class="bg-coverBg rounded-xl p-3 border border-coverBorder/80 flex items-center justify-between text-xs">
+        <div>
+          <span class="text-gray-400">Estado de Cuenta:</span>
+          <p id="methodAccountStatus" class="font-serif font-bold text-white mt-0.5">Versión Gratuita (Ritmos I y VI)</p>
+        </div>
+        <div id="methodProActivateBtn" onclick="openPromoModal()" class="cursor-pointer bg-flamencoRed/10 text-flamencoRed border border-flamencoRed/30 px-2 py-1 rounded text-[11px] font-brand uppercase tracking-wider font-bold hover:bg-flamencoRed/20 transition">
+          Subir a PRO ↗
+        </div>
+      </div>
+
+      <div class="bg-coverBg rounded-xl p-3 border border-coverBorder space-y-2.5">
+        <div>
+          <span class="font-brand text-[9px] tracking-wider uppercase text-flamencoRed font-bold">METODOLOGÍA FLAMENCA</span>
+          <h4 class="font-serif font-bold text-sm text-white mt-0.5">"Los Ritmos del Flamenco" — Trilogía Completa</h4>
+          <p class="text-[11px] text-gray-400 leading-normal font-serif mt-1">Los 3 libros de cabecera con toda la progresión, desde el compás de 12 tiempos, el 3/4 y hasta los más veloces en 4/4 y 6/8.</p>
+        </div>
+        <a href="https://pay.hotmart.com/R82880037W" target="_blank" class="block w-full py-2.5 bg-flamencoRed hover:bg-red-700 text-center text-white font-brand text-[9px] font-bold uppercase tracking-widest rounded-lg transition">OBTENER EL PACK COMPLETO EN HOTMART</a>
+      </div>
+
+      <div class="bg-coverBg rounded-xl p-3 border border-coverBorder space-y-2">
+        <div>
+          <span class="font-brand text-[9px] tracking-wider uppercase text-flamencoBlueLight font-bold">COMUNIDAD EN VIVO</span>
+          <h4 class="font-serif font-bold text-sm text-white mt-0.5">Estudia conmigo en Patreon</h4>
+          <p class="text-[11px] text-gray-400 leading-normal font-serif mt-1">Súmate a mi comunidad semanal en Patreon. Recibe lecciones exclusivas de cajón y palmas.</p>
+        </div>
+        <a href="https://www.patreon.com/HispanaPercusion?utm_campaign=creatorshare_creator" target="_blank" class="block w-full py-2.5 bg-[#E83C50] text-center text-white font-brand text-[9px] font-bold uppercase tracking-widest rounded-lg transition shadow-md">REVISAR CLASES EN PATREON 🚀</a>
+      </div>
+
+      <div class="bg-coverBg rounded-xl p-3 border border-coverBorder flex items-center justify-between gap-3">
+        <div class="min-w-0">
+          <span class="font-brand text-[9px] text-gray-400 uppercase block font-bold">TUTORÍAS Y CAJONES</span>
+          <h4 class="font-serif font-bold text-sm text-white mt-0.5 truncate">Contacto Directo</h4>
+          <p class="text-[11px] text-gray-400 font-serif leading-tight">Clases, cajones profesionales de taller y soporte por WhatsApp.</p>
+        </div>
+        <a href="https://wa.me/541132025842" target="_blank" class="py-2 px-3.5 bg-[#25D366] hover:bg-green-600 font-brand text-[9px] font-bold uppercase rounded-lg transition shrink-0">CHATEAR</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL EDITAR PERFIL -->
+  <div id="profileEditModal" class="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+    <div class="bg-coverCard border border-coverBorder rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4 text-white">
+      <div class="flex items-center justify-between border-b border-coverBorder pb-2">
+        <h3 class="font-serif text-lg font-bold">Mis Datos de Práctica</h3>
+        <button onclick="closeProfileEdit()" class="text-gray-400 hover:text-white text-xl cursor-pointer">&times;</button>
+      </div>
+      <div class="space-y-3.5 text-left text-sm">
+        <div>
+          <label class="block font-brand text-[9px] text-gray-400 uppercase mb-1">Nombre:</label>
+          <input type="text" id="editProfileName" class="w-full bg-coverBg border border-coverBorder rounded-xl px-3.5 py-2.5 text-sm font-medium text-white">
+        </div>
+        <div>
+          <label class="block font-brand text-[9px] text-gray-400 uppercase mb-1">Email:</label>
+          <input type="email" id="editProfileEmail" class="w-full bg-coverBg border border-coverBorder rounded-xl px-3.5 py-2.5 text-sm font-medium text-white">
+        </div>
+        <div>
+          <label class="block font-brand text-[9px] text-gray-400 uppercase mb-1">Teléfono:</label>
+          <input type="tel" id="editProfilePhone" class="w-full bg-coverBg border border-coverBorder rounded-xl px-3.5 py-2.5 text-sm font-medium text-white">
+        </div>
+      </div>
+      <button onclick="saveProfileEdit()" class="w-full py-3 bg-flamencoRed hover:bg-red-700 text-white font-brand text-xs font-bold uppercase tracking-widest rounded-xl transition cursor-pointer">GUARDAR CAMBIOS</button>
+    </div>
+  </div>
+
+  <!-- ENTRENADOR PROGRESIVO -->
+  <div id="trainerModal" class="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+    <div class="bg-coverCard border border-coverBorder rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4 text-white">
+      <div class="flex items-center justify-between border-b border-coverBorder pb-3">
+        <div>
+          <span class="font-brand text-[10px] tracking-wider uppercase text-flamencoRed font-bold">Entrenador HispanApp</span>
+          <h3 class="font-serif text-lg font-bold">Velocidad Progresiva</h3>
+        </div>
+        <button onclick="toggleTrainerModal()" class="text-gray-400 hover:text-white text-xl leading-none cursor-pointer">&times;</button>
+      </div>
+      <p class="text-xs text-gray-300 font-serif italic">Sube automáticamente los BPM cada cierto número de vueltas.</p>
+      <div class="space-y-3 text-sm">
+        <label class="flex items-center justify-between bg-coverBg p-3 rounded-lg border border-coverBorder cursor-pointer">
+          <span class="font-medium text-white">Aumento Automático</span>
+          <input type="checkbox" id="trainerEnabledCheck" onchange="updateTrainerConfig()" class="w-4 h-4 accent-[#C83214]" />
+        </label>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-coverBg p-2.5 rounded-lg border border-coverBorder">
+            <label class="block text-[11px] text-gray-400 mb-1">Aumentar (+BPM)</label>
+            <input type="number" id="trainerStepBpm" value="5" min="1" max="20" onchange="updateTrainerConfig()" class="w-full bg-transparent font-serif font-bold text-base text-white focus:outline-none" />
+          </div>
+          <div class="bg-coverBg p-2.5 rounded-lg border border-coverBorder">
+            <label class="block text-[11px] text-gray-400 mb-1">Cada (N vueltas)</label>
+            <input type="number" id="trainerEveryCycles" value="4" min="1" max="32" onchange="updateTrainerConfig()" class="w-full bg-transparent font-serif font-bold text-base text-white focus:outline-none" />
+          </div>
+        </div>
+      </div>
+      <button onclick="toggleTrainerModal()" class="w-full py-2.5 rounded-lg bg-flamencoRed text-white text-xs font-brand uppercase tracking-widest font-bold cursor-pointer">Guardar</button>
+    </div>
+  </div>
+
+  <!-- SCRIPTS Y LÓGICA DE FIREBASE Y AUDIO -->
+  <script>
+    // ============================================================================
+    // 0. CONFIGURACIÓN DE FIREBASE
+    // ============================================================================
+    const firebaseConfig = {
+      apiKey: "AIzaSyDPNj_EdwnPHr2CdWTHqeOpmwcGwT9LSVU",
+      authDomain: "hispanapp.firebaseapp.com",
+      projectId: "hispanapp",
+      storageBucket: "hispanapp.firebasestorage.app",
+      messagingSenderId: "32785947580",
+      appId: "1:32785947580:web:5d9532558097e2c4cd29b9",
+      measurementId: "G-MV8L71TRJS"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+
+    const APP_CONFIG = {
+      patreonUrl: "https://www.patreon.com/HispanaPercusion?utm_campaign=creatorshare_creator",
+      hotmartPackUrl: "https://pay.hotmart.com/R82880037W",
+      lemonSqueezyUrl: "https://hispanapercusion.lemonsqueezy.com/checkout/buy/f3479c51-4a7d-46cf-9326-66280e31926e",
+      whatsappUrl: "https://wa.me/541132025842",
+      proSecretCodes: ["HISPANA-PRO", "PRO", "HISPANA"]
+    };
+
+    const RHYTHMS_DATA = [
+      {
+        id: 'r1', roman: 'I', ebook: 'EBOOK I', shortTitle: 'Ritmo I — Alegrías / Soleá por Bulería', scoreTitle: 'Compás de 12 - I - Alegrías / Soleá por Bulería',
+        palos: 'Alegrías, Soleá, Soleá por Bulerías, Bamberas, Caracoles, Mirabrás, Romera, Guajiras y Cantiñas.',
+        timeSignature: '3/4', bpmRange: { min: 60, max: 220, default: 92 }, has12CountToggle: true,
+        countsPhon: ['2', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '1'], countsTrad: ['12', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'],
+        clockAccents: [0, 3, 6, 8, 10], stepsPerBeat: 2, videoUrl: "https://youtu.be/V4eKkZvdvCw?si=UrHBMB2lleHJAlT5", videoEmbedUrl: "https://www.youtube.com/embed/V4eKkZvdvCw",
+        steps: ['P','R', 'R','P', 'P','R', 'P','R', 'P','R', 'P','R', 'P','R', 'P','P', 'P','R', 'P','P', 'P','R', 'P','R']
+      },
+      {
+        id: 'r2', roman: 'II', ebook: 'EBOOK I', shortTitle: 'Ritmo II — Seguiriyas / Martinetes', scoreTitle: 'Compás de 12 - II - Seguiriyas / Martinetes',
+        palos: 'Seguiriyas, Martinetes y Serranas.', timeSignature: '2/4 y 3/4', bpmRange: { min: 60, max: 200, default: 84 }, has12CountToggle: false,
+        countsPhon: ['1', '·', '2', '·', '3', '·', '·', '4', '·', '·', '5', '·'], countsTrad: ['1', '·', '2', '·', '3', '·', '·', '4', '·', '·', '5', '·'],
+        clockAccents: [0, 2, 4, 7, 10], stepsPerBeat: 2, videoUrl: "https://youtu.be/UXdjVTvbJGE?si=WH6MR8lCup6KDtzq", videoEmbedUrl: "https://www.youtube.com/embed/UXdjVTvbJGE",
+        steps: ['A','R', 'P','P', 'A','R', 'P','P', 'A','R', 'R','P', 'P','R', 'A','R', 'R','P', 'P','R', 'A','R', 'P','P']
+      },
+      {
+        id: 'r3', roman: 'III', ebook: 'EBOOK II', shortTitle: 'Ritmo III — Bulerías de Jerez', scoreTitle: 'Compás de 3/4 - III - Bulerías de Jerez',
+        palos: 'Bulerías de Jerez, Cádiz, Cuplés, Lebrija, Morón, Utrera y Romance.', timeSignature: '3/4', bpmRange: { min: 60, max: 115, default: 88 }, has12CountToggle: true,
+        countsPhon: ['2', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '1'], countsTrad: ['12', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'],
+        clockAccents: [1, 3, 7, 9], stepsPerBeat: 1, videoUrl: "https://youtu.be/CxFXWZDFj5s?si=yMOrdph4YnijL6Ph", videoEmbedUrl: "https://www.youtube.com/embed/CxFXWZDFj5s",
+        steps: ['R', 'A', 'P', 'A', 'P', 'P', 'R', 'A', 'P', 'A', 'P', 'P']
+      },
+      {
+        id: 'r4', roman: 'IV', ebook: 'EBOOK II', shortTitle: 'Ritmo IV — Jaleos / Abandolaos', scoreTitle: 'Compás de 3/4 - IV - Jaleos / Abandolaos',
+        palos: 'Jaleos Extremeños y Abandolaos (Verdiales, Rondeñas).', timeSignature: '3/4', bpmRange: { min: 60, max: 110, default: 84 }, has12CountToggle: true,
+        countsPhon: ['2', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '1'], countsTrad: ['12', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'],
+        clockAccents: [0, 2, 4, 5, 6, 8, 10, 11], stepsPerBeat: 2, videoUrl: "https://youtu.be/jeM-teScoIY?si=wBp3aPBCbyyyWA6j", videoEmbedUrl: "https://www.youtube.com/embed/jeM-teScoIY",
+        steps: ['A','R', 'R','P', 'A','R', 'R','P', 'A','R', 'A','R', 'A','R', 'R','P', 'A','R', 'R','P', 'A','R', 'A','R']
+      },
+      {
+        id: 'r5', roman: 'V', ebook: 'EBOOK II', shortTitle: 'Ritmo V — Fandangos / Sevillanas', scoreTitle: 'Compás de 3/4 - V - Fandangos / Sevillanas',
+        palos: 'Fandangos y Sevillanas.', timeSignature: '3/4', bpmRange: { min: 60, max: 160, default: 115 }, has12CountToggle: false,
+        countsPhon: ['1', '2', '3', '1', '2', '3', '1', '2', '3', '1', '2', '3'], countsTrad: ['1', '2', '3', '1', '2', '3', '1', '2', '3', '1', '2', '3'],
+        clockAccents: [0, 3, 6, 9, 10], stepsPerBeat: 1, videoUrl: "https://youtu.be/475btji9NK0?si=7a1A29jM8botFRuv", videoEmbedUrl: "https://www.youtube.com/embed/475btji9NK0",
+        steps: ['A', 'P', 'P', 'A', 'P', 'P', 'A', 'P', 'P', 'A', 'A', 'R']
+      },
+      {
+        id: 'r6', roman: 'VI', ebook: 'EBOOK III', shortTitle: 'Ritmo VI — Tangos / Rumbas', scoreTitle: 'Compás de 4/4 - VI - Tangos / Rumbas',
+        palos: 'Tangos, Rumbas, Garrotín y Colombianas.', timeSignature: '4/4', bpmRange: { min: 60, max: 220, default: 110 }, has12CountToggle: false,
+        countsPhon: ['1', '2', '3', '4', '1', '2', '3', '4'], countsTrad: ['1', '2', '3', '4', '1', '2', '3', '4'],
+        clockAccents: [1, 3, 5, 7], stepsPerBeat: 2, videoUrl: "https://youtu.be/7wStNQX9tJ8?si=tR5_Zn5kvHsAJxdj", videoEmbedUrl: "https://www.youtube.com/embed/7wStNQX9tJ8",
+        steps: ['R','R', 'A','P', 'P','R', 'A','R', 'R','R', 'A','P', 'P','R', 'A','R']
+      },
+      {
+        id: 'r7', roman: 'VII', ebook: 'EBOOK III', shortTitle: 'Ritmo VII — Tientos / Farruca', scoreTitle: 'Compás de 4/4 - VII - Tientos / Farruca',
+        palos: 'Tientos, Farruca y Tarantos.', timeSignature: '4/4', bpmRange: { min: 40, max: 65, default: 52 }, has12CountToggle: false,
+        countsPhon: ['1', '2', '3', '4', '1', '2', '3', '4'], countsTrad: ['1', '2', '3', '4', '1', '2', '3', '4'],
+        clockAccents: [0, 2, 4, 6], stepsPerBeat: 2, videoUrl: "https://youtu.be/rpXWQAUOjCA?si=kfIQ1N8aKdiZv_4Y", videoEmbedUrl: "https://www.youtube.com/embed/rpXWQAUOjCA",
+        steps: ['A','R', 'R','P', 'A','R', 'R','R', 'A','R', 'R','P', 'A','R', 'R','R']
+      },
+      {
+        id: 'r8', roman: 'VIII', ebook: 'EBOOK III', shortTitle: 'Ritmo VIII — Tanguillos', scoreTitle: 'Compás de 6/8 - VIII - Tanguillos',
+        palos: 'Tanguillos de Cádiz.', timeSignature: '6/8', bpmRange: { min: 65, max: 120, default: 85 }, has12CountToggle: false,
+        countsPhon: ['1', '2', '1', '2'], countsTrad: ['1', '2', '1', '2'],
+        clockAccents: [0, 1, 2, 3], stepsPerBeat: 3, videoUrl: "https://youtu.be/OWfJ0ujVU8c?si=aRw1DQTpQz17vZgz", videoEmbedUrl: "https://www.youtube.com/embed/OWfJ0ujVU8c",
+        steps: ['R','A','P', 'P','A','R', 'R','A','P', 'P','A','R']
+      }
+    ];
+
+    let state = {
+      userProfile: null, rhythmIndex: 0, bpm: 92, isPlaying: false, currentStep: -1, cycleCount: 1,
+      countMode: 'phonetic', palmaTone: 'secas', viewMode: 'split', isPro: false, isCountInActive: true, wakeLock: null,
+      trainer: { enabled: false, stepBpm: 5, everyCycles: 4, maxBpm: 180 }
+    };
+
+    let audioCtx = null, schedulerTimer = null, nextNoteTime = 0, scheduledStep = 0;
+    const visualQueue = [];
+
+    function initAudio() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContextClass();
+      }
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function playFlamencoPalma(time, isAccent) {
+      const isSeca = (state.palmaTone === 'secas');
+      const microClaps = [0, 0.005, 0.010];
+      microClaps.forEach((offset, idx) => {
+        const dur = isSeca ? 0.068 : 0.088;
+        const bufferSize = Math.floor(audioCtx.sampleRate * dur);
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        const decayRate = isSeca ? 0.011 : 0.019;
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (audioCtx.sampleRate * decayRate));
+        }
+        const src = audioCtx.createBufferSource();
+        src.buffer = buffer;
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(isSeca ? (isAccent ? 1850 : 1400) : (isAccent ? 940 : 750), time + offset);
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime((isAccent ? 0.95 : 0.45) / (idx * 0.45 + 1), time + offset);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + offset + dur);
+        src.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+        src.start(time + offset);
+      });
+    }
+
+    function getStepDurationSeconds() {
+      const rhythm = RHYTHMS_DATA[state.rhythmIndex];
+      return (60.0 / state.bpm) / rhythm.stepsPerBeat;
+    }
+
+    function scheduleStepAudio(stepIdx, time) {
+      const rhythm = RHYTHMS_DATA[state.rhythmIndex];
+      const hit = rhythm.steps[stepIdx];
+      if (hit === 'A') playFlamencoPalma(time, true);
+      else if (hit === 'P') playFlamencoPalma(time, false);
+      visualQueue.push({ step: stepIdx, time: time });
+    }
+
+    async function requestWakeLock() {
+      if ('wakeLock' in navigator) {
+        try { state.wakeLock = await navigator.wakeLock.request('screen'); } catch (err) {}
+      }
+    }
+
+    function releaseWakeLock() {
+      if (state.wakeLock) { state.wakeLock.release().then(() => { state.wakeLock = null; }); }
+    }
+
+    function toggleCountIn() {
+      state.isCountInActive = !state.isCountInActive;
+      const btn = document.getElementById('countInBtn');
+      btn.className = state.isCountInActive ? "text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded transition text-white bg-flamencoBlue border border-flamencoBlue cursor-pointer" : "text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded transition bg-coverBg text-gray-400 border border-coverBorder cursor-pointer";
+    }
+
+    function speakText(text, callback) {
+      if (!('speechSynthesis' in window)) { if (callback) callback(); return; }
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'es-ES';
+      utterance.rate = state.bpm > 110 ? 1.6 : 1.1;
+      if (callback) { utterance.onend = callback; utterance.onerror = callback; }
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function startInteractiveCountIn() {
+      const rhythm = RHYTHMS_DATA[state.rhythmIndex];
+      let phrase = (rhythm.id === 'r2' || rhythm.id === 'r6' || rhythm.id === 'r7') ? "Un, dos, tres, cuatro." : ((rhythm.id === 'r8') ? "Un, dos." : "Un, dos, tres.");
+      document.getElementById('clockCenterCount').textContent = "🎤";
+      document.getElementById('clockCenterHit').textContent = "CUENTA";
+      speakText(phrase, launchSchedulerAfterCount);
+    }
+
+    function launchSchedulerAfterCount() {
+      if (!state.isPlaying) return;
+      document.getElementById('clockCenterCount').textContent = "1";
+      document.getElementById('clockCenterHit').textContent = "EMPIEZA";
+      scheduledStep = 0; visualQueue.length = 0;
+      nextNoteTime = audioCtx.currentTime + 0.05;
+      schedulerTimer = setInterval(schedulerTick, 25);
+      requestAnimationFrame(renderLoop);
+    }
+
+    function schedulerTick() {
+      const rhythm = RHYTHMS_DATA[state.rhythmIndex];
+      const totalSteps = rhythm.steps.length;
+      while (nextNoteTime < audioCtx.currentTime + 0.1) {
+        scheduleStepAudio(scheduledStep, nextNoteTime);
+        nextNoteTime += getStepDurationSeconds();
+        scheduledStep++;
+        if (scheduledStep >= totalSteps) {
+          scheduledStep = 0;
+          setTimeout(() => {
+            if (!state.isPlaying) return;
+            state.cycleCount++;
+            document.getElementById('cycleCounterBadge').textContent = `Vuelta: ${state.cycleCount}`;
+            if (state.isPro && state.trainer.enabled && (state.cycleCount - 1) % state.trainer.everyCycles === 0) {
+              setBpm(Math.min(state.trainer.maxBpm, state.bpm + state.trainer.stepBpm));
+            }
+          }, 60);
+        }
+      }
+    }
+
+    function renderLoop() {
+      if (!state.isPlaying) return;
+      const currentTime = audioCtx.currentTime;
+      while (visualQueue.length && visualQueue[0].time <= currentTime + 0.015) {
+        const evt = visualQueue.shift();
+        if (state.currentStep !== evt.step) {
+          state.currentStep = evt.step;
+          highlightActiveStep(evt.step);
+        }
+      }
+      requestAnimationFrame(renderLoop);
+    }
+
+    function togglePlay() {
+      initAudio();
+      state.isPlaying = !state.isPlaying;
+      const playIcon = document.getElementById('playIcon');
+      const stopIcon = document.getElementById('stopIcon');
+
+      if (state.isPlaying) {
+        playIcon.classList.add('hidden'); stopIcon.classList.remove('hidden');
+        state.cycleCount = 1; document.getElementById('cycleCounterBadge').textContent = 'Vuelta: 1';
+        requestWakeLock();
+        if (state.isCountInActive) startInteractiveCountIn();
+        else launchSchedulerAfterCount();
+      } else {
+        playIcon.classList.remove('hidden'); stopIcon.classList.add('hidden');
+        clearInterval(schedulerTimer); releaseWakeLock();
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        state.currentStep = -1; clearStepHighlights();
+      }
+    }
+
+    function previewBeatGroup(startStep, length) {
+      initAudio();
+      const now = audioCtx.currentTime;
+      const stepDur = getStepDurationSeconds();
+      for (let i = 0; i < length; i++) {
+        scheduleStepAudio(startStep + i, now + i * stepDur);
+      }
+      highlightActiveStep(startStep);
+    }
+
+    function scrollStepIntoView(stepIdx) {
+      const beatBox = document.getElementById(`beatBox-${stepIdx}`);
+      if (beatBox) beatBox.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
+
+    // Funciones de representación SVG y partitura
+    function getActiveCounts(rhythm) {
+      return (rhythm.has12CountToggle && state.countMode === 'traditional') ? rhythm.countsTrad : rhythm.countsPhon;
+    }
+
+    function svgClefAndTimeSig(num, den, includeClef = true) {
+      return `<svg viewBox="0 0 38 92" class="w-9 h-22 shrink-0 overflow-visible"><line x1="0" y1="54" x2="38" y2="54" stroke="#000000" stroke-width="1.3"/>${includeClef ? '<rect x="6" y="46" width="2.8" height="16" fill="#000000"/><rect x="11.5" y="46" width="2.8" height="16" fill="#000000"/>' : ''}<text x="26" y="51" text-anchor="middle" font-family="Lora, serif" font-size="18" font-weight="700" fill="#000000">${num}</text><text x="26" y="68" text-anchor="middle" font-family="Lora, serif" font-size="18" font-weight="700" fill="#000000">${den}</text></svg>`;
+    }
+
+    function svgBarline(isFinal = false) {
+      return `<svg viewBox="0 0 16 92" class="w-4 h-22 shrink-0 overflow-visible"><line x1="0" y1="54" x2="16" y2="54" stroke="#000000" stroke-width="1.3"/>${isFinal ? '<line x1="9" y1="36" x2="9" y2="72" stroke="#000000" stroke-width="1.4"/><line x1="13.5" y1="36" x2="13.5" y2="72" stroke="#000000" stroke-width="3.2"/>' : '<line x1="8" y1="36" x2="8" y2="72" stroke="#000000" stroke-width="1.5"/>'}</svg>`;
+    }
+
+    function svgQuarterNote(stepIdx, label, accent = false) {
+      return `<div id="beatBox-${stepIdx}" onclick="previewBeatGroup(${stepIdx}, 1)" class="beat-group cursor-pointer shrink-0"><svg viewBox="0 0 48 92" class="w-11 sm:w-12 h-22 overflow-visible"><line x1="0" y1="54" x2="48" y2="54" stroke="#000000" stroke-width="1.3"/>${label ? `<text x="24" y="20" text-anchor="middle" font-family="Lora, serif" font-size="14" font-weight="600" fill="#000000">${label}</text>` : ''}<ellipse id="noteStep-${stepIdx}" cx="24" cy="54" rx="5.4" ry="4" transform="rotate(-18 24 54)" fill="#000000"/><line x1="28.5" y1="54" x2="28.5" y2="25" stroke="#000000" stroke-width="1.5"/>${accent ? '<text x="24" y="75" text-anchor="middle" font-family="Lora, serif" font-size="15" font-weight="700" fill="#000000">&gt;</text>' : ''}</svg></div>`;
+    }
+
+    function svgQuarterRest(stepIdx, label) {
+      return `<div id="beatBox-${stepIdx}" onclick="previewBeatGroup(${stepIdx}, 1)" class="beat-group cursor-pointer shrink-0"><svg viewBox="0 0 48 92" class="w-11 sm:w-12 h-22 overflow-visible"><line x1="0" y1="54" x2="48" y2="54" stroke="#000000" stroke-width="1.3"/>${label ? `<text x="24" y="20" text-anchor="middle" font-family="Lora, serif" font-size="14" font-weight="600" fill="#000000">${label}</text>` : ''}<path id="noteStep-${stepIdx}" d="M 22 43 L 27 49 L 22 54 L 27 60 Q 22 61 21 65" stroke="#000000" stroke-width="1.8" fill="none"/></svg></div>`;
+    }
+
+    function svgTwoBeamedEighths(step1, step2, label1, label2 = '', accent1 = false, accent2 = false) {
+      return `<div id="beatBox-${step1}" onclick="previewBeatGroup(${step1}, 2)" class="beat-group cursor-pointer shrink-0"><svg viewBox="0 0 60 92" class="w-14 sm:w-15 h-22 overflow-visible"><line x1="0" y1="54" x2="60" y2="54" stroke="#000000" stroke-width="1.3"/>${label1 ? `<text x="18" y="20" text-anchor="middle" font-family="Lora, serif" font-size="14" font-weight="600" fill="#000000">${label1}</text>` : ''}${label2 ? `<text x="42" y="20" text-anchor="middle" font-family="Lora, serif" font-size="14" font-weight="600" fill="#000000">${label2}</text>` : ''}<ellipse id="noteStep-${step1}" cx="18" cy="54" rx="5" ry="3.8" transform="rotate(-18 18 54)" fill="#000000"/><line x1="22.5" y1="54" x2="22.5" y2="26" stroke="#000000" stroke-width="1.5"/><ellipse id="noteStep-${step2}" cx="42" cy="54" rx="5" ry="3.8" transform="rotate(-18 42 54)" fill="#000000"/><line x1="46.5" y1="54" x2="46.5" y2="26" stroke="#000000" stroke-width="1.5"/><rect x="21.8" y="25" width="25.4" height="3.8" fill="#000000"/>${accent1 ? '<text x="18" y="75" text-anchor="middle" font-family="Lora, serif" font-size="15" font-weight="700" fill="#000000">&gt;</text>' : ''}${accent2 ? '<text x="42" y="75" text-anchor="middle" font-family="Lora, serif" font-size="15" font-weight="700" fill="#000000">&gt;</text>' : ''}</svg></div>`;
+    }
+
+    function svgEighthRestAndEighth(stepRest, stepNote, label1, label2 = '', accentNote = false) {
+      return `<div id="beatBox-${stepRest}" onclick="previewBeatGroup(${stepRest}, 2)" class="beat-group cursor-pointer shrink-0"><svg viewBox="0 0 60 92" class="w-14 sm:w-15 h-22 overflow-visible"><line x1="0" y1="54" x2="60" y2="54" stroke="#000000" stroke-width="1.3"/>${label1 ? `<text x="16" y="20" text-anchor="middle" font-family="Lora, serif" font-size="14" font-weight="600" fill="#000000">${label1}</text>` : ''}${label2 ? `<text x="40" y="20" text-anchor="middle" font-family="Lora, serif" font-size="14" font-weight="600" fill="#000000">${label2}</text>` : ''}<circle cx="15" cy="50" r="2" fill="#000000"/><path d="M 16 50 Q 20 51 17 61" stroke="#000000" stroke-width="1.5" fill="none"/><ellipse id="noteStep-${stepNote}" cx="40" cy="54" rx="5" ry="3.8" transform="rotate(-18 40 54)" fill="#000000"/><line x1="44.5" y1="54" x2="44.5" y2="25" stroke="#000000" stroke-width="1.5"/><path d="M 44.5 25 Q 52 31 49 41" stroke="#000000" stroke-width="1.6" fill="none"/>${accentNote ? '<text x="40" y="75" text-anchor="middle" font-family="Lora, serif" font-size="15" font-weight="700" fill="#000000">&gt;</text>' : ''}</svg></div>`;
+    }
+
+    function svgDottedEighthAndSixteenth(stepStart, label1, label2) {
+      const stepSixteenth = stepStart + 3;
+      return `<div id="beatBox-${stepStart}" onclick="previewBeatGroup(${stepStart}, 4)" class="beat-group cursor-pointer shrink-0"><svg viewBox="0 0 64 92" class="w-15 sm:w-16 h-22 overflow-visible"><line x1="0" y1="54" x2="64" y2="54" stroke="#000000" stroke-width="1.3"/><text x="16" y="20" text-anchor="middle" font-family="Lora, serif" font-size="14" font-weight="600" fill="#000000">${label1}</text><text x="44" y="20" text-anchor="middle" font-family="Lora, serif" font-size="14" font-weight="600" fill="#000000">${label2}</text><ellipse id="noteStep-${stepStart}" cx="16" cy="54" rx="5" ry="3.8" transform="rotate(-18 16 54)" fill="#000000"/><circle cx="24.5" cy="51" r="1.8" fill="#000000"/><line x1="20.5" y1="54" x2="20.5" y2="26" stroke="#000000" stroke-width="1.5"/><ellipse id="noteStep-${stepSixteenth}" cx="46" cy="54" rx="5" ry="3.8" transform="rotate(-18 46 54)" fill="#000000"/><line x1="50.5" y1="54" x2="50.5" y2="26" stroke="#000000" stroke-width="1.5"/><rect x="19.8" y="25" width="31.4" height="3.6" fill="#000000"/><rect x="41.2" y="31" width="10" height="3.2" fill="#000000"/><text x="16" y="75" text-anchor="middle" font-family="Lora, serif" font-size="15" font-weight="700" fill="#000000">&gt;</text></svg></div>`;
+    }
+
+    function svgTanguilloBeat1(stepStart, label) {
+      return `<div id="beatBox-${stepStart}" onclick="previewBeatGroup(${stepStart}, 3)" class="beat-group cursor-pointer shrink-0"><svg viewBox="0 0 82 92" class="w-20 h-22 overflow-visible"><line x1="0" y1="54" x2="82" y2="54" stroke="#000000" stroke-width="1.3"/><text x="15" y="20" text-anchor="middle" font-family="Lora, serif" font-size="14" font-weight="600" fill="#000000">${label}</text><circle cx="14" cy="50" r="2" fill="#000000"/><path d="M 15 50 Q 19 51 16 61" stroke="#000000" stroke-width="1.5" fill="none"/><ellipse id="noteStep-${stepStart + 1}" cx="42" cy="54" rx="5" ry="3.8" transform="rotate(-18 42 54)" fill="#000000"/><line x1="46.5" y1="54" x2="46.5" y2="26" stroke="#000000" stroke-width="1.5"/><ellipse id="noteStep-${stepStart + 2}" cx="66" cy="54" rx="5" ry="3.8" transform="rotate(-18 66 54)" fill="#000000"/><line x1="70.5" y1="54" x2="70.5" y2="26" stroke="#000000" stroke-width="1.5"/><rect x="45.8" y="25" width="25.4" height="3.6" fill="#000000"/><text x="42" y="75" text-anchor="middle" font-family="Lora, serif" font-size="15" font-weight="700" fill="#000000">&gt;</text></svg></div>`;
+    }
+
+    function svgTanguilloBeat2(stepStart, label) {
+      return `<div id="beatBox-${stepStart}" onclick="previewBeatGroup(${stepStart}, 3)" class="beat-group cursor-pointer shrink-0"><svg viewBox="0 0 82 92" class="w-20 h-22 overflow-visible"><line x1="0" y1="54" x2="82" y2="54" stroke="#000000" stroke-width="1.3"/><text x="18" y="20" text-anchor="middle" font-family="Lora, serif" font-size="14" font-weight="600" fill="#000000">${label}</text><ellipse id="noteStep-${stepStart}" cx="18" cy="54" rx="5" ry="3.8" transform="rotate(-18 18 54)" fill="#000000"/><line x1="22.5" y1="54" x2="22.5" y2="26" stroke="#000000" stroke-width="1.5"/><ellipse id="noteStep-${stepStart + 1}" cx="42" cy="54" rx="5" ry="3.8" transform="rotate(-18 42 54)" fill="#000000"/><line x1="46.5" y1="54" x2="46.5" y2="26" stroke="#000000" stroke-width="1.5"/><rect x="21.8" y="25" width="25.4" height="3.6" fill="#000000"/><text x="42" y="75" text-anchor="middle" font-family="Lora, serif" font-size="15" font-weight="700" fill="#000000">&gt;</text><circle cx="66" cy="50" r="2" fill="#000000"/><path d="M 67 50 Q 71 51 68 61" stroke="#000000" stroke-width="1.5" fill="none"/></svg></div>`;
+    }
+
+    function renderMonogramScore() {
+      const rhythm = RHYTHMS_DATA[state.rhythmIndex];
+      const c = getActiveCounts(rhythm);
+      const container = document.getElementById('monogramSheetContainer');
+
+      let html = `<div class="flex flex-row items-center flex-nowrap min-w-max">`;
+
+      if (rhythm.id === 'r1') {
+        html += svgClefAndTimeSig('3', '4', true) + svgQuarterNote(0, c[0], false) + svgEighthRestAndEighth(2, 3, c[1], '', false) + svgQuarterNote(4, c[2], false) + svgBarline(false) + svgQuarterNote(6, c[3], false) + svgQuarterNote(8, c[4], false) + svgQuarterNote(10, c[5], false) + svgBarline(false) + svgQuarterNote(12, c[6], false) + svgTwoBeamedEighths(14, 15, c[7], '', false, false) + svgQuarterNote(16, c[8], false) + svgBarline(false) + svgTwoBeamedEighths(18, 19, c[9], '', false, false) + svgQuarterNote(20, c[10], false) + svgQuarterNote(22, c[11], false) + svgBarline(true);
+      } else if (rhythm.id === 'r2') {
+        html += svgClefAndTimeSig('2', '4', true) + svgQuarterNote(0, '1', true) + svgTwoBeamedEighths(2, 3, '', '', false, false) + svgBarline(false) + svgQuarterNote(4, '2', true) + svgTwoBeamedEighths(6, 7, '', '', false, false) + svgBarline(false) + svgClefAndTimeSig('3', '4', false) + svgQuarterNote(8, '3', true) + svgEighthRestAndEighth(10, 11, '', '', false) + svgQuarterNote(12, '', false) + svgBarline(false) + svgQuarterNote(14, '4', true) + svgEighthRestAndEighth(16, 17, '', '', false) + svgQuarterNote(18, '', false) + svgBarline(false) + svgClefAndTimeSig('2', '4', false) + svgQuarterNote(20, '5', true) + svgTwoBeamedEighths(22, 23, '', '', false, false) + svgBarline(true);
+      } else if (rhythm.id === 'r3') {
+        html += svgClefAndTimeSig('3', '4', true) + svgEighthRestAndEighth(0, 1, c[0], c[1], true) + svgTwoBeamedEighths(2, 3, c[2], c[3], false, true) + svgTwoBeamedEighths(4, 5, c[4], c[5], false, false) + svgBarline(false) + svgEighthRestAndEighth(6, 7, c[6], c[7], true) + svgTwoBeamedEighths(8, 9, c[8], c[9], false, true) + svgTwoBeamedEighths(10, 11, c[10], c[11], false, false) + svgBarline(true);
+      } else if (rhythm.id === 'r4') {
+        html += svgClefAndTimeSig('3', '4', true) + svgDottedEighthAndSixteenth(0, c[0], c[1]) + svgDottedEighthAndSixteenth(4, c[2], c[3]) + svgTwoBeamedEighths(8, 10, c[4], c[5], true, true) + svgBarline(false) + svgDottedEighthAndSixteenth(12, c[6], c[7]) + svgDottedEighthAndSixteenth(16, c[8], c[9]) + svgTwoBeamedEighths(20, 22, c[10], c[11], true, true) + svgBarline(true);
+      } else if (rhythm.id === 'r5') {
+        html += svgClefAndTimeSig('3', '4', true) + svgQuarterNote(0, '1', true) + svgQuarterNote(1, '2', false) + svgQuarterNote(2, '3', false) + svgBarline(false) + svgQuarterNote(3, '1', true) + svgQuarterNote(4, '2', false) + svgQuarterNote(5, '3', false) + svgBarline(false) + svgQuarterNote(6, '1', true) + svgQuarterNote(7, '2', false) + svgQuarterNote(8, '3', false) + svgBarline(false) + svgQuarterNote(9, '1', true) + svgQuarterNote(10, '2', true) + svgQuarterRest(11, '3') + svgBarline(true);
+      } else if (rhythm.id === 'r6') {
+        html += svgClefAndTimeSig('4', '4', true) + svgQuarterRest(0, '1') + svgTwoBeamedEighths(2, 3, '2', '', true, false) + svgQuarterNote(4, '3', false) + svgQuarterNote(6, '4', true) + svgBarline(false) + svgQuarterRest(8, '1') + svgTwoBeamedEighths(10, 11, '2', '', true, false) + svgQuarterNote(12, '3', false) + svgQuarterNote(14, '4', true) + svgBarline(true);
+      } else if (rhythm.id === 'r7') {
+        html += svgClefAndTimeSig('4', '4', true) + svgQuarterNote(0, '1', false) + svgEighthRestAndEighth(2, 3, '2', 'y', false) + svgQuarterNote(4, '3', false) + svgQuarterRest(6, '4') + svgBarline(false) + svgQuarterNote(8, '1', false) + svgEighthRestAndEighth(10, 11, '2', 'y', false) + svgQuarterNote(12, '3', false) + svgQuarterRest(14, '4') + svgBarline(true);
+      } else if (rhythm.id === 'r8') {
+        html += svgClefAndTimeSig('6', '8', true) + svgTanguilloBeat1(0, '1') + svgTanguilloBeat2(3, '2') + svgBarline(false) + svgTanguilloBeat1(6, '1') + svgTanguilloBeat2(9, '2') + svgBarline(true);
+      }
+
+      html += `</div>`;
+      container.innerHTML = html;
+    }
+
+    function renderFlamencoClock() {
+      const rhythm = RHYTHMS_DATA[state.rhythmIndex];
+      const counts = getActiveCounts(rhythm);
+      const totalBeats = counts.length;
+      const svg = document.getElementById('flamencoClockSvg');
+      const cx = 130, cy = 130, r = 98;
+
+      let html = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#2B2E42" stroke-width="2.5" /><circle cx="${cx}" cy="${cy}" r="${r - 24}" fill="none" stroke="#0B5596" stroke-width="1" stroke-dasharray="3 3" opacity="0.6" />`;
+
+      for (let i = 0; i < totalBeats; i++) {
+        const angle = (i / totalBeats) * (2 * Math.PI) - Math.PI / 2;
+        const x = cx + r * Math.cos(angle);
+        const y = cy + r * Math.sin(angle);
+        const isAccent = rhythm.clockAccents.includes(i);
+        const label = counts[i];
+        const nodeRadius = isAccent ? 15 : 12;
+        const fill = isAccent ? '#14151F' : '#1C1E2C';
+        const stroke = isAccent ? '#C83214' : '#1874C4';
+        const strokeWidth = isAccent ? '2.8' : '1.8';
+
+        html += `<g id="clockBeat-${i}"><circle id="clockCircle-${i}" cx="${x}" cy="${y}" r="${nodeRadius}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}" /><text id="clockText-${i}" x="${x}" y="${y + 4}" text-anchor="middle" font-family="Lora, serif" font-size="12" font-weight="700" fill="#FFFFFF">${label}</text></g>`;
+      }
+      svg.innerHTML = html;
+    }
+
+    function clearStepHighlights() {
+      document.querySelectorAll('.beat-group').forEach(el => el.classList.remove('active-beat'));
+      document.querySelectorAll('[id^="noteStep-"]').forEach(el => el.classList.remove('note-active'));
+      const rhythm = RHYTHMS_DATA[state.rhythmIndex];
+      const counts = getActiveCounts(rhythm);
+      for (let i = 0; i < counts.length; i++) {
+        const isAccent = rhythm.clockAccents.includes(i);
+        const circle = document.getElementById(`clockCircle-${i}`);
+        if (circle) circle.setAttribute('fill', isAccent ? '#14151F' : '#1C1E2C');
+      }
+      document.getElementById('clockCenterCount').textContent = '—';
+      document.getElementById('clockCenterHit').textContent = 'PALMAS';
+    }
+
+    function highlightActiveStep(stepIdx) {
+      const rhythm = RHYTHMS_DATA[state.rhythmIndex];
+      const counts = getActiveCounts(rhythm);
+      const beatIdx = Math.floor(stepIdx / rhythm.stepsPerBeat);
+
+      document.querySelectorAll('[id^="noteStep-"]').forEach(el => el.classList.remove('note-active'));
+      const noteEl = document.getElementById(`noteStep-${stepIdx}`);
+      if (noteEl) { noteEl.classList.add('note-active'); scrollStepIntoView(stepIdx); }
+
+      document.querySelectorAll('.beat-group').forEach(el => el.classList.remove('active-beat'));
+      for (let s = stepIdx; s >= 0; s--) {
+        const box = document.getElementById(`beatBox-${s}`);
+        if (box) { box.classList.add('active-beat'); break; }
+      }
+
+      for (let i = 0; i < counts.length; i++) {
+        const isAccent = rhythm.clockAccents.includes(i);
+        const circle = document.getElementById(`clockCircle-${i}`);
+        if (!circle) continue;
+        if (i === beatIdx) circle.setAttribute('fill', isAccent ? '#C83214' : '#0B5596');
+        else circle.setAttribute('fill', isAccent ? '#14151F' : '#1C1E2C');
+      }
+
+      const hit = rhythm.steps[stepIdx];
+      document.getElementById('clockCenterCount').textContent = counts[beatIdx] || '';
+      document.getElementById('clockCenterHit').textContent = hit === 'A' ? 'ACENTO (>)' : (hit === 'P' ? 'PALMA' : 'SILENCIO');
+    }
+
+    // ============================================================================
+    // GESTIÓN DE PERFILES Y REGISTRO EN FIRESTORE
+    // ============================================================================
+    function checkUserProfile() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const accesoParam = urlParams.get('acceso');
+      if (accesoParam && APP_CONFIG.proSecretCodes.includes(accesoParam.toUpperCase())) {
+        localStorage.setItem('hispanapp_pro', 'true');
+        localStorage.setItem('hispanapp_registered', 'true');
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
+      const profileRaw = localStorage.getItem('hispanapp_user_profile');
+      const registered = localStorage.getItem('hispanapp_registered') === 'true';
+      const isPro = localStorage.getItem('hispanapp_pro') === 'true';
+      state.isPro = isPro;
+
+      if (profileRaw) {
+        state.userProfile = JSON.parse(profileRaw);
+        showReturningScreen();
+      } else if (registered) {
+        state.userProfile = { name: 'Compañero' };
+        showReturningScreen();
+      } else {
+        showFirstTimeForm();
+      }
+    }
+
+    function showFirstTimeForm() {
+      document.getElementById('welcomeSplashScreen').classList.remove('opacity-0', 'pointer-events-none');
+      document.getElementById('firstTimeForm').classList.remove('hidden');
+      document.getElementById('returningWelcome').classList.add('hidden');
+    }
+
+    function showReturningScreen() {
+      document.getElementById('welcomeSplashScreen').classList.remove('opacity-0', 'pointer-events-none');
+      document.getElementById('firstTimeForm').classList.add('hidden');
+      const returning = document.getElementById('returningWelcome');
+      returning.classList.remove('hidden');
+
+      const name = state.userProfile ? state.userProfile.name : "Compañero";
+      document.getElementById('welcomeReturningTitle').textContent = `¡Bienvenido de nuevo, ${name}!`;
+      document.getElementById('headerUserBadge').textContent = `👤 Hola, ${name}`;
+
+      const bar = document.getElementById('welcomeProgressBar');
+      const btn = document.getElementById('enterPracticingBtn');
+      setTimeout(() => {
+        bar.style.width = "100%";
+        setTimeout(() => { btn.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-2'); }, 350);
+      }, 100);
+    }
+
+    function saveUserProfile() {
+      const name = document.getElementById('registerName').value.trim();
+      const email = document.getElementById('registerEmail').value.trim();
+      const phone = document.getElementById('registerPhone').value.trim();
+
+      if (!name || !email || !phone) { alert("Por favor completa todos los campos."); return; }
+
+      const profile = { name, email, phone, createdAt: new Date().toISOString() };
+      localStorage.setItem('hispanapp_user_profile', JSON.stringify(profile));
+      localStorage.setItem('hispanapp_registered', 'true');
+      state.userProfile = profile;
+
+      // Guardar en Firestore Database
+      db.collection("leads").add(profile).catch((err) => console.error("Error guardando en Firebase: ", err));
+
+      speakText(`¡Hola ${name}! Vamos a compás.`);
+      enterPracticing();
+    }
+
+    function submitGateForm() {
+      const name = document.getElementById('gateName').value.trim();
+      const email = document.getElementById('gateEmail').value.trim();
+      const phone = document.getElementById('gatePhone').value.trim();
+      if (!name || !email) { alert("Por favor ingresa tu nombre y correo."); return; }
+      const profile = { name, email, phone, createdAt: new Date().toISOString(), source: 'gate_lead' };
+      localStorage.setItem('hispanapp_user_profile', JSON.stringify(profile));
+      localStorage.setItem('hispanapp_registered', 'true');
+      state.userProfile = profile;
+      db.collection("leads").add(profile).catch((err) => console.error("Error guardando en Firebase: ", err));
+      const gate = document.getElementById('gateModal');
+      if (gate) { gate.classList.add('hidden'); gate.classList.remove('flex'); }
+      document.getElementById('headerUserBadge').textContent = `👤 Hola, ${name}`;
+    }
+
+    function closeGateAndShowUnlock() {
+      const gate = document.getElementById('gateModal');
+      if (gate) { gate.classList.add('hidden'); gate.classList.remove('flex'); }
+      openPromoModal();
+    }
+
+    function enterPracticing() {
+      initAudio();
+      document.getElementById('welcomeSplashScreen').classList.add('opacity-0', 'pointer-events-none');
+      document.getElementById('headerUserBadge').textContent = `👤 Hola, ${state.userProfile ? state.userProfile.name : "Compañero"}`;
+      initSelectors();
+    }
+
+    function resetProfileForm() {
+      localStorage.removeItem('hispanapp_user_profile');
+      localStorage.removeItem('hispanapp_registered');
+      localStorage.removeItem('hispanapp_pro');
+      state.userProfile = null; state.isPro = false;
+      showFirstTimeForm();
+    }
+
+    function openProfileEdit() {
+      if (!state.userProfile) return;
+      document.getElementById('editProfileName').value = state.userProfile.name;
+      document.getElementById('editProfileEmail').value = state.userProfile.email || '';
+      document.getElementById('editProfilePhone').value = state.userProfile.phone || '';
+      document.getElementById('profileEditModal').classList.remove('hidden');
+      document.getElementById('profileEditModal').classList.add('flex');
+    }
+
+    function closeProfileEdit() {
+      document.getElementById('profileEditModal').classList.add('hidden');
+      document.getElementById('profileEditModal').classList.remove('flex');
+    }
+
+    function saveProfileEdit() {
+      const name = document.getElementById('editProfileName').value.trim();
+      const email = document.getElementById('editProfileEmail').value.trim();
+      const phone = document.getElementById('editProfilePhone').value.trim();
+      if (!name || !email || !phone) { alert("Todos los campos son obligatorios."); return; }
+      state.userProfile.name = name; state.userProfile.email = email; state.userProfile.phone = phone;
+      localStorage.setItem('hispanapp_user_profile', JSON.stringify(state.userProfile));
+      document.getElementById('headerUserBadge').textContent = `👤 Hola, ${name}`;
+      closeProfileEdit();
+    }
+
+    // Modal de Video / Pago PRO
+    function handleVideoRequest() {
+      if (!state.isPro) { openPromoModal(); return; }
+      const rhythm = RHYTHMS_DATA[state.rhythmIndex];
+      if (state.isPlaying) togglePlay();
+      document.getElementById('videoModalTitle').textContent = `Demostración de ${rhythm.scoreTitle}`;
+      document.getElementById('videoIframe').src = rhythm.videoEmbedUrl;
+      document.getElementById('videoDirectBtn').href = rhythm.videoUrl;
+      const modal = document.getElementById('videoModal');
+      modal.classList.remove('hidden'); modal.classList.add('flex');
+    }
+
+    function closeVideoModal() {
+      const modal = document.getElementById('videoModal');
+      modal.classList.add('hidden'); modal.classList.remove('flex');
+      document.getElementById('videoIframe').src = "";
+    }
+
+    function openEbooksInHotmart() { window.open(APP_CONFIG.hotmartPackUrl, '_blank'); }
+    function openEbooksInStore() { window.open(APP_CONFIG.hotmartPackUrl, '_blank'); }
+
+    function toggleMethodModal() {
+      const modal = document.getElementById('methodModal');
+      modal.classList.toggle('hidden'); modal.classList.toggle('flex');
+      const status = document.getElementById('methodAccountStatus');
+      if (state.isPro) { status.textContent = "Acceso Alumno PRO Activo 🎉"; status.className = "font-serif font-bold text-flamencoRed mt-0.5"; }
+      else { status.textContent = "Versión Gratuita (Ritmos I y VI)"; status.className = "font-serif font-bold text-gray-400 mt-0.5"; }
+    }
+
+    function openPromoModal() {
+      const modal = document.getElementById('promoModal');
+      modal.classList.remove('hidden'); modal.classList.add('flex');
+    }
+
+    function openPromoFromRegister() { openPromoModal(); }
+    function closePromoModal() {
+      const modal = document.getElementById('promoModal');
+      modal.classList.add('hidden'); modal.classList.remove('flex');
+    }
+
+    function validatePromoCode() {
+      const code = document.getElementById('promoCodeInput').value.trim().toUpperCase();
+      if (APP_CONFIG.proSecretCodes.includes(code)) {
+        localStorage.setItem('hispanapp_pro', 'true');
+        state.isPro = true;
+        document.getElementById('promoErrorMessage').classList.add('hidden');
+        closePromoModal();
+        alert("¡Felicidades! Acceso PRO de Alumno Activado Exitosamente.");
+        location.reload();
+      } else {
+        document.getElementById('promoErrorMessage').classList.remove('hidden');
+      }
+    }
+
+    // Selectores y render
+    function initSelectors() {
+      const select = document.getElementById('rhythmSelect');
+      select.innerHTML = RHYTHMS_DATA.map((r, idx) => {
+        const isFree = (idx === 0 || idx === 5);
+        const lockLabel = (!state.isPro && !isFree) ? ' 🔒 (PRO)' : '';
+        return `<option value="${idx}">${r.shortTitle}${lockLabel}</option>`;
+      }).join('');
+      renderRhythmPills();
+      onRhythmSelect(0);
+    }
+
+    function renderRhythmPills() {
+      const container = document.getElementById('rhythmPillsContainer');
+      container.innerHTML = RHYTHMS_DATA.map((r, idx) => {
+        const active = (idx === state.rhythmIndex);
+        const isFree = (idx === 0 || idx === 5);
+        const isLocked = !state.isPro && !isFree;
+        return `<button onclick="onRhythmSelect(${idx})" class="px-2.5 py-1 rounded-lg font-serif text-xs font-bold border transition shrink-0 cursor-pointer ${active ? 'bg-flamencoRed text-white border-flamencoRed shadow-sm' : 'bg-coverBg text-gray-300 border-coverBorder hover:border-flamencoBlue'}">${r.roman}${isLocked ? ' 🔒' : ''}</button>`;
+      }).join('');
+    }
+
+    function onRhythmSelect(index) {
+      const rIdx = parseInt(index, 10);
+      const isPro = localStorage.getItem('hispanapp_pro') === 'true';
+
+      // En la versión libre solo están disponibles el ritmo I (0) y VI (5)
+      const isFree = (rIdx === 0 || rIdx === 5);
+      if (!isPro && !isFree) {
+        document.getElementById('rhythmSelect').value = state.rhythmIndex;
+        openPromoModal();
+        return;
+      }
+
+      state.rhythmIndex = rIdx;
+      document.getElementById('rhythmSelect').value = rIdx;
+      renderRhythmPills();
+
+      const rhythm = RHYTHMS_DATA[rIdx];
+      document.getElementById('scoreBadgeTitle').textContent = rhythm.scoreTitle;
+      document.getElementById('palosFullList').textContent = rhythm.palos;
+      document.getElementById('bpmRecommendedBadge').textContent = `${rhythm.bpmRange.min}–${rhythm.bpmRange.max} BPM`;
+      document.getElementById('bannerContextTitle').textContent = `📘 Aprende todos los patrones de cajón, variaciones y cierres con el Pack Completo (${rhythm.ebook}) →`;
+
+      setBpm(rhythm.bpmRange.default);
+
+      const countContainer = document.getElementById('countModeContainer');
+      if (rhythm.has12CountToggle) countContainer.classList.remove('hidden');
+      else countContainer.classList.add('hidden');
+
+      scheduledStep = 0;
+      renderFlamencoClock();
+      renderMonogramScore();
+    }
+
+    function setCountMode(mode) {
+      state.countMode = mode;
+      document.getElementById('countBtn-phon').className = mode === 'phonetic' ? 'px-2 py-0.5 rounded text-[11px] font-serif font-bold bg-flamencoRed text-white cursor-pointer' : 'px-2 py-0.5 rounded text-[11px] font-serif text-gray-400 cursor-pointer';
+      document.getElementById('countBtn-trad').className = mode === 'traditional' ? 'px-2 py-0.5 rounded text-[11px] font-serif font-bold bg-flamencoRed text-white cursor-pointer' : 'px-2 py-0.5 rounded text-[11px] font-serif text-gray-400 cursor-pointer';
+      renderFlamencoClock();
+      renderMonogramScore();
+    }
+
+    function setPalmaTone(tone) {
+      state.palmaTone = tone;
+      document.getElementById('toneBtn-secas').className = tone === 'secas' ? 'px-2 py-0.5 rounded text-[11px] font-semibold bg-flamencoBlue text-white cursor-pointer' : 'px-2 py-0.5 rounded text-[11px] font-medium text-gray-400 cursor-pointer';
+      document.getElementById('toneBtn-sordas').className = tone === 'sordas' ? 'px-2 py-0.5 rounded text-[11px] font-semibold bg-flamencoBlue text-white cursor-pointer' : 'px-2 py-0.5 rounded text-[11px] font-medium text-gray-400 cursor-pointer';
+    }
+
+    function setViewMode(mode) {
+      state.viewMode = mode;
+      const clockPanel = document.getElementById('clockPanel');
+      const staffPanel = document.getElementById('staffPanel');
+      ['split', 'staff', 'clock'].forEach(m => {
+        const btn = document.getElementById(`viewBtn-${m}`);
+        if (btn) btn.className = (m === mode) ? 'flex-1 py-1.5 rounded-lg font-semibold bg-flamencoBlue text-white transition cursor-pointer' : 'flex-1 py-1.5 rounded-lg font-medium text-gray-400 hover:text-white transition cursor-pointer';
+      });
+      if (mode === 'split') { staffPanel.className = 'lg:col-span-7 bg-coverCard rounded-xl border border-coverBorder p-4 shadow-lg space-y-3 overflow-hidden'; clockPanel.className = 'lg:col-span-5 bg-coverCard rounded-xl border border-coverBorder p-4 shadow-lg flex flex-col items-center'; }
+      else if (mode === 'staff') { staffPanel.className = 'lg:col-span-12 bg-coverCard rounded-xl border border-coverBorder p-4 shadow-lg space-y-3 overflow-hidden'; clockPanel.className = 'hidden'; }
+      else if (mode === 'clock') { staffPanel.className = 'hidden'; clockPanel.className = 'lg:col-span-12 bg-coverCard rounded-xl border border-coverBorder p-4 shadow-lg flex flex-col items-center'; }
+    }
+
+    function setBpm(val) {
+      const clamped = Math.max(35, Math.min(250, parseInt(val, 10) || 90));
+      state.bpm = clamped;
+      document.getElementById('bpmValueDisplay').textContent = clamped;
+      document.getElementById('bpmSlider').value = clamped;
+    }
+
+    function adjustBpm(delta) { setBpm(state.bpm + delta); }
+
+    let tapTimes = [];
+    function handleTapTempo() {
+      initAudio();
+      playFlamencoPalma(audioCtx.currentTime, false);
+      const now = performance.now();
+      if (tapTimes.length > 0 && now - tapTimes[tapTimes.length - 1] > 2200) tapTimes = [];
+      tapTimes.push(now);
+      if (tapTimes.length > 4) tapTimes.shift();
+      if (tapTimes.length >= 2) {
+        let intervals = 0;
+        for (let i = 1; i < tapTimes.length; i++) intervals += (tapTimes[i] - tapTimes[i - 1]);
+        setBpm(Math.round(60000 / (intervals / (tapTimes.length - 1))));
+      }
+    }
+
+    function toggleTrainerModal() {
+      if (!state.isPro) { openPromoModal(); return; }
+      const modal = document.getElementById('trainerModal');
+      modal.classList.toggle('hidden'); modal.classList.toggle('flex');
+    }
+
+    function updateTrainerConfig() {
+      state.trainer.enabled = document.getElementById('trainerEnabledCheck').checked;
+      state.trainer.stepBpm = parseInt(document.getElementById('trainerStepBpm').value, 10) || 5;
+      state.trainer.everyCycles = parseInt(document.getElementById('trainerEveryCycles').value, 10) || 4;
+      state.trainer.maxBpm = parseInt(document.getElementById('trainerMaxBpm').value, 10) || 180;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => { checkUserProfile(); });
+  </script>
+</body>
+</html>
