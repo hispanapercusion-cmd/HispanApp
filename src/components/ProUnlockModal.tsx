@@ -2,38 +2,42 @@ import React, { useState } from 'react';
 import { X, ExternalLink, Sparkles, AlertCircle, MessageCircle } from 'lucide-react';
 import { HispanaLogo } from './HispanaLogo';
 import { APP_CONFIG } from '../config';
+import { ProCheckResult, proErrorMessage } from '../services/pro';
 
 interface ProUnlockModalProps {
   isOpen: boolean;
+  /** Mensaje opcional encima del formulario (p. ej. al volver de la compra) */
+  notice?: string | null;
   onClose: () => void;
+  onActivate: (code: string) => Promise<ProCheckResult>;
   onSuccess: () => void;
 }
 
 export const ProUnlockModal: React.FC<ProUnlockModalProps> = ({
   isOpen,
+  notice,
   onClose,
+  onActivate,
   onSuccess,
 }) => {
   const [code, setCode] = useState('');
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [checking, setChecking] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleValidateCode = (e: React.FormEvent) => {
+  const handleValidateCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    const cleanCode = code.trim().toUpperCase();
-    const isDirectMatch = APP_CONFIG.proSecretCodes.some((c) => c.toUpperCase() === cleanCode);
-    const isLemonOrderOrLicense =
-      cleanCode.startsWith('LS-') ||
-      cleanCode.startsWith('ORD-') ||
-      cleanCode.startsWith('ORDER-') ||
-      (cleanCode.length >= 6 && /^[A-Z0-9_-]+$/.test(cleanCode) && (cleanCode.includes('-') || cleanCode.includes('_')));
-
-    if (isDirectMatch || isLemonOrderOrLicense) {
-      setError(false);
+    if (!code.trim() || checking) return;
+    setChecking(true);
+    setError(null);
+    const result = await onActivate(code);
+    setChecking(false);
+    if (result.ok) {
+      setCode('');
       onSuccess();
     } else {
-      setError(true);
+      setError(proErrorMessage(result));
     }
   };
 
@@ -66,6 +70,12 @@ export const ProUnlockModal: React.FC<ProUnlockModalProps> = ({
           Accede a la colección completa de compases del método, videos demostrativos y el entrenador progresivo.
         </p>
 
+        {notice && (
+          <div className="text-xs text-amber-200 bg-amber-500/10 border border-amber-500/30 rounded-xl px-3 py-2 leading-relaxed">
+            {notice}
+          </div>
+        )}
+
         {/* Opción 1: Unirse adquiriendo la versión PRO */}
         <div className="space-y-2">
           <a
@@ -83,7 +93,7 @@ export const ProUnlockModal: React.FC<ProUnlockModalProps> = ({
         <div className="relative flex py-1 items-center">
           <div className="flex-grow border-t border-white/[0.08]"></div>
           <span className="flex-shrink mx-3 text-[11px] text-gray-400 uppercase tracking-wider font-sans">
-            o ingresa tu código
+            o activa tu acceso
           </span>
           <div className="flex-grow border-t border-white/[0.08]"></div>
         </div>
@@ -96,9 +106,9 @@ export const ProUnlockModal: React.FC<ProUnlockModalProps> = ({
               value={code}
               onChange={(e) => {
                 setCode(e.target.value);
-                setError(false);
+                setError(null);
               }}
-              placeholder="Código"
+              placeholder="Clave de licencia o código"
               className="w-full bg-black/40 border border-white/[0.1] focus:border-[#E84A27] rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-gray-500 uppercase tracking-widest font-mono outline-none transition text-center"
             />
           </div>
@@ -106,17 +116,20 @@ export const ProUnlockModal: React.FC<ProUnlockModalProps> = ({
           {error && (
             <div className="flex items-center justify-center gap-1.5 text-rose-400 text-xs text-center">
               <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-              <span>Código no válido</span>
+              <span>{error}</span>
             </div>
           )}
 
           <button
             type="submit"
-            disabled={!code.trim()}
+            disabled={!code.trim() || checking}
             className="w-full py-2 rounded-xl bg-white/[0.08] hover:bg-white/[0.14] active:scale-98 disabled:opacity-40 disabled:pointer-events-none text-gray-200 hover:text-white font-sans font-semibold text-xs uppercase tracking-wider transition border border-white/[0.08] cursor-pointer"
           >
-            Validar Código
+            {checking ? 'Comprobando…' : 'Validar Código'}
           </button>
+          <p className="text-[10.5px] text-gray-500 text-center leading-relaxed">
+            Si compraste en la tienda, usa la clave de licencia que te llegó por email.
+          </p>
         </form>
 
         {/* Enlace discreto a WhatsApp para asistencia */}

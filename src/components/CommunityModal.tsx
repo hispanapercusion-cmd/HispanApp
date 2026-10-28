@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { X, ExternalLink, Sparkles, Heart, MessageCircle, KeyRound, CheckCircle2, Download, Github, Copy, Check, FileCode } from 'lucide-react';
 import { HispanaLogo } from './HispanaLogo';
 import { APP_CONFIG } from '../config';
+import { ProCheckResult, proErrorMessage } from '../services/pro';
 
 interface CommunityModalProps {
   isOpen: boolean;
   onClose: () => void;
   isPro?: boolean;
-  onActivateProCode?: (code: string) => boolean;
+  onActivateProCode?: (code: string) => Promise<ProCheckResult>;
 }
 
 export const CommunityModal: React.FC<CommunityModalProps> = ({
@@ -17,6 +18,7 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
   onActivateProCode,
 }) => {
   const [proInput, setProInput] = useState('');
+  const [checkingCode, setCheckingCode] = useState(false);
   const [codeMessage, setCodeMessage] = useState<string | null>(null);
   const [downloadingZip, setDownloadingZip] = useState<string | null>(null);
   const [downloadingHtml, setDownloadingHtml] = useState(false);
@@ -80,15 +82,18 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
     }
   };
 
-  const handleApplyCode = (e: React.FormEvent) => {
+  const handleApplyCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!proInput.trim()) return;
-    const ok = onActivateProCode?.(proInput.trim());
-    if (ok) {
+    if (!proInput.trim() || !onActivateProCode || checkingCode) return;
+    setCheckingCode(true);
+    setCodeMessage('Comprobando…');
+    const result = await onActivateProCode(proInput.trim());
+    setCheckingCode(false);
+    if (result.ok) {
       setCodeMessage('¡Código activado con éxito! Tienes acceso PRO.');
       setProInput('');
     } else {
-      setCodeMessage('Código no válido. Revisa o adquiere el Pack Completo.');
+      setCodeMessage(proErrorMessage(result));
     }
   };
 
@@ -314,7 +319,7 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
                 </button>
               </div>
               {codeMessage && (
-                <p className={`text-[11px] ${codeMessage.includes('éxito') ? 'text-emerald-400' : 'text-rose-400'}`}>
+                <p className={`text-[11px] ${checkingCode ? 'text-gray-400' : codeMessage.includes('éxito') ? 'text-emerald-400' : 'text-rose-400'}`}>
                   {codeMessage}
                 </p>
               )}

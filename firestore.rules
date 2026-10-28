@@ -1,0 +1,19 @@
+rules_version = '2';
+
+// Reglas de Firestore para HispanApp.
+// Se pegan en Firebase → Firestore Database → Reglas → Publicar.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Registro de alumnos: la app solo puede añadir, nunca leer ni borrar.
+    match /leads/{leadId} {
+      allow create: if true;
+    }
+
+    // Códigos PRO de alumnos: la app solo puede comprobar UN código concreto.
+    // No se puede pedir la lista entera ni crear códigos desde la app.
+    match /codigos_pro/{codigo} {
+      allow get: if true;
+    }
+  }
+}
