@@ -15,6 +15,7 @@ import { SplashScreen } from './components/SplashScreen';
 import { EditNameModal } from './components/EditNameModal';
 import { CountMode, PalmaTone, TrainerConfig, ViewMode, UserProfile } from './types';
 import { APP_CONFIG } from './config';
+import { verifyProCode, ProCheckResult } from './services/pro';
 import { Play, Square, Lock, CheckCircle2 } from 'lucide-react';
 
 export default function App() {
@@ -38,6 +39,7 @@ export default function App() {
   });
   const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState<boolean>(false);
   const [isProModalOpen, setIsProModalOpen] = useState<boolean>(false);
+  const [proModalNotice, setProModalNotice] = useState<string | null>(null);
   const [isVideoModalOpen, setIsVideoModalOpen] = useState<boolean>(false);
   const [showWelcomeProToast, setShowWelcomeProToast] = useState<boolean>(false);
 
@@ -113,53 +115,46 @@ export default function App() {
   // Audio Engine reference
   const engineRef = useRef<FlamencoAudioEngine | null>(null);
 
-  // 1. Auto-Desbloqueo por Lemon Squeezy o QR Físico (?acceso=HISPANA-PRO, ?order_id=..., etc.)
+  // 1. Activación desde la dirección: QR físico (?acceso=CODIGO), enlace con licencia (?license_key=...)
+  //    o vuelta desde la compra en Lemon Squeezy (?checkout=success). Todo se comprueba con verifyProCode.
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    let params: URLSearchParams;
     try {
-      const params = new URLSearchParams(window.location.search);
-      const acceso = params.get('acceso') || params.get('pro') || params.get('codigo');
-      const hasLemonSuccess =
-        params.has('order_id') ||
-        params.has('order_key') ||
-        params.has('license_key') ||
-        params.get('checkout') === 'success' ||
-        params.get('status') === 'paid' ||
-        params.get('lemon_squeezy') === 'success';
-
-      let shouldUnlock = false;
-      if (acceso) {
-        const cleanAcceso = acceso.trim().toUpperCase();
-        if (
-          APP_CONFIG.proSecretCodes.some((c) => c.toUpperCase() === cleanAcceso) ||
-          cleanAcceso.startsWith('LS-') ||
-          cleanAcceso.startsWith('ORD-') ||
-          cleanAcceso === 'TRUE' ||
-          cleanAcceso === '1'
-        ) {
-          shouldUnlock = true;
-        }
-      } else if (hasLemonSuccess) {
-        shouldUnlock = true;
-      }
-
-      if (shouldUnlock) {
-        localStorage.setItem('hispanapp_pro', 'true');
-        localStorage.setItem('hispanapp_registered', 'true');
-        setIsPro(true);
-        setIsRegistered(true);
-        ['acceso', 'pro', 'codigo', 'order_id', 'order_key', 'license_key', 'checkout', 'status', 'lemon_squeezy'].forEach((p) =>
-          params.delete(p)
-        );
-        const newQuery = params.toString() ? `?${params.toString()}` : '';
-        window.history.replaceState(null, '', `${window.location.pathname}${newQuery}${window.location.hash}`);
-        setShowWelcomeProToast(true);
-        setTimeout(() => setShowWelcomeProToast(false), 5000);
-      }
-
+      params = new URLSearchParams(window.location.search);
     } catch {
-      // Silencioso
+      return;
     }
+    const codeFromUrl =
+      params.get('acceso') || params.get('pro') || params.get('codigo') || params.get('license_key');
+    const cameFromCheckout =
+      params.has('order_id') ||
+      params.has('order_key') ||
+      params.get('checkout') === 'success' ||
+      params.get('status') === 'paid' ||
+      params.get('lemon_squeezy') === 'success';
+
+    if (!codeFromUrl && !cameFromCheckout) return;
+
+    // Quitar los parámetros de la dirección para que el código no quede a la vista
+    ['acceso', 'pro', 'codigo', 'order_id', 'order_key', 'license_key', 'checkout', 'status', 'lemon_squeezy'].forEach((p) =>
+      params.delete(p)
+    );
+    const newQuery = params.toString() ? `?${params.toString()}` : '';
+    window.history.replaceState(null, '', `${window.location.pathname}${newQuery}${window.location.hash}`);
+
+    if (codeFromUrl) {
+      handleActivateProCode(codeFromUrl).then((result) => {
+        if (!result.ok) {
+          setProModalNotice('El código del enlace no es válido. Escríbelo a mano o escríbenos por WhatsApp.');
+          setIsProModalOpen(true);
+        }
+      });
+    } else if (!localStorage.getItem('hispanapp_pro')) {
+      setProModalNotice('¡Gracias por tu compra! Pega aquí la clave de licencia que te llegó por email.');
+      setIsProModalOpen(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Desbloqueo universal de audio para móviles (iOS Safari / Android Chrome) en el primer gesto
@@ -463,26 +458,18 @@ export default function App() {
     }
   };
 
-  // Validación de código de alumno PRO y órdenes/licencias de Lemon Squeezy
-  const handleActivateProCode = (code: string): boolean => {
-    const cleanCode = code.trim().toUpperCase();
-    const isDirectMatch = APP_CONFIG.proSecretCodes.some((c) => c.toUpperCase() === cleanCode);
-    const isLemonOrderOrLicense =
-      cleanCode.startsWith('LS-') ||
-      cleanCode.startsWith('ORD-') ||
-      cleanCode.startsWith('ORDER-') ||
-      (cleanCode.length >= 6 && /^[A-Z0-9_-]+$/.test(cleanCode) && (cleanCode.includes('-') || cleanCode.includes('_')));
-
-    if (isDirectMatch || isLemonOrderOrLicense) {
+  // Validación de códigos PRO: licencias de Lemon Squeezy y códigos de alumno en Firebase
+  const handleActivateProCode = async (code: string): Promise<ProCheckResult> => {
+    const result = await verifyProCode(code);
+    if (result.ok) {
       localStorage.setItem('hispanapp_pro', 'true');
       localStorage.setItem('hispanapp_registered', 'true');
       setIsPro(true);
       setIsRegistered(true);
       setShowWelcomeProToast(true);
       setTimeout(() => setShowWelcomeProToast(false), 5000);
-      return true;
     }
-    return false;
+    return result;
   };
 
   // Registro exitoso desde el lead magnet
@@ -985,10 +972,15 @@ export default function App() {
 
       <ProUnlockModal
         isOpen={isProModalOpen}
-        onClose={() => setIsProModalOpen(false)}
-        onSuccess={() => {
-          handleActivateProCode(APP_CONFIG.proSecretCodes[0]);
+        notice={proModalNotice}
+        onClose={() => {
           setIsProModalOpen(false);
+          setProModalNotice(null);
+        }}
+        onActivate={handleActivateProCode}
+        onSuccess={() => {
+          setIsProModalOpen(false);
+          setProModalNotice(null);
         }}
       />
 
