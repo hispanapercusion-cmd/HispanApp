@@ -918,9 +918,6 @@ export default function App() {
                     BPM
                   </span>
                 </div>
-                <span className="text-[9.5px] font-sans text-gray-400 block leading-tight mt-0.5">
-                  {currentRhythm.bpmRange.min}–{currentRhythm.bpmRange.max}
-                </span>
               </div>
 
               {/* Botón Tap Tempo */}
