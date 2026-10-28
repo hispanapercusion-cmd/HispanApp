@@ -67,7 +67,7 @@ export const EditNameModal: React.FC<EditNameModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-[#14151F] border border-[#2B2E42] rounded-2xl max-w-sm w-full p-5 sm:p-6 shadow-2xl text-white space-y-4 relative">
+      <div className="bg-[#14151F] border border-[#2B2E42] rounded-2xl max-w-sm w-full max-h-[92vh] overflow-y-auto p-5 sm:p-6 shadow-2xl text-white space-y-4 relative">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition cursor-pointer"

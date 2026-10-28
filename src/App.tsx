@@ -16,7 +16,8 @@ import { EditNameModal } from './components/EditNameModal';
 import { CountMode, PalmaTone, TrainerConfig, ViewMode, UserProfile } from './types';
 import { APP_CONFIG } from './config';
 import { verifyProCode, ProCheckResult } from './services/pro';
-import { Play, Square, Lock, CheckCircle2, Maximize2 } from 'lucide-react';
+import { Play, Square, Lock, CheckCircle2, Maximize2, User } from 'lucide-react';
+import { saveLeadToFirestore } from './services/firebase';
 
 export default function App() {
   const [rhythmIndex, setRhythmIndex] = useState<number>(0);
@@ -487,6 +488,26 @@ export default function App() {
     setIsRegistrationModalOpen(false);
   };
 
+  // Edición del perfil desde la cabecera: si cambian nombre o email, se registra también en Firebase
+  const handleProfileEdit = (newProfile: UserProfile) => {
+    const changed =
+      !userProfile ||
+      userProfile.name !== newProfile.name ||
+      userProfile.contact !== newProfile.contact ||
+      userProfile.role !== newProfile.role ||
+      userProfile.level !== newProfile.level;
+    handleProfileSave(newProfile);
+    if (changed) {
+      saveLeadToFirestore({
+        name: newProfile.name,
+        email: newProfile.contact,
+        role: newProfile.role,
+        level: newProfile.level,
+        source: 'perfil_actualizado',
+      });
+    }
+  };
+
   // Manejo de entrada y actualización de usuario desde Splash / Perfil
   const handleUserEnterFromSplash = () => {
     engineRef.current?.init();
@@ -532,6 +553,16 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
+            {/* Botón Perfil: ver y cambiar nombre, email, rol y nivel */}
+            <button
+              onClick={() => setIsEditNameOpen(true)}
+              className="h-8.5 max-w-[9rem] flex items-center gap-1.5 px-3 rounded-full border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] hover:border-white/[0.15] text-gray-200 hover:text-white text-xs font-medium tracking-wide transition shadow-sm active:scale-95 cursor-pointer select-none"
+              title="Tu perfil"
+            >
+              <User className="w-3.5 h-3.5 shrink-0" />
+              <span className="hidden sm:inline truncate">{username || 'Perfil'}</span>
+            </button>
+
             {/* Botón Modo Atril (pantalla grande, útil para proyectar en clase) */}
             <button
               onClick={() => setIsAtrilMode(true)}
@@ -996,7 +1027,7 @@ export default function App() {
         isOpen={isEditNameOpen}
         profile={userProfile}
         onClose={() => setIsEditNameOpen(false)}
-        onSave={handleProfileSave}
+        onSave={handleProfileEdit}
       />
 
       {/* PANTALLA DE INICIO Y CARGA (SPLASH SCREEN) */}
