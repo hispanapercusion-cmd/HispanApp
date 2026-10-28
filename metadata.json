@@ -1,0 +1,6 @@
+{
+  "name": "HispanApp — Los Ritmos del Flamenco",
+  "description": "Método interactivo de palmas y compás flamenco basado en Los Ritmos del Flamenco de Jordan Migues (Hispana Percusión).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
