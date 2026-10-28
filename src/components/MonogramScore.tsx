@@ -24,12 +24,10 @@ const MonogramScoreComponent: React.FC<MonogramScoreProps> = ({
       const cRect = container.getBoundingClientRect();
       const elRect = activeEl.getBoundingClientRect();
       // Solo hacer scroll suave si la nota está fuera o a menos de 40px del borde
+      // Se desplaza solo la tira de la partitura (no la página entera, para no "saltar" en el móvil)
       if (elRect.left < cRect.left + 40 || elRect.right > cRect.right - 40) {
-        activeEl.scrollIntoView({
-          behavior: 'smooth',
-          inline: 'center',
-          block: 'nearest',
-        });
+        const target = container.scrollLeft + (elRect.left - cRect.left) - (cRect.width - elRect.width) / 2;
+        container.scrollTo({ left: Math.max(0, target), behavior: 'smooth' });
       }
     }
   }, [activeStep]);

@@ -42,8 +42,8 @@ export const ProUnlockModal: React.FC<ProUnlockModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-      <div className="bg-[#141821] border border-white/[0.08] rounded-2xl max-w-sm w-full p-5 shadow-2xl text-white space-y-4 relative">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+      <div className="bg-[#141821] border border-white/[0.08] rounded-2xl max-w-sm w-full max-h-[92vh] overflow-y-auto p-5 shadow-2xl text-white space-y-4 relative">
         {/* Botón Cerrar */}
         <button
           onClick={onClose}
