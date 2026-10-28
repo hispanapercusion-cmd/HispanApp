@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, ExternalLink, Sparkles, Heart, MessageCircle, KeyRound, CheckCircle2, Download, Github, Copy, Check, FileCode } from 'lucide-react';
+import { X, ExternalLink, Sparkles, Heart, MessageCircle, KeyRound, CheckCircle2 } from 'lucide-react';
 import { HispanaLogo } from './HispanaLogo';
 import { APP_CONFIG } from '../config';
 import { ProCheckResult, proErrorMessage } from '../services/pro';
@@ -20,67 +20,8 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
   const [proInput, setProInput] = useState('');
   const [checkingCode, setCheckingCode] = useState(false);
   const [codeMessage, setCodeMessage] = useState<string | null>(null);
-  const [downloadingZip, setDownloadingZip] = useState<string | null>(null);
-  const [downloadingHtml, setDownloadingHtml] = useState(false);
-  const [copiedHtml, setCopiedHtml] = useState(false);
 
   if (!isOpen) return null;
-
-  const handleDownloadHtmlFile = async () => {
-    try {
-      setDownloadingHtml(true);
-      const res = await fetch('/assets/index.html');
-      const text = await res.text();
-      const blob = new Blob([text], { type: 'text/html;charset=utf-8' });
-      const blobUrl = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = blobUrl;
-      a.download = 'index.html';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => {
-        window.URL.revokeObjectURL(blobUrl);
-        setDownloadingHtml(false);
-      }, 1500);
-    } catch {
-      setDownloadingHtml(false);
-    }
-  };
-
-  const handleCopyHtml = async () => {
-    try {
-      const res = await fetch('/assets/index.html');
-      const text = await res.text();
-      await navigator.clipboard.writeText(text);
-      setCopiedHtml(true);
-      setTimeout(() => setCopiedHtml(false), 4000);
-    } catch {
-      //
-    }
-  };
-
-  const handleDownloadZip = async (url: string, filename: string, id: string) => {
-    try {
-      setDownloadingZip(id);
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      const blob = await res.blob();
-      const blobUrl = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = blobUrl;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => {
-        window.URL.revokeObjectURL(blobUrl);
-        setDownloadingZip(null);
-      }, 1500);
-    } catch {
-      setDownloadingZip(null);
-    }
-  };
 
   const handleApplyCode = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -204,82 +145,7 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
           </a>
         </div>
 
-        {/* 4. TARJETA ARCHIVO HTML PARA GITHUB (index.html) */}
-        <div className="bg-[#181C26] p-4 rounded-xl border border-amber-500/40 space-y-3 shadow-md bg-gradient-to-b from-[#181C26] to-[#12141d]">
-          <div className="flex items-center justify-between gap-2">
-            <span className="font-brand text-[9.5px] uppercase tracking-widest text-amber-400 font-bold flex items-center gap-1.5">
-              <Github className="w-3.5 h-3.5" />
-              Para GitHub
-            </span>
-            <span className="text-[10px] font-sans font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-              index.html (Actualizado)
-            </span>
-          </div>
-
-          <div>
-            <h4 className="font-serif font-bold text-sm sm:text-base text-white">
-              Archivo HTML para GitHub (index.html)
-            </h4>
-            <p className="text-xs text-gray-300 font-sans leading-relaxed mt-0.5">
-              <strong className="text-amber-400">Versión Oficial Actualizada:</strong> Todo integrado en un archivo autónomo (React 19 + Tailwind + Web Audio) con todos los ritmos (I al VIII), atril horizontal, partituras interactivas y enlaces activos. Súbelo a GitHub o activa GitHub Pages sin instalar nada.
-            </p>
-          </div>
-
-          <div className="space-y-2 pt-1">
-            {/* Botón principal: Descargar archivo index.html */}
-            <button
-              onClick={handleDownloadHtmlFile}
-              disabled={downloadingHtml}
-              className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-sans text-xs font-bold uppercase tracking-wider transition active:scale-95 flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
-            >
-              <Download className="w-4 h-4 text-black" />
-              <span>{downloadingHtml ? 'Descargando index.html...' : 'Descargar archivo index.html (Actualizado)'}</span>
-            </button>
-
-            {/* Botón secundario: Copiar código en 1 clic */}
-            <button
-              onClick={handleCopyHtml}
-              className="w-full py-2 px-3 rounded-xl bg-white/[0.08] hover:bg-white/[0.14] text-white font-sans text-xs font-semibold transition active:scale-95 flex items-center justify-center gap-2 border border-white/[0.12] cursor-pointer"
-            >
-              {copiedHtml ? (
-                <>
-                  <Check className="w-3.5 h-3.5 text-emerald-400" />
-                  <span className="text-emerald-300 font-bold">¡Código HTML copiado al portapapeles!</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="w-3.5 h-3.5 text-gray-300" />
-                  <span>Copiar código de index.html (1 Clic)</span>
-                </>
-              )}
-            </button>
-
-            {/* Acciones auxiliares */}
-            <div className="flex items-center justify-between pt-1 text-[11px] text-gray-400">
-              <a
-                href="/assets/index.html"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-amber-400 hover:text-amber-300 hover:underline cursor-pointer"
-                title="Abre la app HTML en pestaña nueva para verla o guardarla con Ctrl+S"
-              >
-                <ExternalLink className="w-3 h-3" />
-                <span>Abrir archivo en pestaña nueva</span>
-              </a>
-
-              <a
-                href="/assets/hispanapp-github-light.zip"
-                download="hispanapp-github.zip"
-                onClick={() => handleDownloadZip('/assets/hispanapp-github-light.zip', 'hispanapp-github.zip', 'light')}
-                className="text-gray-400 hover:text-white transition cursor-pointer"
-              >
-                O descargar en ZIP
-              </a>
-            </div>
-          </div>
-        </div>
-
-        {/* 5. CÓDIGO ALUMNO PRO */}
+        {/* 4. CÓDIGO ALUMNO PRO */}
         <div className="bg-[#181C26] p-3.5 rounded-xl border border-white/[0.06] space-y-2 text-xs shadow-md">
           <div className="flex items-center justify-between">
             <span className="font-semibold text-white flex items-center gap-1.5">
@@ -308,12 +174,13 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
                     setProInput(e.target.value);
                     setCodeMessage(null);
                   }}
-                  placeholder="Código"
-                  className="flex-1 bg-black/40 border border-white/[0.1] focus:border-[#E84A27] rounded-lg px-3 py-1.5 text-xs text-white placeholder-gray-500 uppercase tracking-wider font-mono outline-none"
+                  placeholder="Clave de licencia o código"
+                  className="flex-1 min-w-0 bg-black/40 border border-white/[0.1] focus:border-[#E84A27] rounded-lg px-3 py-1.5 text-xs text-white placeholder-gray-500 uppercase tracking-wider font-mono outline-none"
                 />
                 <button
                   type="submit"
-                  className="px-3 py-1.5 rounded-lg bg-[#E84A27] hover:bg-[#FF5533] text-white font-sans text-xs font-semibold uppercase tracking-wider transition cursor-pointer shrink-0"
+                  disabled={!proInput.trim() || checkingCode}
+                  className="disabled:opacity-50 px-3 py-1.5 rounded-lg bg-[#E84A27] hover:bg-[#FF5533] text-white font-sans text-xs font-semibold uppercase tracking-wider transition cursor-pointer shrink-0"
                 >
                   Activar
                 </button>

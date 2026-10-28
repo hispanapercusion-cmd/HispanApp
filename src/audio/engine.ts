@@ -128,7 +128,21 @@ export class FlamencoAudioEngine {
     this.preloadSamples();
   }
 
+  // En iPhone, el audio web se silencia con el interruptor de silencio. Marcarlo como "reproducción"
+  // (como una app de música) hace que suene igual. Solo existe en Safari reciente; en el resto no hace nada.
+  private configureAudioSession() {
+    try {
+      const nav = navigator as unknown as { audioSession?: { type: string } };
+      if (nav.audioSession && nav.audioSession.type !== 'playback') {
+        nav.audioSession.type = 'playback';
+      }
+    } catch {
+      // Ignorar
+    }
+  }
+
   public init() {
+    this.configureAudioSession();
     if (!this.ctx) {
       const AudioCtxClass =
         window.AudioContext ||
@@ -146,6 +160,7 @@ export class FlamencoAudioEngine {
 
   // Desbloqueo universal de audio para móviles (iOS Safari / Android Chrome)
   public unlockAudio() {
+    this.configureAudioSession();
     if (!this.ctx) {
       const AudioCtxClass =
         window.AudioContext ||
@@ -380,6 +395,18 @@ export class FlamencoAudioEngine {
 
     const countInBeatDuration = 60.0 / this.bpm;
     const totalSteps = this.rhythm.steps.length;
+
+    // Si la pestaña estuvo en segundo plano, el navegador frena el temporizador y quedan notas atrasadas.
+    // En vez de tocarlas todas de golpe, se saltan en silencio para retomar el compás en su sitio.
+    while (!this.isCountingIn && this.nextNoteTime < this.ctx.currentTime - 0.05) {
+      this.nextNoteTime += this.getStepDurationSeconds();
+      this.currentStep++;
+      if (this.currentStep >= totalSteps) {
+        this.currentStep = 0;
+        this.cycleCount++;
+        this.onCycleCallback?.(this.cycleCount);
+      }
+    }
 
     while (this.nextNoteTime < this.ctx.currentTime + 0.1) {
       if (this.isCountingIn) {

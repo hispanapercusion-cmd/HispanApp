@@ -16,7 +16,7 @@ import { EditNameModal } from './components/EditNameModal';
 import { CountMode, PalmaTone, TrainerConfig, ViewMode, UserProfile } from './types';
 import { APP_CONFIG } from './config';
 import { verifyProCode, ProCheckResult } from './services/pro';
-import { Play, Square, Lock, CheckCircle2 } from 'lucide-react';
+import { Play, Square, Lock, CheckCircle2, Maximize2 } from 'lucide-react';
 
 export default function App() {
   const [rhythmIndex, setRhythmIndex] = useState<number>(0);
@@ -270,35 +270,27 @@ export default function App() {
     };
   }, [isPlaying, isAtrilMode]);
 
-  // Detección automática al girar el dispositivo en horizontal (Landscape) y salida automática al volver a vertical (Portrait)
+  // Modo atril automático solo en móviles y tablets: se abre al girar a horizontal y se cierra al volver a vertical.
+  // Solo reacciona cuando la orientación cambia de verdad (no en cada "resize", que en móvil ocurre
+  // al mostrarse u ocultarse la barra del navegador). En ordenador se abre con el botón "Atril".
+  const lastOrientationRef = useRef<'portrait' | 'landscape' | null>(null);
   useEffect(() => {
+    const isTouchDevice = () => window.matchMedia('(pointer: coarse)').matches;
+
     const handleOrientation = () => {
-      const isLandscape = window.innerWidth > window.innerHeight;
-      if (!isLandscape) {
-        // En vertical siempre se desactiva el modo atril horizontal automáticamente
-        setIsAtrilMode(false);
-      } else {
-        // En horizontal, se activa automáticamente si es dispositivo táctil/móvil o pantalla compacta
-        const shortestSide = Math.min(window.innerWidth, window.innerHeight);
-        if (shortestSide <= 850) {
-          setIsAtrilMode(true);
-        }
-      }
+      const orientation = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
+      if (orientation === lastOrientationRef.current) return;
+      lastOrientationRef.current = orientation;
+      if (!isTouchDevice()) return;
+      setIsAtrilMode(orientation === 'landscape');
     };
 
     handleOrientation();
     window.addEventListener('resize', handleOrientation);
     window.addEventListener('orientationchange', handleOrientation);
-    
-    // Escuchar cambios mediante matchMedia para máxima compatibilidad con Safari y Chrome móvil
-    const mql = window.matchMedia('(orientation: portrait)');
-    const handleMqlChange = () => handleOrientation();
-    mql.addEventListener?.('change', handleMqlChange);
-
     return () => {
       window.removeEventListener('resize', handleOrientation);
       window.removeEventListener('orientationchange', handleOrientation);
-      mql.removeEventListener?.('change', handleMqlChange);
     };
   }, []);
 
@@ -540,6 +532,16 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
+            {/* Botón Modo Atril (pantalla grande, útil para proyectar en clase) */}
+            <button
+              onClick={() => setIsAtrilMode(true)}
+              className="h-8.5 flex items-center gap-1.5 px-3 rounded-full border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] hover:border-white/[0.15] text-gray-200 hover:text-white text-xs font-medium tracking-wide transition shadow-sm active:scale-95 cursor-pointer select-none"
+              title="Modo Atril: pantalla grande para tocar a distancia"
+            >
+              <Maximize2 className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Atril</span>
+            </button>
+
             {/* Botón Entrenador Progresivo */}
             <button
               onClick={handleOpenTrainer}
@@ -1052,7 +1054,7 @@ export default function App() {
       )}
 
       {/* MODAL MODO ESPEJO / ATRIL A DISTANCIA (PANTALLA GIGANTE HORIZONTAL) */}
-      {isAtrilMode && (
+      {isAtrilMode && !showSplash && (
         <AtrilLandscapeMode
           rhythm={currentRhythm}
           bpm={bpm}
