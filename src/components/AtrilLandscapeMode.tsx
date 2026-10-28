@@ -228,14 +228,11 @@ export const AtrilLandscapeMode: React.FC<AtrilLandscapeModeProps> = ({
                   BPM
                 </span>
               </div>
-              <span className="text-[10px] font-sans text-gray-400 block leading-tight mt-0.5">
-                {rhythm.bpmRange.min}–{rhythm.bpmRange.max} BPM
-                {isWakeLockActive && (
-                  <span className="ml-1.5 text-amber-400/90 font-sans text-[9.5px]">
-                    · Pantalla activa
-                  </span>
-                )}
-              </span>
+              {isWakeLockActive && (
+                <span className="text-amber-400/90 font-sans text-[9.5px] block leading-tight mt-0.5">
+                  Pantalla activa
+                </span>
+              )}
             </div>
           </div>
 

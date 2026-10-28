@@ -28,20 +28,21 @@ body {
   user-select: none;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  height: 6px;
-  width: 6px;
+/* Barras de desplazamiento ocultas en toda la app: se sigue pudiendo desplazar con el dedo,
+   la rueda del ratón o el teclado, pero sin la barra lateral. */
+html,
+body,
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Edge antiguo */
 }
-::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.2);
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 9999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.18);
+*::-webkit-scrollbar,
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Android */
+  width: 0;
+  height: 0;
+  background: transparent;
 }
 
 .beat-group {
