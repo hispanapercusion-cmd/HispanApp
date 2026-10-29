@@ -260,18 +260,20 @@ body::-webkit-scrollbar {
     0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
-/* Esfera naranja brillante: elemento activo principal (ritmo elegido, play) */
-.orb-active {
+/* Botón naranja principal: sobrio, con un brillo sutil arriba y sombra suave (sin efecto "esfera") */
+.orb-active,
+.btn-primary {
   color: #fff;
-  border: 1px solid rgba(255, 170, 130, 0.45);
-  background: radial-gradient(circle at 35% 28%, #FF9A6B 0%, #F2602F 38%, #D8401E 70%, #A92E14 100%);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: linear-gradient(180deg, #EC5430 0%, #D7451F 100%);
   box-shadow:
-    inset 0 2px 3px rgba(255, 255, 255, 0.35),
-    inset 0 -3px 6px rgba(0, 0, 0, 0.28),
-    0 0 18px rgba(232, 74, 39, 0.55),
-    0 6px 16px -4px rgba(232, 74, 39, 0.6);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 4px 12px -5px rgba(232, 74, 39, 0.5);
+  transition: filter 0.2s ease, transform 0.12s ease, box-shadow 0.2s ease;
 }
+.btn-primary:hover { filter: brightness(1.06); }
+.btn-primary:active { transform: translateY(1px) scale(0.99); }
+.btn-primary:disabled { filter: saturate(0.6); opacity: 0.55; }
 
 /* Control "hundido" (selector por segmentos) y su opción elegida en relieve */
 .segmented {
@@ -316,11 +318,57 @@ body::-webkit-scrollbar {
     0 10px 30px -14px rgba(0, 0, 0, 0.9);
 }
 
-/* Esfera en filas con desplazamiento lateral: brillo más contenido para que no se recorte */
+/* Variante para filas con desplazamiento lateral: sombra más corta para que no se recorte */
 .orb-active.orb-tight {
   box-shadow:
-    inset 0 2px 3px rgba(255, 255, 255, 0.35),
-    inset 0 -3px 6px rgba(0, 0, 0, 0.28),
-    0 0 9px rgba(232, 74, 39, 0.55),
-    0 3px 8px -2px rgba(232, 74, 39, 0.6);
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 3px 8px -4px rgba(232, 74, 39, 0.5);
+}
+
+/* ===== Ventanas (Comunidad, Vocabulario, Entrenador, PRO, Perfil, Vídeo, Registro) ===== */
+/* Panel de ventana: cristal oscuro algo más opaco para que el texto se lea bien */
+.modal-panel {
+  position: relative;
+  isolation: isolate;
+  background: linear-gradient(160deg, rgba(34, 38, 50, 0.94) 0%, rgba(20, 22, 30, 0.96) 55%, rgba(15, 17, 23, 0.97) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.085);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.09),
+    0 30px 70px -20px rgba(0, 0, 0, 0.9),
+    0 2px 8px rgba(0, 0, 0, 0.4);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}
+.modal-panel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: -1;
+  background: radial-gradient(55% 40% at 100% 100%, rgba(232, 74, 39, 0.09), transparent 70%);
+}
+
+/* Tarjeta dentro de una ventana */
+.sub-card {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 8px 20px -12px rgba(0, 0, 0, 0.8);
+  transition: border-color 0.2s ease;
+}
+.sub-card:hover { border-color: rgba(255, 255, 255, 0.12); }
+/* Tarjeta destacada (método oficial) */
+.sub-card-accent {
+  border-color: rgba(232, 74, 39, 0.35);
+  background: linear-gradient(160deg, rgba(232, 74, 39, 0.10) 0%, rgba(255, 255, 255, 0.025) 60%);
+}
+
+/* Botón de cerrar redondo */
+.icon-btn {
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
 }

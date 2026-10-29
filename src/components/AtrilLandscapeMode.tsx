@@ -94,7 +94,7 @@ export const AtrilLandscapeMode: React.FC<AtrilLandscapeModeProps> = ({
         }`}
       >
         {/* Selector rápido de ritmos */}
-        <div className="flex items-center gap-1.5 bg-white/[0.05] border border-white/[0.08] rounded-xl px-2.5 py-1.5 backdrop-blur-md">
+        <div className="flex items-center gap-1.5 btn-3d rounded-full px-3 py-1.5">
           <button
             onClick={onPrevRhythm}
             className="p-1 hover:text-[#FF5533] text-gray-300 transition cursor-pointer active:scale-95"
@@ -144,7 +144,7 @@ export const AtrilLandscapeMode: React.FC<AtrilLandscapeModeProps> = ({
 
           <button
             onClick={onExit}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.14] border border-white/[0.1] text-white text-xs font-semibold transition active:scale-95 cursor-pointer shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl btn-3d text-white text-xs font-semibold cursor-pointer shadow-sm"
             title="Salir del Modo Atril (Esc)"
           >
             <X className="w-3.5 h-3.5" />
@@ -187,7 +187,7 @@ export const AtrilLandscapeMode: React.FC<AtrilLandscapeModeProps> = ({
           onClick={(e) => e.stopPropagation()}
           className="w-full mt-2"
         >
-          <div className="bg-[#10141D]/90 rounded-2xl border border-white/[0.08] p-2 sm:p-3 shadow-2xl overflow-x-auto">
+          <div className="glass-card rounded-3xl p-2 sm:p-3 overflow-x-auto">
             <MonogramScore
               rhythm={rhythm}
               activeStep={activeStep}
@@ -201,7 +201,7 @@ export const AtrilLandscapeMode: React.FC<AtrilLandscapeModeProps> = ({
       {/* 3. DOCK INFERIOR DEL METRÓNOMO (IDÉNTICO EN ESTÉTICA AL MODO VERTICAL) */}
       <footer
         onClick={(e) => e.stopPropagation()}
-        className={`fixed bottom-0 inset-x-0 bg-[#141821]/85 backdrop-blur-[16px] border-t border-white/[0.06] z-30 shadow-[0_-4px_24px_rgba(0,0,0,0.6)] ${
+        className={`fixed bottom-0 inset-x-0 dock-glass z-30 ${
           isMirror ? 'scale-x-[-1]' : ''
         }`}
       >
@@ -210,7 +210,7 @@ export const AtrilLandscapeMode: React.FC<AtrilLandscapeModeProps> = ({
           <div className="flex items-center gap-3 shrink-0">
             <button
               onClick={onTogglePlay}
-              className="w-11 h-11 rounded-full bg-[#E84A27] text-white flex items-center justify-center shadow-[0_0_20px_rgba(232,74,39,0.35)] hover:brightness-110 active:scale-95 transition shrink-0 cursor-pointer"
+              className="w-11 h-11 rounded-full btn-primary flex items-center justify-center shrink-0 cursor-pointer"
               title={isPlaying ? 'Pausar (Espacio)' : 'Reproducir (Espacio)'}
             >
               {isPlaying ? (
@@ -250,31 +250,31 @@ export const AtrilLandscapeMode: React.FC<AtrilLandscapeModeProps> = ({
           <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
             <button
               onClick={() => onAdjustBpm(-5)}
-              className="w-8 sm:w-9 h-9 rounded-lg bg-white/[0.05] hover:bg-white/[0.10] active:scale-95 text-gray-200 font-sans font-semibold text-xs border border-white/[0.04] transition cursor-pointer"
+              className="w-8 sm:w-9 h-9 rounded-full btn-3d text-gray-200 font-sans font-semibold text-xs cursor-pointer"
             >
               -5
             </button>
             <button
               onClick={() => onAdjustBpm(-1)}
-              className="w-8 sm:w-9 h-9 rounded-lg bg-white/[0.05] hover:bg-white/[0.10] active:scale-95 text-gray-200 font-sans font-semibold text-xs border border-white/[0.04] transition cursor-pointer"
+              className="w-8 sm:w-9 h-9 rounded-full btn-3d text-gray-200 font-sans font-semibold text-xs cursor-pointer"
             >
               -1
             </button>
             <button
               onClick={() => onAdjustBpm(1)}
-              className="w-8 sm:w-9 h-9 rounded-lg bg-white/[0.05] hover:bg-white/[0.10] active:scale-95 text-gray-200 font-sans font-semibold text-xs border border-white/[0.04] transition cursor-pointer"
+              className="w-8 sm:w-9 h-9 rounded-full btn-3d text-gray-200 font-sans font-semibold text-xs cursor-pointer"
             >
               +1
             </button>
             <button
               onClick={() => onAdjustBpm(5)}
-              className="w-8 sm:w-9 h-9 rounded-lg bg-white/[0.05] hover:bg-white/[0.10] active:scale-95 text-gray-200 font-sans font-semibold text-xs border border-white/[0.04] transition cursor-pointer"
+              className="w-8 sm:w-9 h-9 rounded-full btn-3d text-gray-200 font-sans font-semibold text-xs cursor-pointer"
             >
               +5
             </button>
             <button
               onClick={onTapTempo}
-              className="px-3 sm:px-4 h-9 rounded-lg bg-white/[0.12] hover:bg-white/[0.18] active:scale-95 text-white text-[11px] font-sans font-bold tracking-wider uppercase transition shadow-sm cursor-pointer"
+              className="px-3 sm:px-4 h-9 rounded-full btn-3d text-white text-[11px] font-sans font-bold tracking-wider uppercase cursor-pointer"
             >
               Tap
             </button>

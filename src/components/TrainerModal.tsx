@@ -19,7 +19,7 @@ export const TrainerModal: React.FC<TrainerModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
-      <div className="bg-[#141821] border border-white/[0.08] rounded-3xl max-w-sm w-full p-6 shadow-2xl text-white space-y-5">
+      <div className="modal-panel rounded-3xl max-w-sm w-full p-6 shadow-2xl text-white space-y-5">
         <div className="flex items-center justify-between border-b border-white/[0.08] pb-3.5">
           <div className="flex items-center gap-2">
             <div className="p-2 rounded-xl bg-[#E84A27]/15 text-[#E84A27]">
@@ -34,7 +34,7 @@ export const TrainerModal: React.FC<TrainerModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition"
+            className="icon-btn btn-3d text-gray-400 hover:text-white"
           >
             <X className="w-5 h-5" />
           </button>
@@ -46,22 +46,33 @@ export const TrainerModal: React.FC<TrainerModalProps> = ({
 
         <div className="space-y-3.5 text-sm">
           {/* Toggle Enabled */}
-          <label className="flex items-center justify-between bg-[#0B0D12] p-3.5 rounded-2xl border border-white/[0.06] cursor-pointer hover:border-white/[0.15] transition">
+          <label className="flex items-center justify-between sub-card p-3.5 rounded-2xl cursor-pointer">
             <div className="flex items-center gap-2.5">
               <Zap className={`w-4 h-4 ${config.enabled ? 'text-[#E84A27]' : 'text-gray-500'}`} />
               <span className="font-medium text-xs sm:text-sm">Subida Automática de Tempo</span>
             </div>
+            {/* Interruptor (la casilla real queda oculta pero sigue siendo accesible) */}
             <input
               type="checkbox"
               checked={config.enabled}
               onChange={(e) => onChange({ ...config, enabled: e.target.checked })}
-              className="w-5 h-5 accent-[#E84A27] rounded cursor-pointer"
+              className="sr-only peer"
             />
+            <span
+              aria-hidden="true"
+              className={`relative w-11 h-6 rounded-full shrink-0 transition-colors ${config.enabled ? 'btn-primary' : 'segmented'}`}
+            >
+              <span
+                className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-[0_2px_6px_rgba(0,0,0,0.5)] transition-transform duration-200 ${
+                  config.enabled ? 'translate-x-5' : 'translate-x-0'
+                }`}
+              />
+            </span>
           </label>
 
           {/* Settings Grid */}
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-[#0B0D12] p-3 rounded-2xl border border-white/[0.06]">
+            <div className="inset-field p-3 rounded-2xl">
               <label className="block text-[11px] text-gray-400 font-brand uppercase tracking-wider mb-1">
                 Aumentar (+BPM)
               </label>
@@ -75,7 +86,7 @@ export const TrainerModal: React.FC<TrainerModalProps> = ({
               />
             </div>
 
-            <div className="bg-[#0B0D12] p-3 rounded-2xl border border-white/[0.06]">
+            <div className="inset-field p-3 rounded-2xl">
               <label className="block text-[11px] text-gray-400 font-brand uppercase tracking-wider mb-1">
                 Cada (N Vueltas)
               </label>
@@ -90,7 +101,7 @@ export const TrainerModal: React.FC<TrainerModalProps> = ({
             </div>
           </div>
 
-          <div className="bg-[#0B0D12] p-3 rounded-2xl border border-white/[0.06]">
+          <div className="inset-field p-3 rounded-2xl">
             <label className="block text-[11px] text-gray-400 font-brand uppercase tracking-wider mb-1">
               BPM Límite Máximo
             </label>
@@ -107,7 +118,7 @@ export const TrainerModal: React.FC<TrainerModalProps> = ({
 
         <button
           onClick={onClose}
-          className="w-full py-3 rounded-2xl bg-[#E84A27] hover:brightness-110 text-white text-xs font-brand tracking-[0.2em] uppercase font-bold shadow-lg transition active:scale-98 cursor-pointer"
+          className="w-full py-3 rounded-2xl btn-primary text-white text-xs font-brand tracking-[0.2em] uppercase font-bold cursor-pointer"
         >
           Aplicar y Continuar
         </button>

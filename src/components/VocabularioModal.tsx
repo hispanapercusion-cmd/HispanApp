@@ -100,7 +100,7 @@ export const VocabularioModal: React.FC<VocabularioModalProps> = ({ isOpen, onCl
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
-      <div className="bg-[#14151F] border border-[#2B2E42] rounded-2xl max-w-xl w-full max-h-[88vh] flex flex-col shadow-2xl text-white overflow-hidden">
+      <div className="modal-panel rounded-3xl max-w-xl w-full max-h-[88vh] flex flex-col shadow-2xl text-white overflow-hidden">
         {/* Header Modal */}
         <div className="flex items-center justify-between border-b border-white/[0.08] p-4 sm:p-5 shrink-0">
           <div className="flex items-center gap-2.5 min-w-0">
@@ -117,7 +117,7 @@ export const VocabularioModal: React.FC<VocabularioModalProps> = ({ isOpen, onCl
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition cursor-pointer"
+            className="icon-btn btn-3d text-gray-400 hover:text-white cursor-pointer"
             title="Cerrar"
           >
             <X className="w-5 h-5" />
@@ -125,7 +125,7 @@ export const VocabularioModal: React.FC<VocabularioModalProps> = ({ isOpen, onCl
         </div>
 
         {/* Buscador y Filtros Minimalistas */}
-        <div className="p-3.5 sm:p-4 border-b border-white/[0.06] bg-[#10121A] space-y-2.5 shrink-0">
+        <div className="p-3.5 sm:p-4 border-b border-white/[0.06] bg-black/20 space-y-2.5 shrink-0">
           {/* Input de búsqueda */}
           <div className="relative">
             <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -134,7 +134,7 @@ export const VocabularioModal: React.FC<VocabularioModalProps> = ({ isOpen, onCl
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar término o concepto..."
-              className="w-full bg-[#181C26] border border-white/[0.08] focus:border-[#E84A27]/60 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-gray-500 outline-none transition"
+              className="w-full inset-field focus:border-[#E84A27]/60 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-gray-500 outline-none transition"
             />
             {search && (
               <button
@@ -147,17 +147,17 @@ export const VocabularioModal: React.FC<VocabularioModalProps> = ({ isOpen, onCl
           </div>
 
           {/* Chips de categorías */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 no-scrollbar">
+          <div className="flex items-center gap-1.5 overflow-x-auto py-1 -my-1 px-0.5 no-scrollbar">
             {CATEGORIES.map((cat) => {
               const active = selectedCategory === cat;
               return (
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
-                  className={`px-2.5 py-1 rounded-lg text-[11px] font-sans font-medium transition shrink-0 cursor-pointer ${
+                  className={`px-3 py-1 rounded-full text-[11px] font-sans font-medium transition shrink-0 cursor-pointer ${
                     active
-                      ? 'bg-[#E84A27] text-white shadow-sm'
-                      : 'bg-white/[0.04] text-gray-400 hover:text-white hover:bg-white/[0.08]'
+                      ? 'btn-primary text-white'
+                      : 'btn-3d text-gray-400 hover:text-white'
                   }`}
                 >
                   {cat}
@@ -177,7 +177,7 @@ export const VocabularioModal: React.FC<VocabularioModalProps> = ({ isOpen, onCl
             filteredTerms.map((item) => (
               <div
                 key={item.term}
-                className="bg-[#181C26]/90 border border-white/[0.06] hover:border-white/[0.12] rounded-xl p-3.5 sm:p-4 space-y-1.5 transition"
+                className="sub-card rounded-2xl p-3.5 sm:p-4 space-y-1.5 transition"
               >
                 <div className="flex items-center justify-between gap-2">
                   <h4 className="font-serif font-bold text-sm sm:text-base text-white tracking-tight">
@@ -201,10 +201,10 @@ export const VocabularioModal: React.FC<VocabularioModalProps> = ({ isOpen, onCl
         </div>
 
         {/* Footer Modal */}
-        <div className="p-3 border-t border-white/[0.06] bg-[#10121A] shrink-0">
+        <div className="p-3 border-t border-white/[0.06] bg-black/20 shrink-0">
           <button
             onClick={onClose}
-            className="w-full py-2.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.14] text-white text-xs font-brand tracking-[0.18em] uppercase font-bold transition active:scale-98 cursor-pointer"
+            className="w-full py-2.5 rounded-xl btn-3d text-white text-xs font-brand tracking-[0.18em] uppercase font-bold cursor-pointer"
           >
             Cerrar
           </button>

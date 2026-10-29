@@ -40,7 +40,7 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
-      <div className="bg-[#14151F] border border-[#2B2E42] rounded-2xl max-w-lg w-full max-h-[88vh] overflow-y-auto p-4 sm:p-6 shadow-2xl text-white space-y-4">
+      <div className="modal-panel rounded-3xl max-w-lg w-full max-h-[88vh] overflow-y-auto p-4 sm:p-6 shadow-2xl text-white space-y-4">
         {/* Header Modal */}
         <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
           <div className="flex items-center gap-2.5">
@@ -56,7 +56,7 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition cursor-pointer"
+            className="icon-btn btn-3d text-gray-400 hover:text-white cursor-pointer"
             title="Cerrar"
           >
             <X className="w-5 h-5" />
@@ -64,7 +64,7 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
         </div>
 
         {/* 1. TARJETA COMUNIDAD PATREON */}
-        <div className="bg-[#181C26] p-4 rounded-xl border border-white/[0.06] hover:border-white/[0.12] space-y-2.5 shadow-md transition">
+        <div className="sub-card p-4 rounded-2xl space-y-2.5">
           <div className="flex items-center justify-between gap-2">
             <span className="font-brand text-[9.5px] uppercase tracking-widest text-[#FF5533] font-bold flex items-center gap-1.5">
               <Heart className="w-3.5 h-3.5 fill-[#E84A27] text-[#E84A27]" />
@@ -86,7 +86,7 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
             href={APP_CONFIG.patreonUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white/[0.08] hover:bg-white/[0.14] text-white font-sans text-xs font-bold uppercase tracking-wider transition active:scale-95 cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl btn-3d text-white font-sans text-xs font-bold uppercase tracking-wider cursor-pointer"
           >
             <span>Unirme a Patreon →</span>
             <ExternalLink className="w-3 h-3" />
@@ -94,7 +94,7 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
         </div>
 
         {/* 2. TARJETA PACK COMPLETO MÉTODO (HOTMART) */}
-        <div className="bg-gradient-to-r from-[#1C1E2C] via-[#1A1D2B] to-[#14151F] p-4 rounded-xl border border-[#E84A27]/40 space-y-2.5 shadow-md">
+        <div className="sub-card sub-card-accent p-4 rounded-2xl space-y-2.5">
           <div className="flex items-center justify-between gap-2">
             <span className="font-brand text-[9.5px] uppercase tracking-widest text-[#FF5533] font-bold flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
@@ -116,7 +116,7 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
             href={APP_CONFIG.hotmartPackUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[#E84A27] hover:bg-[#FF5533] text-white font-sans text-xs font-bold uppercase tracking-wider shadow-md transition active:scale-95 cursor-pointer"
+            className="inline-flex items-center justify-center gap-2 w-full py-2.5 rounded-xl btn-primary text-white font-sans text-xs font-bold uppercase tracking-wider cursor-pointer"
           >
             <span>Obtener Pack Completo en Hotmart</span>
             <ExternalLink className="w-3.5 h-3.5" />
@@ -124,7 +124,7 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
         </div>
 
         {/* 3. TARJETA WHATSAPP DIRECTO */}
-        <div className="bg-[#181C26] p-4 rounded-xl border border-white/[0.06] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
+        <div className="sub-card p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
           <div className="space-y-0.5">
             <div className="flex items-center gap-1.5 text-emerald-400 font-semibold text-xs">
               <MessageCircle className="w-4 h-4 shrink-0" />
@@ -138,7 +138,7 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
             href={APP_CONFIG.whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600/25 hover:bg-emerald-600/35 border border-emerald-500/40 text-emerald-300 font-sans text-xs font-bold uppercase tracking-wider transition active:scale-95 shrink-0 cursor-pointer"
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl btn-3d border-emerald-500/40 text-emerald-300 font-sans text-xs font-bold uppercase tracking-wider transition active:scale-95 shrink-0 cursor-pointer"
           >
             <MessageCircle className="w-3.5 h-3.5" />
             <span>Abrir WhatsApp</span>
@@ -146,7 +146,7 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
         </div>
 
         {/* 4. CÓDIGO ALUMNO PRO */}
-        <div className="bg-[#181C26] p-3.5 rounded-xl border border-white/[0.06] space-y-2 text-xs shadow-md">
+        <div className="sub-card p-3.5 rounded-2xl space-y-2 text-xs">
           <div className="flex items-center justify-between">
             <span className="font-semibold text-white flex items-center gap-1.5">
               <KeyRound className="w-3.5 h-3.5 text-[#E84A27]" />
@@ -175,12 +175,12 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
                     setCodeMessage(null);
                   }}
                   placeholder="Clave de licencia o código"
-                  className="flex-1 min-w-0 bg-black/40 border border-white/[0.1] focus:border-[#E84A27] rounded-lg px-3 py-1.5 text-xs text-white placeholder-gray-500 uppercase tracking-wider font-mono outline-none"
+                  className="flex-1 min-w-0 inset-field focus:border-[#E84A27] rounded-lg px-3 py-1.5 text-xs text-white placeholder-gray-500 uppercase tracking-wider font-mono outline-none"
                 />
                 <button
                   type="submit"
                   disabled={!proInput.trim() || checkingCode}
-                  className="disabled:opacity-50 px-3 py-1.5 rounded-lg bg-[#E84A27] hover:bg-[#FF5533] text-white font-sans text-xs font-semibold uppercase tracking-wider transition cursor-pointer shrink-0"
+                  className="disabled:opacity-50 px-3 py-1.5 rounded-lg btn-primary text-white font-sans text-xs font-semibold uppercase tracking-wider cursor-pointer shrink-0"
                 >
                   Activar
                 </button>
@@ -201,7 +201,7 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
         {/* Botón Cerrar */}
         <button
           onClick={onClose}
-          className="w-full py-2.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.14] text-white text-xs font-brand tracking-[0.18em] uppercase font-bold transition active:scale-98 cursor-pointer"
+          className="w-full py-2.5 rounded-xl btn-3d text-white text-xs font-brand tracking-[0.18em] uppercase font-bold cursor-pointer"
         >
           Cerrar
         </button>

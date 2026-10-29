@@ -43,11 +43,11 @@ export const ProUnlockModal: React.FC<ProUnlockModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-      <div className="bg-[#141821] border border-white/[0.08] rounded-2xl max-w-sm w-full max-h-[92vh] overflow-y-auto p-5 shadow-2xl text-white space-y-4 relative">
+      <div className="modal-panel rounded-3xl max-w-sm w-full max-h-[92vh] overflow-y-auto p-5 shadow-2xl text-white space-y-4 relative">
         {/* Botón Cerrar */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition cursor-pointer"
+          className="absolute top-4 right-4 icon-btn btn-3d text-gray-400 hover:text-white cursor-pointer"
           title="Cerrar"
         >
           <X className="w-5 h-5" />
@@ -82,7 +82,7 @@ export const ProUnlockModal: React.FC<ProUnlockModalProps> = ({
             href={APP_CONFIG.lemonSqueezyUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-[#E84A27] hover:bg-[#FF5533] active:scale-98 text-white font-sans text-xs font-bold uppercase tracking-wider shadow-lg shadow-[#E84A27]/25 transition cursor-pointer"
+            className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl btn-primary text-white font-sans text-xs font-bold uppercase tracking-wider cursor-pointer"
           >
             <span>Conseguir Versión PRO</span>
             <ExternalLink className="w-3.5 h-3.5" />
@@ -109,7 +109,7 @@ export const ProUnlockModal: React.FC<ProUnlockModalProps> = ({
                 setError(null);
               }}
               placeholder="Clave de licencia o código"
-              className="w-full bg-black/40 border border-white/[0.1] focus:border-[#E84A27] rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-gray-500 uppercase tracking-widest font-mono outline-none transition text-center"
+              className="w-full inset-field focus:border-[#E84A27] rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-gray-500 uppercase tracking-widest font-mono outline-none transition text-center"
             />
           </div>
 
@@ -123,7 +123,7 @@ export const ProUnlockModal: React.FC<ProUnlockModalProps> = ({
           <button
             type="submit"
             disabled={!code.trim() || checking}
-            className="w-full py-2 rounded-xl bg-white/[0.08] hover:bg-white/[0.14] active:scale-98 disabled:opacity-40 disabled:pointer-events-none text-gray-200 hover:text-white font-sans font-semibold text-xs uppercase tracking-wider transition border border-white/[0.08] cursor-pointer"
+            className="w-full py-2 rounded-xl btn-3d disabled:opacity-40 disabled:pointer-events-none text-gray-200 hover:text-white font-sans font-semibold text-xs uppercase tracking-wider transition border border-white/[0.08] cursor-pointer"
           >
             {checking ? 'Comprobando…' : 'Validar Código'}
           </button>
