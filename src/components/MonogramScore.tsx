@@ -395,7 +395,7 @@ const MonogramScoreComponent: React.FC<MonogramScoreProps> = ({
     <div
       id="monogramSheetContainer"
       ref={containerRef}
-      className="bg-[#181C26] text-white rounded-[16px] border border-white/[0.07] p-3 sm:p-4 shadow-xl overflow-x-auto select-none scroll-smooth"
+      className="score-panel text-white rounded-2xl p-3 sm:p-4 overflow-x-auto select-none scroll-smooth"
       style={{ scrollBehavior: 'smooth' }}
     >
       <div className="min-w-max flex justify-center">

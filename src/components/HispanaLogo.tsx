@@ -56,7 +56,7 @@ export const HispanaLogo: React.FC<HispanaLogoProps> = ({
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       <div
-        className={`bg-[#141821] shadow-sm flex items-center justify-center shrink-0 border border-white/[0.08] ring-1 ring-white/[0.04] hover:border-white/20 transition-all ${sizeClasses}`}
+        className={`btn-3d flex items-center justify-center shrink-0 ${sizeClasses}`}
         title="Hispana Percusión"
       >
         <HispanaMark className="w-full h-full" />
