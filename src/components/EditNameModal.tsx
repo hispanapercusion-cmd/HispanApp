@@ -67,17 +67,17 @@ export const EditNameModal: React.FC<EditNameModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-[#14151F] border border-[#2B2E42] rounded-2xl max-w-sm w-full max-h-[92vh] overflow-y-auto p-5 sm:p-6 shadow-2xl text-white space-y-4 relative">
+      <div className="modal-panel rounded-3xl max-w-sm w-full max-h-[92vh] overflow-y-auto p-5 sm:p-6 shadow-2xl text-white space-y-4 relative">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition cursor-pointer"
+          className="absolute top-4 right-4 icon-btn btn-3d text-gray-400 hover:text-white cursor-pointer"
           title="Cerrar"
         >
           <X className="w-4 h-4" />
         </button>
 
         <div className="flex items-center gap-2.5 border-b border-white/[0.08] pb-3">
-          <div className="w-9 h-9 rounded-xl bg-[#C83214]/20 border border-[#C83214]/40 flex items-center justify-center text-[#FF5533]">
+          <div className="w-9 h-9 rounded-xl bg-[#E84A27]/15 border border-[#E84A27]/35 flex items-center justify-center text-[#FF5533]">
             <User className="w-4 h-4" />
           </div>
           <div>
@@ -92,7 +92,7 @@ export const EditNameModal: React.FC<EditNameModalProps> = ({
 
         <form onSubmit={handleSubmit} className="space-y-3.5">
           {error && (
-            <div className="p-2 rounded-lg bg-[#C83214]/15 border border-[#C83214]/40 text-[#FF6B4A] text-xs font-sans">
+            <div className="p-2 rounded-lg bg-[#E84A27]/12 border border-[#E84A27]/35 text-[#FF6B4A] text-xs font-sans">
               {error}
             </div>
           )}
@@ -107,7 +107,7 @@ export const EditNameModal: React.FC<EditNameModalProps> = ({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="ej. Carmen, Marcos, Ana..."
-              className="w-full bg-[#1C1E2C] border border-[#2B2E42] focus:border-[#C83214] rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none transition font-medium"
+              className="w-full inset-field focus:border-[#E84A27] rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none transition font-medium"
             />
           </div>
 
@@ -121,7 +121,7 @@ export const EditNameModal: React.FC<EditNameModalProps> = ({
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="ej. nombre@correo.com"
-              className="w-full bg-[#1C1E2C] border border-[#2B2E42] focus:border-[#C83214] rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none transition font-medium"
+              className="w-full inset-field focus:border-[#E84A27] rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none transition font-medium"
             />
           </div>
 
@@ -137,8 +137,8 @@ export const EditNameModal: React.FC<EditNameModalProps> = ({
                   onClick={() => setRole(r)}
                   className={`py-2 px-1.5 rounded-lg text-xs font-sans font-medium text-center transition cursor-pointer border ${
                     role === r
-                      ? 'bg-[#C83214] text-white border-[#C83214]'
-                      : 'bg-[#1C1E2C] text-gray-300 border-[#2B2E42]'
+                      ? 'btn-primary text-white'
+                      : 'btn-3d text-gray-300'
                   }`}
                 >
                   {r}
@@ -159,8 +159,8 @@ export const EditNameModal: React.FC<EditNameModalProps> = ({
                   onClick={() => setLevel(lvl)}
                   className={`py-1.5 rounded-lg text-xs font-sans font-medium text-center transition cursor-pointer border ${
                     level === lvl
-                      ? 'bg-[#C83214] text-white border-[#C83214]'
-                      : 'bg-[#1C1E2C] text-gray-300 border-[#2B2E42]'
+                      ? 'btn-primary text-white'
+                      : 'btn-3d text-gray-300'
                   }`}
                 >
                   {lvl}
@@ -173,13 +173,13 @@ export const EditNameModal: React.FC<EditNameModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-gray-300 text-xs font-semibold transition cursor-pointer"
+              className="flex-1 py-2.5 rounded-xl btn-3d text-gray-300 text-xs font-semibold cursor-pointer"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="flex-1 py-2.5 rounded-xl bg-[#C83214] hover:bg-[#E84A27] text-white text-xs font-bold uppercase tracking-wider shadow-md transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
+              className="flex-1 py-2.5 rounded-xl btn-primary text-white text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
             >
               <Check className="w-3.5 h-3.5" />
               <span>Guardar</span>

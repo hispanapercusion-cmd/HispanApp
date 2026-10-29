@@ -64,11 +64,11 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
-      <div className="bg-[#14151F] border border-[#2B2E42] rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl text-white space-y-4 relative">
+      <div className="modal-panel rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl text-white space-y-4 relative">
         {/* Botón Cerrar */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition cursor-pointer"
+          className="absolute top-4 right-4 icon-btn btn-3d text-gray-400 hover:text-white cursor-pointer"
           title="Cerrar"
         >
           <X className="w-5 h-5" />
@@ -88,7 +88,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
         </div>
 
         {/* Beneficios */}
-        <div className="bg-[#1C1E2C] border border-[#2B2E42] p-3 rounded-xl space-y-2 text-xs text-gray-300">
+        <div className="sub-card p-3 rounded-2xl space-y-2 text-xs text-gray-300">
           <p className="font-medium text-white">
             Accede sin costo a la colección completa de compases del método:
           </p>
@@ -120,7 +120,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Tu nombre"
-              className="w-full bg-black/40 border border-[#2B2E42] focus:border-[#E84A27] rounded-xl px-3.5 py-2 text-sm text-white placeholder-gray-500 outline-none transition"
+              className="w-full inset-field focus:border-[#E84A27] rounded-xl px-3.5 py-2 text-sm text-white placeholder-gray-500 outline-none transition"
             />
           </div>
 
@@ -134,14 +134,14 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="tu@correo.com"
-              className="w-full bg-black/40 border border-[#2B2E42] focus:border-[#E84A27] rounded-xl px-3.5 py-2 text-sm text-white placeholder-gray-500 outline-none transition"
+              className="w-full inset-field focus:border-[#E84A27] rounded-xl px-3.5 py-2 text-sm text-white placeholder-gray-500 outline-none transition"
             />
           </div>
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-2.5 rounded-xl bg-[#E84A27] hover:bg-[#FF5533] active:scale-98 text-white font-sans font-bold text-xs uppercase tracking-wider shadow-lg transition cursor-pointer mt-1"
+            className="w-full py-2.5 rounded-xl btn-primary text-white font-sans font-bold text-xs uppercase tracking-wider cursor-pointer mt-1"
           >
             {isSubmitting ? 'Desbloqueando...' : 'Desbloquear los 8 Ritmos →'}
           </button>

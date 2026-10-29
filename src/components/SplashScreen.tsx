@@ -229,7 +229,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
   return (
     <div
       id="welcomeSplashScreen"
-      className={`fixed inset-0 z-50 bg-[#14151F] flex flex-col justify-between items-center p-6 sm:p-8 select-none overflow-y-auto splash-exit ${
+      className={`fixed inset-0 z-50 app-backdrop flex flex-col justify-between items-center p-6 sm:p-8 select-none overflow-y-auto splash-exit ${
         isFadingOut ? 'is-leaving pointer-events-none' : ''
       }`}
     >
@@ -294,7 +294,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
             <div id="firstTimeForm" className="w-full space-y-4 animate-fadeIn mt-5">
               <form onSubmit={handleNextToStep2} className="space-y-4">
                 {errorMsg && (
-                  <div className="p-2.5 rounded-xl bg-[#C83214]/15 border border-[#C83214]/40 text-[#FF6B4A] text-xs font-sans text-center">
+                  <div className="p-2.5 rounded-xl bg-[#E84A27]/12 border border-[#E84A27]/35 text-[#FF6B4A] text-xs font-sans text-center">
                     {errorMsg}
                   </div>
                 )}
@@ -310,7 +310,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
                     value={formName}
                     onChange={(e) => setFormName(e.target.value)}
                     placeholder="ej. Carmen, Marcos, Ana..."
-                    className="w-full bg-[#1C1E2C] border border-[#2B2E42] rounded-xl px-4 py-3 text-sm font-medium text-white placeholder-gray-500 focus:outline-none focus:border-[#C83214] transition"
+                    className="w-full inset-field rounded-xl px-4 py-3 text-sm font-medium text-white placeholder-gray-500 focus:outline-none focus:border-[#E84A27] transition"
                   />
                 </div>
 
@@ -325,13 +325,13 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
                     value={formEmail}
                     onChange={(e) => setFormEmail(e.target.value)}
                     placeholder="ej. nombre@correo.com"
-                    className="w-full bg-[#1C1E2C] border border-[#2B2E42] rounded-xl px-4 py-3 text-sm font-medium text-white placeholder-gray-500 focus:outline-none focus:border-[#C83214] transition"
+                    className="w-full inset-field rounded-xl px-4 py-3 text-sm font-medium text-white placeholder-gray-500 focus:outline-none focus:border-[#E84A27] transition"
                   />
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full py-3.5 rounded-xl bg-[#C83214] hover:bg-[#E84A27] text-white font-brand font-bold text-xs uppercase tracking-wider shadow-lg transition active:scale-98 cursor-pointer flex items-center justify-center gap-2 mt-2"
+                  className="w-full py-3.5 rounded-xl btn-primary text-white font-brand font-bold text-xs uppercase tracking-wider cursor-pointer flex items-center justify-center gap-2 mt-2"
                 >
                   <span>Continuar</span>
                   <span>→</span>
@@ -348,7 +348,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
           <div className="w-full max-w-sm sm:max-w-md space-y-5 animate-fadeIn mt-2">
             <form onSubmit={handleFinalSubmit} className="space-y-5">
               {errorMsg && (
-                <div className="p-2.5 rounded-xl bg-[#C83214]/15 border border-[#C83214]/40 text-[#FF6B4A] text-xs font-sans text-center">
+                <div className="p-2.5 rounded-xl bg-[#E84A27]/12 border border-[#E84A27]/35 text-[#FF6B4A] text-xs font-sans text-center">
                   {errorMsg}
                 </div>
               )}
@@ -371,8 +371,8 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
                         }}
                         className={`w-full py-3.5 px-4 rounded-xl text-sm sm:text-base font-sans font-medium text-center transition cursor-pointer border flex items-center justify-center gap-2 active:scale-98 ${
                           isSelected
-                            ? 'bg-[#C83214] text-white border-[#C83214] shadow-[0_0_15px_rgba(200,50,20,0.45)]'
-                            : 'bg-[#1C1E2C] text-gray-300 border-[#2B2E42] hover:border-gray-500 hover:text-white'
+                            ? 'btn-primary text-white'
+                            : 'btn-3d text-gray-300 hover:text-white'
                         }`}
                       >
                         {r}
@@ -400,8 +400,8 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
                         }}
                         className={`w-full py-3 px-4 rounded-xl text-sm sm:text-base font-sans font-medium text-center transition cursor-pointer border active:scale-98 ${
                           isSelected
-                            ? 'bg-[#C83214] text-white border-[#C83214] shadow-[0_0_15px_rgba(200,50,20,0.45)]'
-                            : 'bg-[#1C1E2C] text-gray-300 border-[#2B2E42] hover:border-gray-500 hover:text-white'
+                            ? 'btn-primary text-white'
+                            : 'btn-3d text-gray-300 hover:text-white'
                         }`}
                       >
                         {lvl}
@@ -414,7 +414,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
               {/* Botón Guardar y Comenzar */}
               <button
                 type="submit"
-                className="w-full py-4 rounded-xl bg-[#C83214] hover:bg-[#E84A27] text-white font-brand font-bold text-xs sm:text-sm uppercase tracking-wider shadow-lg transition active:scale-98 cursor-pointer flex items-center justify-center gap-2 mt-3"
+                className="w-full py-4 rounded-xl btn-primary text-white font-brand font-bold text-xs sm:text-sm uppercase tracking-wider cursor-pointer flex items-center justify-center gap-2 mt-3"
               >
                 Guardar y Comenzar a Practicar
               </button>

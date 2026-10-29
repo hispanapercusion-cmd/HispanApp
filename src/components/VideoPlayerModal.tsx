@@ -17,7 +17,7 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/90 backdrop-blur-md animate-fadeIn">
-      <div className="bg-[#14151F] border border-[#2B2E42] rounded-2xl max-w-3xl w-full p-4 sm:p-6 shadow-2xl text-white space-y-3 relative">
+      <div className="modal-panel rounded-3xl max-w-3xl w-full p-4 sm:p-6 shadow-2xl text-white space-y-3 relative">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
           <div className="flex items-center gap-2">
@@ -35,7 +35,7 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition cursor-pointer"
+            className="icon-btn btn-3d text-gray-400 hover:text-white cursor-pointer"
             title="Cerrar video"
           >
             <X className="w-5 h-5" />
@@ -62,7 +62,7 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
             href={rhythm.videoUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.08] text-xs font-sans font-medium text-gray-200 hover:text-white transition active:scale-95 shrink-0"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl btn-3d text-xs font-sans font-medium text-gray-200 hover:text-white transition active:scale-95 shrink-0"
           >
             <span>Abrir directamente en YouTube</span>
             <ExternalLink className="w-3.5 h-3.5 text-[#FF5533]" />
