@@ -219,6 +219,29 @@ export default function App() {
     };
   }, []);
 
+  // Al salir de la app (cambiar de app, bloquear el teléfono o cambiar de pestaña) se para la reproducción:
+  // en segundo plano el navegador frena el temporizador y los golpes sonarían desordenados.
+  const isPlayingRef = useRef(isPlaying);
+  isPlayingRef.current = isPlaying;
+  useEffect(() => {
+    const stopPlayback = () => {
+      if (!isPlayingRef.current) return;
+      engineRef.current?.stop();
+      setIsPlaying(false);
+      setActiveStep(-1);
+      setCountInText(null);
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') stopPlayback();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('pagehide', stopPlayback);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('pagehide', stopPlayback);
+    };
+  }, []);
+
   // Screen Wake Lock API handlers
   const requestWakeLock = async () => {
     if (typeof navigator === 'undefined' || !('wakeLock' in navigator)) return;

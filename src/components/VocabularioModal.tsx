@@ -37,9 +37,9 @@ const VOCABULARIO_DATA: TermItem[] = [
     definition: 'Convención práctica que reemplaza el «12» por «2» y el «11» por «1» para agilizar el conteo mental a velocidades altas.',
   },
   {
-    term: 'Palmas Secas',
+    term: 'Palmas Brillantes',
     category: 'Percusión',
-    definition: 'Toque brillante, agudo y percusivo de los dedos sobre la palma abierta. Se utiliza en momentos de clímax, aceleraciones y remates.',
+    definition: 'Toque agudo, nítido y penetrante de los dedos sobre la palma abierta. Se utiliza en momentos de clímax, aceleraciones y remates.',
   },
   {
     term: 'Palmas Sordas',
