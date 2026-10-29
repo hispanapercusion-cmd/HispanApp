@@ -3,6 +3,9 @@ import { X, ExternalLink, Sparkles, Heart, MessageCircle, KeyRound, CheckCircle2
 import { HispanaLogo } from './HispanaLogo';
 import { APP_CONFIG } from '../config';
 import { ProCheckResult, proErrorMessage } from '../services/pro';
+import { RecoverAccessInfo, SavedProCode } from './RecoverAccessInfo';
+import { InstallCard } from './InstallCard';
+import { LegalLinks } from './LegalLinks';
 
 interface CommunityModalProps {
   isOpen: boolean;
@@ -10,6 +13,7 @@ interface CommunityModalProps {
   isPro?: boolean;
   onActivateProCode?: (code: string) => Promise<ProCheckResult>;
   onStartTour?: () => void;
+  onOpenFeedback?: () => void;
 }
 
 export const CommunityModal: React.FC<CommunityModalProps> = ({
@@ -18,6 +22,7 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
   isPro = false,
   onActivateProCode,
   onStartTour,
+  onOpenFeedback,
 }) => {
   const [proInput, setProInput] = useState('');
   const [checkingCode, setCheckingCode] = useState(false);
@@ -194,11 +199,34 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
               )}
             </form>
           ) : (
-            <p className="text-gray-400 text-[11px]">
-              Tienes acceso ilimitado a los 8 ritmos, videos oficiales y entrenador.
-            </p>
+            <div className="space-y-2.5">
+              <p className="text-gray-400 text-[11px]">
+                Tienes acceso ilimitado a los 8 ritmos, videos oficiales y entrenador.
+              </p>
+              <SavedProCode />
+            </div>
           )}
+          <RecoverAccessInfo />
         </div>
+
+        {/* Instalar la app */}
+        <InstallCard />
+
+        {/* Enviar opinión */}
+        {onOpenFeedback && (
+          <div className="sub-card p-4 rounded-2xl flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-xs font-semibold text-white">💬 Envíanos tu opinión</p>
+              <p className="text-[11.5px] text-gray-400 leading-snug mt-0.5">Sugerencias, ideas o algo que no funciona. ¡Nos ayuda mucho!</p>
+            </div>
+            <button
+              onClick={onOpenFeedback}
+              className="px-4 py-2 rounded-full btn-primary text-white text-[11px] font-bold uppercase tracking-wider shrink-0 cursor-pointer"
+            >
+              Opinar
+            </button>
+          </div>
+        )}
 
         {/* Repetir el recorrido de la app */}
         {onStartTour && (
@@ -210,6 +238,8 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
             <span>Ver el recorrido de la app</span>
           </button>
         )}
+
+        <LegalLinks />
 
         {/* Botón Cerrar */}
         <button

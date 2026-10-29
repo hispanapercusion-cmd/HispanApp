@@ -3,6 +3,9 @@ import { UserProfile, UserFlamencoRole, UserFlamencoLevel } from '../types';
 import { APP_CONFIG } from '../config';
 import { saveLeadToFirestore } from '../services/firebase';
 import { HispanaMark } from './HispanaLogo';
+import { ConsentChecks, ConsentValues } from './ConsentChecks';
+import { saveConsent, CONSENT_VERSION } from '../services/consent';
+import { track } from '../services/analytics';
 
 interface SplashScreenProps {
   onFinish: () => void;
@@ -39,6 +42,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
   const [formRole, setFormRole] = useState<UserFlamencoRole | null>(null);
   const [formLevel, setFormLevel] = useState<UserFlamencoLevel | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [consent, setConsent] = useState<ConsentValues>({ accepted: false, marketing: false, analytics: false });
 
   // 1. Verificación de Perfil en localStorage
   useEffect(() => {
@@ -133,6 +137,10 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
       setErrorMsg('Por favor ingresa tu nombre y tu email.');
       return;
     }
+    if (!consent.accepted) {
+      setErrorMsg('Para continuar, acepta la Política de privacidad y los Términos y condiciones.');
+      return;
+    }
     setErrorMsg(null);
     setMode('step2_role_level');
   };
@@ -161,6 +169,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
     localStorage.setItem('hispanapp_user_profile', JSON.stringify(newProfile));
     localStorage.setItem('hispanapp_registered', 'true');
     localStorage.setItem('hispanapp_username', cleanName);
+    saveConsent({ marketing: consent.marketing, analytics: consent.analytics });
 
     // Guardado en Firebase Firestore
     try {
@@ -170,6 +179,9 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
         role: formRole || undefined,
         level: formLevel || undefined,
         source: 'onboarding_splash',
+        consentVersion: CONSENT_VERSION,
+        marketingOptIn: consent.marketing,
+        analyticsOptIn: consent.analytics,
       });
     } catch (err) {
       console.warn('Firebase error in splash onboarding:', err);
@@ -193,6 +205,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
 
     setProfile(newProfile);
     onProfileSave(newProfile);
+    track('sign_up', { role: formRole || '', level: formLevel || '' });
 
     // Iniciar la animación cinemática de bienvenida con su nuevo nombre
     setMode('welcome_cinematic');
@@ -327,6 +340,10 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
                     placeholder="ej. nombre@correo.com"
                     className="w-full inset-field rounded-xl px-4 py-3 text-sm font-medium text-white placeholder-gray-500 focus:outline-none focus:border-[#E84A27] transition"
                   />
+                </div>
+
+                <div className="pt-1">
+                  <ConsentChecks idPrefix="reg" value={consent} onChange={(v) => { setConsent(v); setErrorMsg(null); }} />
                 </div>
 
                 <button

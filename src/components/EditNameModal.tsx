@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { X, User, Check } from 'lucide-react';
+import { X, User, Check, ShieldCheck, ChevronDown } from 'lucide-react';
+import { APP_CONFIG } from '../config';
+import { getConsent, saveConsent, CONSENT_VERSION } from '../services/consent';
+import { saveLeadToFirestore } from '../services/firebase';
+import { CheckRow } from './ConsentChecks';
 import { UserProfile, UserFlamencoRole, UserFlamencoLevel } from '../types';
 
 interface EditNameModalProps {
@@ -29,6 +33,10 @@ export const EditNameModal: React.FC<EditNameModalProps> = ({
   const [role, setRole] = useState<UserFlamencoRole>('Percusionista 🥁');
   const [level, setLevel] = useState<UserFlamencoLevel>('Medio');
   const [error, setError] = useState<string | null>(null);
+  const [privacyOpen, setPrivacyOpen] = useState(false);
+  const [marketing, setMarketing] = useState(false);
+  const [analytics, setAnalytics] = useState(false);
+  const [confirmWipe, setConfirmWipe] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -37,7 +45,48 @@ export const EditNameModal: React.FC<EditNameModalProps> = ({
       if (profile.role) setRole(profile.role);
       if (profile.level) setLevel(profile.level);
     }
+    const c = getConsent();
+    setMarketing(!!c?.marketing);
+    setAnalytics(!!c?.analytics);
+    setConfirmWipe(false);
   }, [profile, isOpen]);
+
+  // Cambiar las opciones voluntarias se aplica al momento (no hace falta pulsar Guardar)
+  const updatePrefs = (next: { marketing: boolean; analytics: boolean }) => {
+    setMarketing(next.marketing);
+    setAnalytics(next.analytics);
+    saveConsent(next);
+    if (profile) {
+      saveLeadToFirestore({
+        name: profile.name,
+        email: profile.contact,
+        role: profile.role,
+        level: profile.level,
+        source: 'preferencias_privacidad',
+        consentVersion: CONSENT_VERSION,
+        marketingOptIn: next.marketing,
+        analyticsOptIn: next.analytics,
+      });
+    }
+  };
+
+  const deletionMailto = () => {
+    const subject = 'Solicitud de borrado de datos - HispanApp';
+    const body = `Hola,\n\nQuiero que borren mis datos personales de HispanApp.\n\nNombre: ${profile?.name || ''}\nEmail registrado: ${profile?.contact || ''}\n\nGracias.`;
+    return `mailto:${APP_CONFIG.contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  };
+
+  // Borra todo lo que la app guarda en este dispositivo (perfil, ajustes y acceso PRO) y vuelve a empezar
+  const wipeDevice = () => {
+    try {
+      Object.keys(localStorage)
+        .filter((k) => k.startsWith('hispanapp_'))
+        .forEach((k) => localStorage.removeItem(k));
+    } catch {
+      // Ignorar
+    }
+    window.location.reload();
+  };
 
   if (!isOpen) return null;
 
@@ -167,6 +216,72 @@ export const EditNameModal: React.FC<EditNameModalProps> = ({
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Privacidad y datos */}
+          <div className="sub-card rounded-2xl">
+            <button
+              type="button"
+              onClick={() => setPrivacyOpen((o) => !o)}
+              className="w-full flex items-center justify-between gap-2 px-3.5 py-3 text-left cursor-pointer"
+              aria-expanded={privacyOpen}
+            >
+              <span className="flex items-center gap-2 text-xs font-semibold text-gray-200">
+                <ShieldCheck className="w-4 h-4 text-[#FF6B4A]" />
+                Privacidad y datos
+              </span>
+              <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${privacyOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {privacyOpen && (
+              <div className="px-3.5 pb-3.5 space-y-3 animate-fadeIn">
+                <CheckRow id="prof-marketing" checked={marketing} onChange={(v) => updatePrefs({ marketing: v, analytics })}>
+                  Recibir novedades, clases y ofertas por email.
+                </CheckRow>
+                <CheckRow id="prof-analytics" checked={analytics} onChange={(v) => updatePrefs({ marketing, analytics: v })}>
+                  Permitir estadísticas anónimas de uso.
+                </CheckRow>
+
+                <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11.5px]">
+                  <a href={APP_CONFIG.privacyUrl} target="_blank" rel="noopener" className="text-[#FF6B4A] underline underline-offset-2">Política de privacidad</a>
+                  <a href={APP_CONFIG.termsUrl} target="_blank" rel="noopener" className="text-[#FF6B4A] underline underline-offset-2">Términos y condiciones</a>
+                </div>
+
+                <a
+                  href={deletionMailto()}
+                  className="block w-full text-center py-2 rounded-xl btn-3d text-gray-200 text-[11.5px] font-semibold"
+                >
+                  Solicitar el borrado de mis datos
+                </a>
+                <p className="text-[10.5px] text-gray-500 leading-relaxed -mt-1">
+                  Se abrirá tu correo con la solicitud lista. Respondemos en un máximo de 5 días hábiles.
+                </p>
+
+                {!confirmWipe ? (
+                  <button
+                    type="button"
+                    onClick={() => setConfirmWipe(true)}
+                    className="w-full py-2 rounded-xl text-[11.5px] text-gray-400 hover:text-white transition cursor-pointer"
+                  >
+                    Borrar los datos de este dispositivo
+                  </button>
+                ) : (
+                  <div className="rounded-xl bg-[#E84A27]/12 border border-[#E84A27]/35 p-2.5 space-y-2">
+                    <p className="text-[11.5px] text-[#FFB4A2] leading-relaxed">
+                      Se borrarán tu perfil, tus ajustes y tu acceso PRO de este dispositivo. Para volver a ser PRO tendrás que escribir otra vez tu clave o código.
+                    </p>
+                    <div className="flex gap-2">
+                      <button type="button" onClick={() => setConfirmWipe(false)} className="flex-1 py-1.5 rounded-lg btn-3d text-[11px] text-gray-300 cursor-pointer">
+                        Cancelar
+                      </button>
+                      <button type="button" onClick={wipeDevice} className="flex-1 py-1.5 rounded-lg btn-primary text-[11px] font-bold cursor-pointer">
+                        Sí, borrar
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-2 pt-2 border-t border-white/[0.06]">

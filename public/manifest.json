@@ -1,16 +1,17 @@
 {
-  "name": "HispanApp",
+  "name": "HispanApp — Los Ritmos del Flamenco",
   "short_name": "HispanApp",
-  "description": "La aplicación para dominar el compás flamenco.",
-  "start_url": "/HispanApp/",
+  "description": "Método interactivo de palmas y compás flamenco de Jordan Migues (Hispana Percusión).",
+  "lang": "es",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#0f172a",
+  "orientation": "any",
+  "background_color": "#0A0C11",
+  "theme_color": "#0A0C11",
+  "categories": ["music", "education"],
   "icons": [
-    {
-      "src": "icon-512.PNG",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.PNG", "sizes": "512x512", "type": "image/png", "purpose": "any" }
   ]
 }

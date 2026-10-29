@@ -8,6 +8,12 @@ export interface AppConfig {
   /** ID de tu tienda en Lemon Squeezy: solo se aceptan licencias de esta tienda (null = sin comprobar) */
   lemonStoreId: number | null;
   leadWebhookUrl: string;
+  /** Email de contacto para privacidad, borrado de datos y arrepentimiento */
+  contactEmail: string;
+  /** Páginas legales (relativas a la app) */
+  privacyUrl: string;
+  termsUrl: string;
+  withdrawalUrl: string;
 }
 
 export const APP_CONFIG: AppConfig = {
@@ -20,5 +26,9 @@ export const APP_CONFIG: AppConfig = {
   lemonLicenseApiUrl: "https://api.lemonsqueezy.com/v1/licenses/validate",
   lemonStoreId: null,
   leadWebhookUrl: "",
+  contactEmail: "hispanapercusion@gmail.com",
+  privacyUrl: "./legal/privacidad.html",
+  termsUrl: "./legal/terminos.html",
+  withdrawalUrl: "./legal/arrepentimiento.html",
 };
 

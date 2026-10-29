@@ -11,7 +11,7 @@ export const firebaseConfig = {
   measurementId: "G-MV8L71TRJS"
 };
 
-const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+export const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 
 export interface LeadData {
@@ -21,6 +21,10 @@ export interface LeadData {
   role?: string;
   level?: string;
   source?: string;
+  /** Consentimiento: versión aceptada de la política y opciones voluntarias */
+  consentVersion?: string;
+  marketingOptIn?: boolean;
+  analyticsOptIn?: boolean;
 }
 
 // Registros pendientes: si no hay conexión, el registro se guarda en el dispositivo
@@ -45,6 +49,12 @@ function writePending(list: PendingLead[]) {
   }
 }
 
+// Errores que nunca se arreglarán reintentando (p. ej. rechazado por las reglas): el registro se descarta
+function isPermanentError(err: unknown): boolean {
+  const code = (err as { code?: string } | null)?.code || '';
+  return code === 'permission-denied' || code === 'invalid-argument' || code === 'failed-precondition';
+}
+
 // Registros que esta sesión ya está enviando (Firebase los reintenta solo mientras la app sigue abierta)
 const inFlight = new Set<string>();
 
@@ -60,6 +70,9 @@ async function sendLead(data: LeadData, createdAt: string) {
     role: data.role || 'Percusionista 🥁',
     level: data.level || 'Principiante',
     source: data.source || 'hispanapp_web',
+    consentVersion: data.consentVersion || '',
+    marketingOptIn: data.marketingOptIn === true,
+    analyticsOptIn: data.analyticsOptIn === true,
     createdAt,
     timestamp: serverTimestamp(),
   });
@@ -81,7 +94,8 @@ export async function saveLeadToFirestore(data: LeadData) {
     console.log('[Firebase Firestore] Lead registrado con ID:', docRef.id);
     return { success: true, id: docRef.id };
   } catch (err) {
-    console.warn('[Firebase Firestore] Error al guardar lead (queda pendiente):', err);
+    if (isPermanentError(err)) removePending(pendingId);
+    console.warn('[Firebase Firestore] Error al guardar lead:', err);
     return { success: false, error: err };
   } finally {
     inFlight.delete(pendingId);
@@ -104,7 +118,11 @@ export async function flushPendingLeads() {
         const { pendingId, createdAt, ...data } = lead;
         await sendLead(data, createdAt);
         removePending(pendingId);
-      } catch {
+      } catch (err) {
+        if (isPermanentError(err)) {
+          removePending(lead.pendingId);
+          continue;
+        }
         break; // Sigue sin conexión: se reintentará más tarde
       } finally {
         inFlight.delete(lead.pendingId);
@@ -113,4 +131,28 @@ export async function flushPendingLeads() {
   } finally {
     flushing = false;
   }
+}
+
+export interface FeedbackData {
+  type: 'sugerencia' | 'error' | 'otro';
+  rating: number; // 0 = sin valorar, 1-5
+  message: string;
+  name: string;
+  email: string;
+  rhythm: string;
+}
+
+/** Guarda una opinión del alumno en la colección "opiniones" de Firestore */
+export async function saveFeedback(data: FeedbackData) {
+  return addDoc(collection(db, 'opiniones'), {
+    type: data.type,
+    rating: Math.max(0, Math.min(5, Math.round(data.rating))),
+    message: data.message.slice(0, 2000),
+    name: (data.name || '').slice(0, 120),
+    email: (data.email || '').slice(0, 200),
+    rhythm: (data.rhythm || '').slice(0, 40),
+    userAgent: (typeof navigator !== 'undefined' ? navigator.userAgent : '').slice(0, 300),
+    createdAt: new Date().toISOString(),
+    timestamp: serverTimestamp(),
+  });
 }

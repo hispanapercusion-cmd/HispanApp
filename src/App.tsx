@@ -14,6 +14,10 @@ import { AtrilLandscapeMode } from './components/AtrilLandscapeMode';
 import { SplashScreen } from './components/SplashScreen';
 import { EditNameModal } from './components/EditNameModal';
 import { AppTour, TourStep } from './components/AppTour';
+import { ConsentGateModal } from './components/ConsentGateModal';
+import { FeedbackModal } from './components/FeedbackModal';
+import { track } from './services/analytics';
+import { hasValidConsent, onConsentChange, saveConsent, CONSENT_VERSION } from './services/consent';
 import { CountMode, PalmaTone, TrainerConfig, ViewMode, UserProfile } from './types';
 import { APP_CONFIG } from './config';
 import { verifyProCode, ProCheckResult } from './services/pro';
@@ -92,6 +96,26 @@ export default function App() {
   });
   const [isEditNameOpen, setIsEditNameOpen] = useState<boolean>(false);
   const [isTourOpen, setIsTourOpen] = useState<boolean>(false);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState<boolean>(false);
+  // Consentimiento de privacidad (se pide una vez a quien ya estaba registrado sin haberlo aceptado)
+  const [consentOk, setConsentOk] = useState<boolean>(() => hasValidConsent());
+  useEffect(() => onConsentChange((c) => setConsentOk(!!c && c.version === CONSENT_VERSION)), []);
+
+  const handleConsentGateAccept = (prefs: { marketing: boolean; analytics: boolean }) => {
+    saveConsent(prefs);
+    if (userProfile) {
+      saveLeadToFirestore({
+        name: userProfile.name,
+        email: userProfile.contact,
+        role: userProfile.role,
+        level: userProfile.level,
+        source: 'consentimiento',
+        consentVersion: CONSENT_VERSION,
+        marketingOptIn: prefs.marketing,
+        analyticsOptIn: prefs.analytics,
+      });
+    }
+  };
   const [audioReady, setAudioReady] = useState<boolean>(false);
 
   // Trainer Modal
@@ -218,6 +242,14 @@ export default function App() {
       engine.stop();
     };
   }, []);
+
+  // Estadísticas: qué ventanas se abren (solo si el alumno permitió las estadísticas)
+  useEffect(() => { if (isProModalOpen) track('open_pro_modal', { rhythm: currentRhythm.id }); }, [isProModalOpen]);
+  useEffect(() => { if (isCommunityModalOpen) track('open_community'); }, [isCommunityModalOpen]);
+  useEffect(() => { if (isTheoryModalOpen) track('open_vocabulary'); }, [isTheoryModalOpen]);
+  useEffect(() => { if (isVideoModalOpen) track('open_video', { rhythm: currentRhythm.id }); }, [isVideoModalOpen]);
+  useEffect(() => { if (isTrainerOpen) track('open_trainer'); }, [isTrainerOpen]);
+  useEffect(() => { if (isAtrilMode) track('open_atril'); }, [isAtrilMode]);
 
   // Al salir de la app (cambiar de app, bloquear el teléfono o cambiar de pestaña) se para la reproducción:
   // en segundo plano el navegador frena el temporizador y los golpes sonarían desordenados.
@@ -356,6 +388,7 @@ export default function App() {
     }
     setRhythmIndex(newRhythmIdx);
     const nextRhythm = PALMAS_METHOD[newRhythmIdx];
+    track('select_rhythm', { rhythm: nextRhythm.id });
     const defaultBpm = nextRhythm.bpmRange.default;
     setBpmState(defaultBpm);
     setActiveStep(-1);
@@ -404,6 +437,7 @@ export default function App() {
       engineRef.current.setCountInEnabled(countInEnabled);
       engineRef.current.start(countInEnabled);
       setIsPlaying(true);
+      track('play', { rhythm: currentRhythm.id, bpm });
     }
   };
 
@@ -481,6 +515,8 @@ export default function App() {
     const result = await verifyProCode(code);
     if (result.ok) {
       localStorage.setItem('hispanapp_pro', 'true');
+      localStorage.setItem('hispanapp_pro_code', code.trim());
+      track('pro_activated', { method: result.source });
       localStorage.setItem('hispanapp_registered', 'true');
       setIsPro(true);
       setIsRegistered(true);
@@ -586,6 +622,7 @@ export default function App() {
 
   const finishTour = () => {
     setIsTourOpen(false);
+    track('tour_closed');
     try {
       localStorage.setItem('hispanapp_tour_done', 'true');
     } catch {
@@ -595,7 +632,7 @@ export default function App() {
 
   // Primera vez: al terminar la bienvenida, lanzar el recorrido (si no hay otra ventana abierta)
   useEffect(() => {
-    if (showSplash || isAtrilMode) return;
+    if (showSplash || isAtrilMode || !consentOk) return;
     let done = false;
     try {
       done = localStorage.getItem('hispanapp_tour_done') === 'true';
@@ -608,7 +645,7 @@ export default function App() {
     }, 600);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showSplash, isAtrilMode]);
+  }, [showSplash, isAtrilMode, consentOk]);
 
   // Si se abre el Atril (por ejemplo al girar el móvil), cerrar el recorrido sin marcarlo como visto
   useEffect(() => {
@@ -1096,6 +1133,10 @@ export default function App() {
         isPro={isPro}
         onActivateProCode={handleActivateProCode}
         onStartTour={startTour}
+        onOpenFeedback={() => {
+          setIsCommunityModalOpen(false);
+          setIsFeedbackOpen(true);
+        }}
       />
 
       <VocabularioModal
@@ -1138,6 +1179,17 @@ export default function App() {
         profile={userProfile}
         onClose={() => setIsEditNameOpen(false)}
         onSave={handleProfileEdit}
+      />
+
+      {/* AVISO DE PRIVACIDAD (una vez, para quien se registró antes de existir las casillas) */}
+      {!showSplash && isRegistered && !consentOk && <ConsentGateModal onAccept={handleConsentGateAccept} />}
+
+      <FeedbackModal
+        isOpen={isFeedbackOpen}
+        onClose={() => setIsFeedbackOpen(false)}
+        name={userProfile?.name || username}
+        email={userProfile?.contact || ''}
+        rhythm={currentRhythm.id}
       />
 
       {/* MINI RECORRIDO POR LA APP */}

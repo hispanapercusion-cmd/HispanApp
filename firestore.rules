@@ -5,9 +5,46 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    function shortString(v, max) {
+      return v is string && v.size() <= max;
+    }
+
     // Registro de alumnos: la app solo puede añadir, nunca leer ni borrar.
+    // Solo se aceptan los campos que envía la app y con un tamaño razonable (protección contra spam).
     match /leads/{leadId} {
-      allow create: if true;
+      allow create: if request.resource.data.keys().hasOnly([
+                         'name', 'email', 'phone', 'role', 'level', 'source',
+                         'consentVersion', 'marketingOptIn', 'analyticsOptIn',
+                         'createdAt', 'timestamp'
+                       ])
+                    && shortString(request.resource.data.name, 120)
+                    && shortString(request.resource.data.email, 200)
+                    && request.resource.data.email.size() > 3
+                    && (!('phone' in request.resource.data) || shortString(request.resource.data.phone, 40))
+                    && (!('role' in request.resource.data) || shortString(request.resource.data.role, 60))
+                    && (!('level' in request.resource.data) || shortString(request.resource.data.level, 40))
+                    && (!('source' in request.resource.data) || shortString(request.resource.data.source, 60))
+                    && (!('consentVersion' in request.resource.data) || shortString(request.resource.data.consentVersion, 20))
+                    && (!('marketingOptIn' in request.resource.data) || request.resource.data.marketingOptIn is bool)
+                    && (!('analyticsOptIn' in request.resource.data) || request.resource.data.analyticsOptIn is bool);
+    }
+
+    // Opiniones de los alumnos: solo se pueden enviar, nunca leer desde la app.
+    match /opiniones/{opinionId} {
+      allow create: if request.resource.data.keys().hasOnly([
+                         'type', 'rating', 'message', 'name', 'email', 'rhythm',
+                         'userAgent', 'createdAt', 'timestamp'
+                       ])
+                    && request.resource.data.type in ['sugerencia', 'error', 'otro']
+                    && request.resource.data.rating is int
+                    && request.resource.data.rating >= 0 && request.resource.data.rating <= 5
+                    && request.resource.data.message is string
+                    && request.resource.data.message.size() > 0
+                    && request.resource.data.message.size() <= 2000
+                    && shortString(request.resource.data.name, 120)
+                    && shortString(request.resource.data.email, 200)
+                    && shortString(request.resource.data.rhythm, 40)
+                    && shortString(request.resource.data.userAgent, 300);
     }
 
     // Códigos PRO de alumnos: la app solo puede comprobar UN código concreto.

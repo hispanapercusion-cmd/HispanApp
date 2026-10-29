@@ -1,26 +1,29 @@
 import { AudioSourceMode, PalmaTone, RhythmDefinition } from '../types';
-import { JORDAN_AGUDA_PCM, JORDAN_SORDA_PCM, SAMPLE_RATE } from './jordanSamplesPcm';
+import { AGUDA_LENGTHS, PALMAS_URL, SAMPLE_RATE, SORDA_LENGTHS } from './palmasIndex';
 
-function createAudioBufferFromBase64Pcm(
-  ctx: AudioContext,
-  base64Pcm: string,
-  sampleRate = 44100
-): AudioBuffer {
-  const binaryString = window.atob(base64Pcm);
-  const len = binaryString.length;
-  const numSamples = Math.floor(len / 2);
-  const buffer = ctx.createBuffer(1, numSamples, sampleRate);
+// Convierte un tramo de PCM 16 bits (little-endian) en un AudioBuffer
+function createAudioBufferFromPcm16(ctx: AudioContext, pcm: Int16Array, sampleRate = 44100): AudioBuffer {
+  const buffer = ctx.createBuffer(1, pcm.length, sampleRate);
   const channelData = buffer.getChannelData(0);
-
-  for (let i = 0; i < numSamples; i++) {
-    const byteIndex = i * 2;
-    const low = binaryString.charCodeAt(byteIndex);
-    const high = binaryString.charCodeAt(byteIndex + 1);
-    let int16 = (high << 8) | low;
-    if (int16 >= 32768) int16 -= 65536;
-    channelData[i] = int16 / 32768.0;
+  for (let i = 0; i < pcm.length; i++) {
+    channelData[i] = pcm[i] / 32768.0;
   }
   return buffer;
+}
+
+// Las muestras se descargan una sola vez (en segundo plano) y se comparten
+let palmasDownload: Promise<ArrayBuffer> | null = null;
+function downloadPalmas(): Promise<ArrayBuffer> {
+  if (!palmasDownload) {
+    palmasDownload = fetch(PALMAS_URL).then((res) => {
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.arrayBuffer();
+    });
+    palmasDownload.catch(() => {
+      palmasDownload = null; // permitir reintentar más tarde
+    });
+  }
+  return palmasDownload;
 }
 
 interface ScheduledEvent {
@@ -124,6 +127,8 @@ export class FlamencoAudioEngine {
   constructor(rhythm: RhythmDefinition, bpm: number = 92) {
     this.rhythm = rhythm;
     this.bpm = bpm;
+    // Empezar a descargar las palmas cuanto antes (mientras se ve la bienvenida)
+    if (typeof window !== 'undefined') downloadPalmas().catch(() => {});
     // Iniciar precarga de buffers de forma silenciosa
     this.preloadSamples();
   }
@@ -241,34 +246,40 @@ export class FlamencoAudioEngine {
     }
   }
 
-  // Carga inmediata y 100% síncrona de muestras reales de Jordan Migues desde PCM base64 (cero dependencias de red ni fallos de decodeAudioData)
+  // Carga de las muestras reales de Jordan Migues desde public/audio/palmas.bin.
+  // Mientras llegan, la app usa un sonido de palma sintetizado de respaldo.
   public loadJordanSamples() {
-    if (this.isBuffersLoaded) return;
+    if (this.isBuffersLoaded || this.isLoadingBuffers) return;
+    this.isLoadingBuffers = true;
 
-    try {
-      if (!this.ctx) {
-        const AudioCtxClass =
-          window.AudioContext ||
-          (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-        this.ctx = new AudioCtxClass({ latencyHint: 'interactive' });
-      }
+    downloadPalmas()
+      .then((data) => {
+        if (!this.ctx) {
+          const AudioCtxClass =
+            window.AudioContext ||
+            (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+          this.ctx = new AudioCtxClass({ latencyHint: 'interactive' });
+        }
+        const ctx = this.ctx;
+        let offset = 0; // en muestras
+        const take = (len: number) => {
+          const view = new Int16Array(data, offset * 2, len);
+          offset += len;
+          return createAudioBufferFromPcm16(ctx, view, SAMPLE_RATE);
+        };
+        this.jordanAgudaBuffers = AGUDA_LENGTHS.map(take);
+        this.jordanSordaBuffers = SORDA_LENGTHS.map(take);
 
-      this.jordanAgudaBuffers = JORDAN_AGUDA_PCM.map((pcm) =>
-        createAudioBufferFromBase64Pcm(this.ctx!, pcm, SAMPLE_RATE)
-      );
-      this.jordanSordaBuffers = JORDAN_SORDA_PCM.map((pcm) =>
-        createAudioBufferFromBase64Pcm(this.ctx!, pcm, SAMPLE_RATE)
-      );
-
-      this.isAgudaBuffersLoaded = this.jordanAgudaBuffers.length > 0;
-      this.isSordaBuffersLoaded = this.jordanSordaBuffers.length > 0;
-
-      if (this.isBuffersLoaded) {
-        this.onSamplesLoadedCallback?.(true);
-      }
-    } catch (err) {
-      console.warn('Error loading PCM audio samples:', err);
-    }
+        this.isAgudaBuffersLoaded = this.jordanAgudaBuffers.length > 0;
+        this.isSordaBuffersLoaded = this.jordanSordaBuffers.length > 0;
+        if (this.isBuffersLoaded) this.onSamplesLoadedCallback?.(true);
+      })
+      .catch((err) => {
+        console.warn('No se pudieron cargar las palmas:', err);
+      })
+      .finally(() => {
+        this.isLoadingBuffers = false;
+      });
   }
 
   public setRhythm(rhythm: RhythmDefinition) {

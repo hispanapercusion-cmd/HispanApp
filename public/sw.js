@@ -4,8 +4,8 @@
 // - El icono, el manifest y las tipografías se sirven desde la copia guardada y se actualizan en segundo plano.
 // Firebase, Lemon Squeezy y YouTube no pasan por aquí: necesitan conexión.
 
-const CACHE = 'hispanapp-v1';
-const APP_SHELL = ['./', './index.html', './manifest.json', './icon-512.PNG'];
+const CACHE = 'hispanapp-v2';
+const APP_SHELL = ['./', './index.html', './manifest.json', './icon-512.PNG', './icon-192.png', './audio/palmas.bin'];
 const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 
 self.addEventListener('install', (event) => {
