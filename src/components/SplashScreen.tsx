@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { UserProfile, UserFlamencoRole, UserFlamencoLevel } from '../types';
 import { APP_CONFIG } from '../config';
 import { saveLeadToFirestore } from '../services/firebase';
+import { HispanaMark } from './HispanaLogo';
 
 interface SplashScreenProps {
   onFinish: () => void;
@@ -101,19 +102,19 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
     if (mode === 'welcome_cinematic') {
       setWelcomePhase(1);
 
-      // Fase 2: Tras 1.1s el logo se desplaza a la izquierda y se despliega "Bienvenido, [nombre]"
+      // Fase 2: tras 1,2 s el logo se reduce y se aparta mientras se despliega "Bienvenido, [nombre]"
       const timerPhase2 = setTimeout(() => {
         setWelcomePhase(2);
-      }, 1100);
+      }, 1200);
 
-      // Fase 3: Tras 3.1s, desvanece suavemente con transición de opacidad (700ms) y entra directo a la app
+      // Fase 3: tras 3,3 s la pantalla se desvanece (700 ms) y entra a la app
       const timerFadeOut = setTimeout(() => {
         setIsFadingOut(true);
         setTimeout(() => {
           onUserEnter();
           onFinish();
         }, 700);
-      }, 3100);
+      }, 3300);
 
       return () => {
         clearTimeout(timerPhase2);
@@ -199,61 +200,73 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
 
   const displayName = profile?.name || formName.trim() || 'Amigo';
 
+  // Medidas del texto de bienvenida para abrir su hueco con precisión (sin saltos)
+  const welcomeTextRef = useRef<HTMLDivElement>(null);
+  const [welcomeTextSize, setWelcomeTextSize] = useState({ w: 0, h: 0 });
+  const [isWideLayout, setIsWideLayout] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(min-width: 640px)').matches
+  );
+  useLayoutEffect(() => {
+    if (mode !== 'welcome_cinematic') return;
+    const measure = () => {
+      setIsWideLayout(window.matchMedia('(min-width: 640px)').matches);
+      const el = welcomeTextRef.current;
+      // Un pequeño margen evita que se corte la última letra por redondeos
+      if (el) setWelcomeTextSize({ w: Math.ceil(el.scrollWidth) + 6, h: Math.ceil(el.scrollHeight) + 4 });
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    // La tipografía puede terminar de cargar después y cambiar el ancho: volver a medir
+    document.fonts?.ready.then(measure).catch(() => {});
+    const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measure) : null;
+    if (observer && welcomeTextRef.current) observer.observe(welcomeTextRef.current);
+    return () => {
+      window.removeEventListener('resize', measure);
+      observer?.disconnect();
+    };
+  }, [mode, displayName]);
+
   return (
     <div
       id="welcomeSplashScreen"
-      className={`fixed inset-0 z-50 bg-[#14151F] flex flex-col justify-between items-center p-6 sm:p-8 select-none overflow-y-auto transition-opacity duration-700 ease-in-out ${
-        isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'
+      className={`fixed inset-0 z-50 bg-[#14151F] flex flex-col justify-between items-center p-6 sm:p-8 select-none overflow-y-auto splash-exit ${
+        isFadingOut ? 'is-leaving pointer-events-none' : ''
       }`}
     >
       {/* Spacer superior para equilibrio vertical */}
       <div className="h-4 sm:h-6 shrink-0" />
 
       {/* CONTENIDO CENTRAL */}
-      <div className="max-w-xl w-full flex flex-col items-center justify-center my-auto py-2">
+      <div className={`${mode === 'welcome_cinematic' ? 'max-w-5xl' : 'max-w-xl'} w-full flex flex-col items-center justify-center my-auto py-2`}>
         {/* ======================================================== */}
         {/* PANTALLA DE BIENVENIDA CINEMÁTICA (USUARIO REGISTRADO)   */}
         {/* ======================================================== */}
         {mode === 'welcome_cinematic' && (
-          <div className="w-full flex flex-col sm:flex-row items-center justify-center gap-5 sm:gap-7 transition-all duration-800 ease-out px-4 py-8">
-            {/* LOGO: ENTRA GRANDE EN FADE IN Y LUEGO SE DESPLAZA A LA IZQUIERDA */}
-            <div
-              className={`shrink-0 flex items-center justify-center text-white transition-all duration-800 ease-out ${
-                welcomePhase === 1
-                  ? 'w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 animate-slow-fade-in'
-                  : 'w-24 h-24 sm:w-32 sm:h-32 -translate-x-0 sm:-translate-x-3 drop-shadow-[0_12px_40px_rgba(0,0,0,0.6)]'
-              }`}
-            >
-              <svg
-                viewBox="0 0 100 95"
-                className="w-full h-full drop-shadow-[0_14px_45px_rgba(0,0,0,0.6)]"
-                fill="none"
-                stroke="#FFFFFF"
-                strokeWidth="3.2"
-                strokeLinecap="square"
-                strokeLinejoin="miter"
-              >
-                {/* Marco trasero superior derecho */}
-                <path d="M 43 15 L 43 6 L 82 6 L 82 56 L 73 56" />
-                {/* Cajón frontal principal */}
-                <rect x="24" y="21" width="42" height="50" fill="none" />
-                {/* Pared lateral izquierda sólida en perspectiva */}
-                <polygon points="24,21 43,21 43,56 24,71" fill="#FFFFFF" />
-                {/* Línea horizontal interior */}
-                <line x1="43" y1="56" x2="66" y2="56" />
-                {/* Línea diagonal exterior inferior izquierda */}
-                <line x1="24" y1="71" x2="14" y2="81" strokeWidth="3.2" />
-              </svg>
+          <div
+            className={`welcome-stage w-full flex flex-col sm:flex-row items-center justify-center px-4 py-8 ${
+              welcomePhase === 2 ? 'is-revealed' : ''
+            }`}
+          >
+            {/* LOGO: aparece grande y luego se reduce y se aparta, con la misma curva que el texto */}
+            <div className="welcome-logo shrink-0 text-white">
+              <HispanaMark className="w-full h-full" />
             </div>
 
-            {/* TEXTO DESPLEGADO: BIENVENIDO, (NOMBRE DE USUARIO) EN UN SOLO TEXTO GRANDE */}
-            {welcomePhase === 2 && (
-              <div className="text-center sm:text-left animate-fadeIn">
-                <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight drop-shadow-xl leading-tight">
+            {/* TEXTO: el hueco se abre a la medida exacta del texto, a la vez que el logo se aparta */}
+            <div
+              className="welcome-text-track shrink-0"
+              style={
+                isWideLayout
+                  ? { width: welcomePhase === 2 ? welcomeTextSize.w : 0, marginLeft: welcomePhase === 2 ? 28 : 0 }
+                  : { height: welcomePhase === 2 ? welcomeTextSize.h : 0, marginTop: welcomePhase === 2 ? 22 : 0 }
+              }
+            >
+              <div ref={welcomeTextRef} className="welcome-text">
+                <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight leading-tight text-center sm:text-left sm:whitespace-nowrap sm:overflow-hidden sm:text-ellipsis">
                   Bienvenido, {displayName}
                 </h2>
               </div>
-            )}
+            </div>
           </div>
         )}
 
@@ -264,21 +277,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
           <div className="w-full max-w-sm sm:max-w-md flex flex-col items-center">
             {/* Logo */}
             <div className="shrink-0 flex items-center justify-center w-28 h-28 sm:w-36 sm:h-36 text-white animate-splash-fade">
-              <svg
-                viewBox="0 0 100 95"
-                className="w-full h-full drop-shadow-[0_12px_40px_rgba(0,0,0,0.6)]"
-                fill="none"
-                stroke="#FFFFFF"
-                strokeWidth="3.2"
-                strokeLinecap="square"
-                strokeLinejoin="miter"
-              >
-                <path d="M 43 15 L 43 6 L 82 6 L 82 56 L 73 56" />
-                <rect x="24" y="21" width="42" height="50" fill="none" />
-                <polygon points="24,21 43,21 43,56 24,71" fill="#FFFFFF" />
-                <line x1="43" y1="56" x2="66" y2="56" />
-                <line x1="24" y1="71" x2="14" y2="81" strokeWidth="3.2" />
-              </svg>
+              <HispanaMark className="w-full h-full drop-shadow-[0_12px_40px_rgba(0,0,0,0.6)]" />
             </div>
 
             {/* Nombre de HispanApp */}
