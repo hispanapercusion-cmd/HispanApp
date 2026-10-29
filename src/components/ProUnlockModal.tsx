@@ -3,6 +3,9 @@ import { X, ExternalLink, Sparkles, AlertCircle, MessageCircle } from 'lucide-re
 import { HispanaLogo } from './HispanaLogo';
 import { APP_CONFIG } from '../config';
 import { ProCheckResult, proErrorMessage } from '../services/pro';
+import { RecoverAccessInfo } from './RecoverAccessInfo';
+import { LegalLinks } from './LegalLinks';
+import { track } from '../services/analytics';
 
 interface ProUnlockModalProps {
   isOpen: boolean;
@@ -80,6 +83,7 @@ export const ProUnlockModal: React.FC<ProUnlockModalProps> = ({
         <div className="space-y-2">
           <a
             href={APP_CONFIG.lemonSqueezyUrl}
+            onClick={() => track('click_checkout')}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl btn-primary text-white font-sans text-xs font-bold uppercase tracking-wider cursor-pointer"
@@ -132,6 +136,12 @@ export const ProUnlockModal: React.FC<ProUnlockModalProps> = ({
           </p>
         </form>
 
+        <p className="text-[10.5px] text-gray-500 text-center leading-relaxed -mt-1">
+          Pago único, sin suscripción. Al comprar aceptas los Términos y condiciones; tienes 10 días para arrepentirte.
+        </p>
+
+        <RecoverAccessInfo />
+
         {/* Enlace discreto a WhatsApp para asistencia */}
         <div className="pt-2 text-center border-t border-white/[0.06]">
           <a
@@ -144,6 +154,8 @@ export const ProUnlockModal: React.FC<ProUnlockModalProps> = ({
             <span>¿Dudas con tu acceso? Escríbenos por WhatsApp</span>
           </a>
         </div>
+
+        <LegalLinks />
       </div>
     </div>
   );
