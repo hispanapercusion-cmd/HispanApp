@@ -44,6 +44,9 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
     saldrá "No se pudo comprobar el código". Arreglo: un intermediario y cambiar `lemonLicenseApiUrl`
     en `src/config.ts`.
   - `lemonStoreId` en `src/config.ts` está en `null`. Conviene poner el ID de la tienda.
+- **Recorrido guiado** (`src/components/AppTour.tsx`): 6 pasos que iluminan elementos marcados con
+  `data-tour="..."` en `App.tsx` (ritmos, partitura, metronomo, entrenador, atril, comunidad). Sale una vez
+  tras la bienvenida (`localStorage` `hispanapp_tour_done`) y se puede repetir desde Comunidad.
 - **Gratis vs PRO**: gratis los ritmos I y VI; PRO desbloquea los 8 ritmos, los vídeos
   (YouTube **no listados**, solo accesibles desde la app) y el entrenador progresivo.
 
