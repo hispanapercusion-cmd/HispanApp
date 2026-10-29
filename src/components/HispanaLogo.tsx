@@ -1,5 +1,40 @@
 import React from 'react';
 
+/**
+ * Símbolo oficial de Hispana Percusión, calcado del logo original (512×512 px).
+ * Dibujado con formas rellenas (no con trazos) para que los grosores y la diagonal
+ * coincidan exactamente con el original a cualquier tamaño.
+ */
+export const HispanaMark: React.FC<{ className?: string; color?: string }> = ({
+  className = '',
+  color = '#FFFFFF',
+}) => (
+  <svg
+    viewBox="90 91 330 330"
+    className={className}
+    fill={color}
+    xmlns="http://www.w3.org/2000/svg"
+    role="img"
+    aria-label="Hispana Percusión"
+  >
+    {/* Marco trasero (arriba a la derecha) */}
+    <rect x="214" y="97" width="181" height="8" />
+    <rect x="214" y="97" width="8" height="42" />
+    <rect x="387" y="97" width="8" height="222" />
+    <rect x="354" y="311" width="41" height="8" />
+    {/* Cajón frontal */}
+    <rect x="150" y="161" width="181" height="8" />
+    <rect x="322" y="161" width="9" height="222" />
+    <rect x="150" y="372" width="181" height="11" />
+    {/* Línea interior horizontal */}
+    <rect x="221" y="310" width="110" height="8" />
+    {/* Cara lateral sólida en perspectiva */}
+    <polygon points="150,161 222,161 222,316 166,372 150,372" />
+    {/* Diagonal inferior izquierda */}
+    <polygon points="150,376 161,376 122,415 116,410" />
+  </svg>
+);
+
 interface HispanaLogoProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   showText?: boolean;
@@ -20,60 +55,11 @@ export const HispanaLogo: React.FC<HispanaLogoProps> = ({
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      {/* Official Cajón Symbol in pure white over dark slate surface */}
       <div
         className={`bg-[#141821] shadow-sm flex items-center justify-center shrink-0 border border-white/[0.08] ring-1 ring-white/[0.04] hover:border-white/20 transition-all ${sizeClasses}`}
         title="Hispana Percusión"
       >
-        <svg
-          viewBox="10 3 76 82"
-          className="w-full h-full"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          {/* Back top-right outline */}
-          <path
-            d="M 43 15 L 43 6 L 82 6 L 82 56 L 73 56"
-            stroke="#FFFFFF"
-            strokeWidth="4"
-            strokeLinecap="square"
-            strokeLinejoin="miter"
-          />
-          {/* Main front frame */}
-          <rect
-            x="24"
-            y="21"
-            width="42"
-            height="50"
-            stroke="#FFFFFF"
-            strokeWidth="4.2"
-            fill="none"
-          />
-          {/* Solid 3D perspective left facet */}
-          <polygon
-            points="24,21 43,21 43,56 24,71"
-            fill="#FFFFFF"
-          />
-          {/* Inner horizontal floor line */}
-          <line
-            x1="43"
-            y1="56"
-            x2="66"
-            y2="56"
-            stroke="#FFFFFF"
-            strokeWidth="3.8"
-          />
-          {/* Bottom left diagonal perspective line */}
-          <line
-            x1="24"
-            y1="71"
-            x2="14"
-            y2="81"
-            stroke="#FFFFFF"
-            strokeWidth="4.2"
-            strokeLinecap="square"
-          />
-        </svg>
+        <HispanaMark className="w-full h-full" />
       </div>
 
       {showText && (

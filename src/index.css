@@ -136,3 +136,71 @@ body::-webkit-scrollbar {
 .animate-slow-fade-in {
   animation: slowFadeIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+/* ===== Bienvenida (splash) ===== */
+/* Una sola curva para todo el movimiento: el logo y el texto se mueven a la vez */
+:root {
+  --welcome-ease: cubic-bezier(0.65, 0, 0.35, 1);
+  --welcome-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.welcome-logo {
+  width: 11rem;
+  height: 11rem;
+  filter: drop-shadow(0 14px 40px rgba(0, 0, 0, 0.55));
+  animation: welcomeLogoIn 1.1s var(--welcome-ease-out) both;
+  transition: width 1s var(--welcome-ease), height 1s var(--welcome-ease);
+  will-change: width, height;
+}
+@media (min-width: 640px) {
+  .welcome-logo { width: 13rem; height: 13rem; }
+}
+.welcome-stage.is-revealed .welcome-logo { width: 6rem; height: 6rem; }
+@media (min-width: 640px) {
+  .welcome-stage.is-revealed .welcome-logo { width: 8rem; height: 8rem; }
+}
+
+@keyframes welcomeLogoIn {
+  from { opacity: 0; transform: scale(0.9); filter: blur(10px) drop-shadow(0 14px 40px rgba(0, 0, 0, 0)); }
+  to   { opacity: 1; transform: scale(1);   filter: blur(0)    drop-shadow(0 14px 40px rgba(0, 0, 0, 0.55)); }
+}
+
+.welcome-text-track {
+  overflow: hidden;
+  width: 100%;
+  transition: width 1s var(--welcome-ease), height 1s var(--welcome-ease),
+    margin 1s var(--welcome-ease);
+}
+@media (min-width: 640px) {
+  .welcome-text-track { width: 0; }
+}
+@media (max-width: 639px) {
+  .welcome-text-track { height: 0; }
+}
+
+.welcome-text {
+  opacity: 0;
+  transform: translateY(10px);
+  filter: blur(6px);
+  transition: opacity 0.9s var(--welcome-ease-out) 0.25s, transform 0.9s var(--welcome-ease-out) 0.25s,
+    filter 0.9s var(--welcome-ease-out) 0.25s;
+}
+@media (min-width: 640px) {
+  .welcome-text { width: max-content; max-width: calc(100vw - 16rem); transform: translateX(-12px); }
+}
+.welcome-stage.is-revealed .welcome-text { opacity: 1; transform: none; filter: none; }
+
+/* Salida hacia la app: se desvanece con un leve acercamiento */
+.splash-exit {
+  transition: opacity 0.7s var(--welcome-ease), transform 0.7s var(--welcome-ease);
+}
+.splash-exit.is-leaving { opacity: 0; transform: scale(1.03); }
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome-logo { animation: none; }
+  .welcome-logo,
+  .welcome-text-track,
+  .welcome-text,
+  .splash-exit { transition-duration: 0.01s !important; transition-delay: 0s !important; }
+  .splash-exit.is-leaving { transform: none; }
+}
