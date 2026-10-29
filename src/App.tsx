@@ -609,7 +609,7 @@ export default function App() {
       target: 'comunidad',
       icon: '🤝',
       title: 'Comunidad y Vocabulario',
-      text: 'En Comunidad: clases, el método completo, WhatsApp y tu código PRO. En Vocabulario: los términos del flamenco explicados.',
+      text: 'En Comunidad: compartir la app con tus alumnos o compañeros, clases, el método completo y tu código PRO. En Vocabulario: los términos del flamenco explicados.',
     },
   ];
 

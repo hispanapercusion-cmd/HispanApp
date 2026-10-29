@@ -63,6 +63,9 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
 - **Instalar app** (`src/services/install.ts` + `InstallCard` en Comunidad): botón nativo en Android/Chrome,
   pasos para iPhone. **Vista previa al compartir**: `public/og-image.jpg` + metas `og:*` en `index.html`
   (con la dirección completa: actualizarlas al cambiar de dominio).
+- **Compartir la app** (`src/services/share.ts` + `ShareCard`, primera tarjeta de Comunidad): menú nativo del
+  móvil o WhatsApp + copiar. El enlace es siempre la app limpia (sin `?acceso=` ni claves) con
+  `utm_source=compartir`. Para dar PRO a un alumno se usa a mano `?acceso=CODIGO`, un código por alumno.
 - **Recuperar el acceso PRO**: explicación desplegable en la ventana PRO y en Comunidad; la clave o código
   activado se guarda en `hispanapp_pro_code` y se muestra en Comunidad para copiarlo.
 - **Gratis vs PRO**: gratis los ritmos I y VI; PRO desbloquea los 8 ritmos, los vídeos
