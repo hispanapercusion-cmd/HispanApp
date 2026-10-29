@@ -204,3 +204,123 @@ body::-webkit-scrollbar {
   .splash-exit { transition-duration: 0.01s !important; transition-delay: 0s !important; }
   .splash-exit.is-leaving { transform: none; }
 }
+
+/* ===== Estética 2026: profundidad, cristal y relieve ===== */
+/* Fondo con profundidad: resplandor cálido arriba y viñeta oscura */
+.app-backdrop {
+  background-color: #0A0C11;
+  background-image:
+    radial-gradient(120% 60% at 50% -10%, rgba(232, 74, 39, 0.10), transparent 60%),
+    radial-gradient(80% 50% at 100% 100%, rgba(255, 120, 60, 0.05), transparent 60%),
+    linear-gradient(180deg, #0D1016 0%, #0A0C11 100%);
+  background-attachment: fixed;
+}
+
+/* Tarjeta de cristal: borde con brillo arriba a la izquierda y resplandor cálido en la esquina */
+.glass-card {
+  position: relative;
+  isolation: isolate;
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.065) 0%, rgba(255, 255, 255, 0.02) 45%, rgba(255, 255, 255, 0.012) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.09),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.35),
+    0 18px 40px -18px rgba(0, 0, 0, 0.85),
+    0 2px 6px rgba(0, 0, 0, 0.35);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+.glass-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: -1;
+  background: radial-gradient(60% 55% at 100% 100%, rgba(232, 74, 39, 0.10), transparent 70%);
+}
+
+/* Botón con volumen: luz arriba, sombra abajo; se "hunde" al pulsar */
+.btn-3d {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0.035) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.35),
+    0 4px 12px -4px rgba(0, 0, 0, 0.7);
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.12s ease, color 0.2s ease;
+}
+.btn-3d:hover {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.05) 100%);
+}
+.btn-3d:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.4),
+    0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* Esfera naranja brillante: elemento activo principal (ritmo elegido, play) */
+.orb-active {
+  color: #fff;
+  border: 1px solid rgba(255, 170, 130, 0.45);
+  background: radial-gradient(circle at 35% 28%, #FF9A6B 0%, #F2602F 38%, #D8401E 70%, #A92E14 100%);
+  box-shadow:
+    inset 0 2px 3px rgba(255, 255, 255, 0.35),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.28),
+    0 0 18px rgba(232, 74, 39, 0.55),
+    0 6px 16px -4px rgba(232, 74, 39, 0.6);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+/* Control "hundido" (selector por segmentos) y su opción elegida en relieve */
+.segmented {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.42), rgba(0, 0, 0, 0.28));
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.55), inset 0 -1px 0 rgba(255, 255, 255, 0.04);
+}
+.seg-active {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.17), rgba(255, 255, 255, 0.07));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 2px 8px -2px rgba(0, 0, 0, 0.75);
+}
+
+/* Campo "hundido" (desplegable de ritmos) */
+.inset-field {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.42), rgba(0, 0, 0, 0.26));
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+/* Barra inferior flotante de cristal */
+.dock-glass {
+  background: linear-gradient(180deg, rgba(22, 25, 34, 0.82), rgba(11, 13, 18, 0.94));
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  backdrop-filter: blur(24px) saturate(140%);
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 -10px 30px rgba(0, 0, 0, 0.6);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass-card, .dock-glass { -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+
+/* Panel de la partitura: superficie algo más clara, como una hoja iluminada */
+.score-panel {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.085) 0%, rgba(255, 255, 255, 0.035) 55%, rgba(255, 255, 255, 0.025) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -8px 24px rgba(0, 0, 0, 0.18),
+    0 10px 30px -14px rgba(0, 0, 0, 0.9);
+}
+
+/* Esfera en filas con desplazamiento lateral: brillo más contenido para que no se recorte */
+.orb-active.orb-tight {
+  box-shadow:
+    inset 0 2px 3px rgba(255, 255, 255, 0.35),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.28),
+    0 0 9px rgba(232, 74, 39, 0.55),
+    0 3px 8px -2px rgba(232, 74, 39, 0.6);
+}
