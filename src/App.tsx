@@ -13,6 +13,7 @@ import { VideoPlayerModal } from './components/VideoPlayerModal';
 import { AtrilLandscapeMode } from './components/AtrilLandscapeMode';
 import { SplashScreen } from './components/SplashScreen';
 import { EditNameModal } from './components/EditNameModal';
+import { AppTour, TourStep } from './components/AppTour';
 import { CountMode, PalmaTone, TrainerConfig, ViewMode, UserProfile } from './types';
 import { APP_CONFIG } from './config';
 import { verifyProCode, ProCheckResult } from './services/pro';
@@ -90,6 +91,7 @@ export default function App() {
     return localStorage.getItem('hispanapp_username') || '';
   });
   const [isEditNameOpen, setIsEditNameOpen] = useState<boolean>(false);
+  const [isTourOpen, setIsTourOpen] = useState<boolean>(false);
   const [audioReady, setAudioReady] = useState<boolean>(false);
 
   // Trainer Modal
@@ -508,6 +510,88 @@ export default function App() {
     }
   };
 
+  // ===== Mini recorrido por la app =====
+  const tourSteps: TourStep[] = [
+    {
+      target: 'ritmos',
+      icon: '🎵',
+      title: 'Los 8 ritmos del método',
+      text: isPro
+        ? 'Aquí eliges el ritmo. Debajo ajustas la cuenta y el tipo de palmas: brillantes o sordas.'
+        : 'Aquí eliges el ritmo. Los que tienen candado se desbloquean con la versión PRO. Debajo ajustas la cuenta y el tipo de palmas.',
+    },
+    {
+      target: 'partitura',
+      icon: '🎼',
+      title: 'Partitura y reloj de compás',
+      text: 'Toca cualquier compás para escucharlo. Mientras suena, la nota se ilumina aquí y en el reloj de compás.',
+    },
+    {
+      target: 'metronomo',
+      icon: '▶️',
+      title: 'Metrónomo con palmas reales',
+      text: 'Dale a Play para practicar con las palmas de Jordan. Cambia la velocidad con −/+ o marca tu pulso con TAP.',
+    },
+    {
+      target: 'entrenador',
+      icon: '🥁',
+      title: 'Entrenador progresivo',
+      text: isPro
+        ? 'Sube la velocidad sola cada pocas vueltas para que ganes soltura sin parar a tocar botones.'
+        : 'Sube la velocidad sola cada pocas vueltas para que ganes soltura. Es una función de la versión PRO.',
+    },
+    {
+      target: 'atril',
+      icon: '🖥️',
+      title: 'Modo Atril',
+      text: 'Pantalla grande para tocar a distancia o proyectar en clase. En el móvil también se abre al girarlo.',
+    },
+    {
+      target: 'comunidad',
+      icon: '🤝',
+      title: 'Comunidad y Vocabulario',
+      text: 'En Comunidad: clases, el método completo, WhatsApp y tu código PRO. En Vocabulario: los términos del flamenco explicados.',
+    },
+  ];
+
+  const startTour = () => {
+    setIsCommunityModalOpen(false);
+    setViewMode('split');
+    if (isPlaying) togglePlay();
+    setIsTourOpen(true);
+  };
+
+  const finishTour = () => {
+    setIsTourOpen(false);
+    try {
+      localStorage.setItem('hispanapp_tour_done', 'true');
+    } catch {
+      // Ignorar
+    }
+  };
+
+  // Primera vez: al terminar la bienvenida, lanzar el recorrido (si no hay otra ventana abierta)
+  useEffect(() => {
+    if (showSplash || isAtrilMode) return;
+    let done = false;
+    try {
+      done = localStorage.getItem('hispanapp_tour_done') === 'true';
+    } catch {
+      done = true;
+    }
+    if (done) return;
+    const t = setTimeout(() => {
+      if (!isProModalOpen && !isCommunityModalOpen && !isTheoryModalOpen && !isTrainerOpen) startTour();
+    }, 600);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showSplash, isAtrilMode]);
+
+  // Si se abre el Atril (por ejemplo al girar el móvil), cerrar el recorrido sin marcarlo como visto
+  useEffect(() => {
+    if (isAtrilMode && isTourOpen) setIsTourOpen(false);
+  }, [isAtrilMode, isTourOpen]);
+
   // Manejo de entrada y actualización de usuario desde Splash / Perfil
   const handleUserEnterFromSplash = () => {
     engineRef.current?.init();
@@ -565,6 +649,7 @@ export default function App() {
 
             {/* Botón Modo Atril (pantalla grande, útil para proyectar en clase) */}
             <button
+              data-tour="atril"
               onClick={() => setIsAtrilMode(true)}
               className="h-8.5 flex items-center gap-1.5 px-2.5 sm:px-3 rounded-full btn-3d text-gray-200 hover:text-white text-xs font-medium tracking-wide cursor-pointer select-none"
               title="Modo Atril: pantalla grande para tocar a distancia"
@@ -575,6 +660,7 @@ export default function App() {
 
             {/* Botón Entrenador Progresivo */}
             <button
+              data-tour="entrenador"
               onClick={handleOpenTrainer}
               className={`h-8.5 flex items-center gap-1.5 px-3 rounded-full border text-xs font-medium tracking-wide transition shadow-sm active:scale-95 cursor-pointer select-none ${
                 trainerConfig.enabled
@@ -603,7 +689,7 @@ export default function App() {
       {/* CONTENIDO PRINCIPAL */}
       <main className="max-w-5xl w-full mx-auto px-3.5 pt-3.5 space-y-3.5 flex-1">
         {/* 1. SELECTOR DE LOS 8 RITMOS EN EL ORDEN DEL LIBRO */}
-        <section className="glass-card rounded-3xl p-3.5 sm:p-4 space-y-3">
+        <section data-tour="ritmos" className="glass-card rounded-3xl p-3.5 sm:p-4 space-y-3">
           {/* Botones rápidos I al VIII */}
           <div className="flex items-center justify-between gap-1 overflow-x-auto -mx-2.5 px-2.5 py-2.5 -my-2">
             <span className="font-sans text-[10px] tracking-wider uppercase text-gray-400 mr-1.5 shrink-0 hidden sm:inline font-semibold">
@@ -797,12 +883,14 @@ export default function App() {
               </div>
 
               {/* Lienzo Oscuro con el Monograma Exacto del Libro en una sola tira horizontal continua */}
-              <MonogramScore
-                rhythm={currentRhythm}
-                activeStep={activeStep}
-                countMode={countMode}
-                onPreviewBeat={handlePreviewBeatGroup}
-              />
+              <div data-tour="partitura">
+                <MonogramScore
+                  rhythm={currentRhythm}
+                  activeStep={activeStep}
+                  countMode={countMode}
+                  onPreviewBeat={handlePreviewBeatGroup}
+                />
+              </div>
 
               {/* Banner Clicable hacia el Método en Hotmart */}
               <a
@@ -875,7 +963,7 @@ export default function App() {
       <footer className="fixed bottom-0 inset-x-0 dock-glass z-30">
         <div className="max-w-5xl mx-auto px-3 sm:px-4 py-2 sm:py-2.5 flex flex-col gap-2">
           {/* Fila 1: Metrónomo Centrado (Menos - a la izquierda, Play y BPM al centro, Más + a la derecha) */}
-          <div className="flex items-center justify-between sm:justify-center sm:gap-6 w-full max-w-lg mx-auto">
+          <div data-tour="metronomo" className="flex items-center justify-between sm:justify-center sm:gap-6 w-full max-w-lg mx-auto">
             {/* Botones de disminución (Menos -) a la izquierda */}
             <div className="flex items-center gap-1.5 shrink-0">
               <button
@@ -951,7 +1039,7 @@ export default function App() {
           </div>
 
           {/* Fila 2: Accesos directos inferiores (Comunidad y Vocabulario) */}
-          <div className="grid grid-cols-2 gap-2 pt-1.5 border-t border-white/[0.06]">
+          <div data-tour="comunidad" className="grid grid-cols-2 gap-2 pt-1.5 border-t border-white/[0.06]">
             <button
               onClick={() => setIsCommunityModalOpen(true)}
               className="py-1.5 sm:py-2 px-3 rounded-2xl btn-3d text-gray-200 hover:text-white flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer text-xs font-sans font-medium"
@@ -984,6 +1072,7 @@ export default function App() {
         onClose={() => setIsCommunityModalOpen(false)}
         isPro={isPro}
         onActivateProCode={handleActivateProCode}
+        onStartTour={startTour}
       />
 
       <VocabularioModal
@@ -1027,6 +1116,9 @@ export default function App() {
         onClose={() => setIsEditNameOpen(false)}
         onSave={handleProfileEdit}
       />
+
+      {/* MINI RECORRIDO POR LA APP */}
+      {isTourOpen && !showSplash && !isAtrilMode && <AppTour steps={tourSteps} onFinish={finishTour} />}
 
       {/* PANTALLA DE INICIO Y CARGA (SPLASH SCREEN) */}
       {showSplash && (

@@ -372,3 +372,27 @@ body::-webkit-scrollbar {
   justify-content: center;
   border-radius: 9999px;
 }
+
+/* ===== Recorrido guiado ===== */
+.tour-spot {
+  box-shadow:
+    0 0 0 9999px rgba(4, 6, 10, 0.74),
+    0 0 0 2px rgba(255, 107, 74, 0.75),
+    0 0 26px rgba(232, 74, 39, 0.35);
+  transition: top 0.4s var(--welcome-ease), left 0.4s var(--welcome-ease),
+    width 0.4s var(--welcome-ease), height 0.4s var(--welcome-ease);
+}
+.tour-card {
+  animation: tourCardIn 0.35s var(--welcome-ease-out) both;
+  transition: top 0.4s var(--welcome-ease), left 0.4s var(--welcome-ease);
+}
+@keyframes tourCardIn {
+  from { opacity: 0; transform: translateY(6px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+.tour-root { animation: tourFadeIn 0.3s ease both; }
+@keyframes tourFadeIn { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .tour-spot, .tour-card { transition: none; }
+  .tour-card, .tour-root { animation: none; }
+}

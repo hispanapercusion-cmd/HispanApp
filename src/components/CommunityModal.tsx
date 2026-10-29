@@ -9,6 +9,7 @@ interface CommunityModalProps {
   onClose: () => void;
   isPro?: boolean;
   onActivateProCode?: (code: string) => Promise<ProCheckResult>;
+  onStartTour?: () => void;
 }
 
 export const CommunityModal: React.FC<CommunityModalProps> = ({
@@ -16,6 +17,7 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
   onClose,
   isPro = false,
   onActivateProCode,
+  onStartTour,
 }) => {
   const [proInput, setProInput] = useState('');
   const [checkingCode, setCheckingCode] = useState(false);
@@ -197,6 +199,17 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
             </p>
           )}
         </div>
+
+        {/* Repetir el recorrido de la app */}
+        {onStartTour && (
+          <button
+            onClick={onStartTour}
+            className="w-full py-2.5 rounded-2xl btn-3d text-gray-200 hover:text-white text-xs font-sans font-semibold flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <span aria-hidden="true">🧭</span>
+            <span>Ver el recorrido de la app</span>
+          </button>
+        )}
 
         {/* Botón Cerrar */}
         <button
