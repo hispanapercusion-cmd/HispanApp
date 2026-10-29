@@ -5,6 +5,7 @@ import { APP_CONFIG } from '../config';
 import { ProCheckResult, proErrorMessage } from '../services/pro';
 import { RecoverAccessInfo, SavedProCode } from './RecoverAccessInfo';
 import { InstallCard } from './InstallCard';
+import { ShareCard } from './ShareCard';
 import { LegalLinks } from './LegalLinks';
 
 interface CommunityModalProps {
@@ -69,6 +70,9 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
             <X className="w-5 h-5" />
           </button>
         </div>
+
+        {/* Recomendar la app (arriba del todo para que se vea) */}
+        <ShareCard />
 
         {/* 1. TARJETA COMUNIDAD PATREON */}
         <div className="sub-card p-4 rounded-2xl space-y-2.5">
