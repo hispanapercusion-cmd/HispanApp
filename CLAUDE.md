@@ -18,7 +18,9 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
 - **Código**: React 19 + Vite + Tailwind 4 + Web Audio. Se compila a un único `dist/index.html`
   (`vite-plugin-singlefile`). El código fuente vino de Google AI Studio; **ya no se edita allí**.
 - **Publicación**: GitHub Pages con GitHub Actions (`.github/workflows/deploy.yml`) en cada push a `main`.
-  Dirección actual: https://hispanapercusion-cmd.github.io/HispanApp/
+  Dirección actual: **https://hispanapp.hispanapercusion.com/** (dominio propio en Cloudflare, CNAME a
+  `hispanapercusion-cmd.github.io`; puesto en GitHub → Settings → Pages → Custom domain el 2/11/2026).
+  La antigua `hispanapercusion-cmd.github.io/HispanApp/` redirige sola a la nueva.
   (`netlify.toml` existe por si se usa Netlify, pero la publicación oficial es GitHub Pages).
 - **Sin conexión**: `public/sw.js` (service worker, registrado en `src/main.tsx` solo en producción).
   La página va "red primero"; manifest, icono y fuentes, "caché primero". Si se cambia algo del shell,
@@ -91,11 +93,10 @@ una compra real con Lemon), 23/11 (congelar cambios y preparar campaña), 30/11 
 
 ## Pendientes
 
-- [ ] **Dominio propio** (ej. `app.hispanapercusion.com` o `hispanapp.com`). Hacerlo **antes de la prueba
-  de noviembre**: cambiar de dirección borra el PRO guardado en los navegadores. Pasos: comprar el dominio →
-  registro DNS (CNAME a `hispanapercusion-cmd.github.io` si es subdominio, o los 4 A de GitHub Pages si es el
-  dominio raíz) → GitHub Settings → Pages → Custom domain + Enforce HTTPS → ajustar `start_url` en
-  `public/manifest.json` y el botón del email de Lemon.
+- [ ] **Dominio propio** `hispanapp.hispanapercusion.com`: guardado en GitHub Pages (2/11/2026). Falta comprobar
+  en Cloudflare que el CNAME `hispanapp` → `hispanapercusion-cmd.github.io` esté en **"DNS only" (nube gris)** y que
+  no lo ocupe el Worker `hispanapp`; activar **Enforce HTTPS**; cambiar el botón del email de Lemon. Repartir los
+  códigos de alumno solo cuando la dirección nueva funcione (el PRO va ligado a la dirección).
 - [ ] Probar una compra real de Lemon y la validación de la license key.
 - [x] Botón "Enviar opinión", vista previa al compartir, política de privacidad, términos, arrepentimiento,
   consentimiento, borrado de datos, estadísticas, instalar app y carga más rápida (octubre 2026).
