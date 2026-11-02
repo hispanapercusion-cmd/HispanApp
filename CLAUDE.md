@@ -93,10 +93,11 @@ una compra real con Lemon), 23/11 (congelar cambios y preparar campaña), 30/11 
 
 ## Pendientes
 
-- [ ] **Dominio propio** `hispanapp.hispanapercusion.com`: guardado en GitHub Pages (2/11/2026). Falta comprobar
-  en Cloudflare que el CNAME `hispanapp` → `hispanapercusion-cmd.github.io` esté en **"DNS only" (nube gris)** y que
-  no lo ocupe el Worker `hispanapp`; activar **Enforce HTTPS**; cambiar el botón del email de Lemon. Repartir los
-  códigos de alumno solo cuando la dirección nueva funcione (el PRO va ligado a la dirección).
+- [x] **Dominio propio** `hispanapp.hispanapercusion.com` funcionando (2/11/2026): CNAME `hispanapp` →
+  `hispanapercusion-cmd.github.io` en Cloudflare con **nube gris (DNS only)**, DNS check OK y Enforce HTTPS activado.
+  Se quitó el dominio del Worker `hispanapp` de Cloudflare (copia vieja de la app, sigue conectado al repo y comenta
+  en los PR: se puede desconectar en Workers → hispanapp → Settings → Builds).
+- [ ] Cambiar el botón "Abrir HispanApp" del email de recibo de Lemon a la dirección nueva.
 - [ ] Probar una compra real de Lemon y la validación de la license key.
 - [x] Botón "Enviar opinión", vista previa al compartir, política de privacidad, términos, arrepentimiento,
   consentimiento, borrado de datos, estadísticas, instalar app y carga más rápida (octubre 2026).
