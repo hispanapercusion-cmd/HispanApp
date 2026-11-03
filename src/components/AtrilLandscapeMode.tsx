@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { RhythmDefinition, CountMode } from '../types';
 import { MonogramScore } from './MonogramScore';
+import { useLang } from '../i18n';
+import { rhythmName } from '../data/rhythms';
 import { Play, Square, X, FlipHorizontal, ArrowLeft, ArrowRight, Pause } from 'lucide-react';
 
 interface AtrilLandscapeModeProps {
@@ -40,6 +42,7 @@ export const AtrilLandscapeMode: React.FC<AtrilLandscapeModeProps> = ({
   onExit,
   onPreviewBeat,
 }) => {
+  const { L } = useLang();
   const [isMirror, setIsMirror] = useState<boolean>(false);
   const [tapFeedback, setTapFeedback] = useState<'play' | 'pause' | null>(null);
 
@@ -84,7 +87,7 @@ export const AtrilLandscapeMode: React.FC<AtrilLandscapeModeProps> = ({
         isMirror ? 'scale-x-[-1]' : ''
       }`}
       style={{ touchAction: 'manipulation' }}
-      title="Toca cualquier parte de la pantalla para pausar o reanudar"
+      title={L('Toca cualquier parte de la pantalla para pausar o reanudar', 'Tap anywhere on the screen to pause or resume')}
     >
       {/* 1. TOP BAR HUD (Minimalista, no invasivo) */}
       <div
@@ -98,7 +101,7 @@ export const AtrilLandscapeMode: React.FC<AtrilLandscapeModeProps> = ({
           <button
             onClick={onPrevRhythm}
             className="p-1 hover:text-[#FF5533] text-gray-300 transition cursor-pointer active:scale-95"
-            title="Ritmo anterior"
+            title={L('Ritmo anterior', 'Previous rhythm')}
           >
             <ArrowLeft className="w-3.5 h-3.5" />
           </button>
@@ -106,12 +109,12 @@ export const AtrilLandscapeMode: React.FC<AtrilLandscapeModeProps> = ({
             {rhythm.roman}
           </span>
           <span className="font-sans font-medium text-gray-200 tracking-tight truncate max-w-[130px] sm:max-w-xs">
-            {rhythm.shortTitle.replace(/^Ritmo\s+[IVXLCDM]+\s*[—–-]\s*/, '')}
+            {rhythmName(rhythm)}
           </span>
           <button
             onClick={onNextRhythm}
             className="p-1 hover:text-[#FF5533] text-gray-300 transition cursor-pointer active:scale-95"
-            title="Siguiente ritmo"
+            title={L('Siguiente ritmo', 'Next rhythm')}
           >
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
@@ -122,7 +125,7 @@ export const AtrilLandscapeMode: React.FC<AtrilLandscapeModeProps> = ({
           {tapFeedback && (
             <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E84A27]/20 border border-[#E84A27]/40 text-[#FF6B4A] text-[11px] font-semibold animate-pulse shadow-[0_0_15px_rgba(232,74,39,0.3)]">
               {tapFeedback === 'play' ? <Play className="w-3 h-3 fill-current" /> : <Pause className="w-3 h-3" />}
-              <span>{tapFeedback === 'play' ? 'EN MARCHA' : 'PAUSADO'}</span>
+              <span>{tapFeedback === 'play' ? L('EN MARCHA', 'PLAYING') : L('PAUSADO', 'PAUSED')}</span>
             </div>
           )}
         </div>
@@ -136,19 +139,19 @@ export const AtrilLandscapeMode: React.FC<AtrilLandscapeModeProps> = ({
                 ? 'bg-[#E84A27]/20 border-[#E84A27]/50 text-[#FF6B4A]'
                 : 'bg-white/[0.05] border-white/[0.08] text-gray-300 hover:text-white'
             }`}
-            title="Invertir horizontalmente para practicar frente a un espejo (Tecla M)"
+            title={L('Invertir horizontalmente para practicar frente a un espejo (Tecla M)', 'Flip horizontally to practise in front of a mirror (M key)')}
           >
             <FlipHorizontal className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">Modo Espejo</span>
+            <span className="hidden md:inline">{L('Modo Espejo', 'Mirror mode')}</span>
           </button>
 
           <button
             onClick={onExit}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl btn-3d text-white text-xs font-semibold cursor-pointer shadow-sm"
-            title="Salir del Modo Atril (Esc)"
+            title={L('Salir del Modo Atril (Esc)', 'Exit music stand mode (Esc)')}
           >
             <X className="w-3.5 h-3.5" />
-            <span>Salir</span>
+            <span>{L('Salir', 'Exit')}</span>
           </button>
         </div>
       </div>
@@ -211,7 +214,7 @@ export const AtrilLandscapeMode: React.FC<AtrilLandscapeModeProps> = ({
             <button
               onClick={onTogglePlay}
               className="w-11 h-11 rounded-full btn-primary flex items-center justify-center shrink-0 cursor-pointer"
-              title={isPlaying ? 'Pausar (Espacio)' : 'Reproducir (Espacio)'}
+              title={isPlaying ? L('Pausar (Espacio)', 'Pause (Space)') : L('Reproducir (Espacio)', 'Play (Space)')}
             >
               {isPlaying ? (
                 <Square className="w-4 h-4 fill-white" />
@@ -230,7 +233,7 @@ export const AtrilLandscapeMode: React.FC<AtrilLandscapeModeProps> = ({
               </div>
               {isWakeLockActive && (
                 <span className="text-amber-400/90 font-sans text-[9.5px] block leading-tight mt-0.5">
-                  Pantalla activa
+                  {L('Pantalla activa', 'Screen stays on')}
                 </span>
               )}
             </div>

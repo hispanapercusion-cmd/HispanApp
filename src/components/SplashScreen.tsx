@@ -6,6 +6,7 @@ import { HispanaMark } from './HispanaLogo';
 import { ConsentChecks, ConsentValues } from './ConsentChecks';
 import { saveConsent, CONSENT_VERSION } from '../services/consent';
 import { track } from '../services/analytics';
+import { useLang, LangSwitch, roleLabel, levelLabel } from '../i18n';
 
 interface SplashScreenProps {
   onFinish: () => void;
@@ -29,6 +30,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
   audioReady: _audioReady,
   onProfileSave,
 }) => {
+  const { lang, L } = useLang();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [mode, setMode] = useState<
     'initial_check' | 'welcome_cinematic' | 'step1_name_email' | 'step2_role_level'
@@ -134,11 +136,11 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
     const cleanEmail = formEmail.trim();
 
     if (!cleanName || !cleanEmail) {
-      setErrorMsg('Por favor ingresa tu nombre y tu email.');
+      setErrorMsg(L('Por favor ingresa tu nombre y tu email.', 'Please enter your name and your email.'));
       return;
     }
     if (!consent.accepted) {
-      setErrorMsg('Para continuar, acepta la Política de privacidad y los Términos y condiciones.');
+      setErrorMsg(L('Para continuar, acepta la Política de privacidad y los Términos y condiciones.', 'To continue, please accept the Privacy Policy and the Terms and Conditions.'));
       return;
     }
     setErrorMsg(null);
@@ -152,7 +154,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
     const cleanEmail = formEmail.trim();
 
     if (!formRole || !formLevel) {
-      setErrorMsg('Por favor selecciona qué eres y qué nivel tienes para continuar.');
+      setErrorMsg(L('Por favor selecciona qué eres y qué nivel tienes para continuar.', 'Please choose what you play and your level to continue.'));
       return;
     }
     setErrorMsg(null);
@@ -211,7 +213,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
     setMode('welcome_cinematic');
   };
 
-  const displayName = profile?.name || formName.trim() || 'Amigo';
+  const displayName = profile?.name || formName.trim() || L('Amigo', 'friend');
 
   // Medidas del texto de bienvenida para abrir su hueco con precisión (sin saltos)
   const welcomeTextRef = useRef<HTMLDivElement>(null);
@@ -276,7 +278,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
             >
               <div ref={welcomeTextRef} className="welcome-text">
                 <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight leading-tight text-center sm:text-left sm:whitespace-nowrap sm:overflow-hidden sm:text-ellipsis">
-                  Bienvenido, {displayName}
+                  {L('Bienvenido', 'Welcome')}, {displayName}
                 </h2>
               </div>
             </div>
@@ -303,6 +305,8 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
               </p>
             </div>
 
+            <LangSwitch className="mt-4 animate-splash-fade" />
+
             {/* Formulario */}
             <div id="firstTimeForm" className="w-full space-y-4 animate-fadeIn mt-5">
               <form onSubmit={handleNextToStep2} className="space-y-4">
@@ -314,7 +318,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
 
                 <div>
                   <label className="block font-brand text-[10px] tracking-wider text-gray-400 uppercase mb-1.5 font-bold">
-                    1. TU NOMBRE O APODO: <span className="text-[#C83214]">*</span>
+                    {L('1. TU NOMBRE O APODO:', '1. YOUR NAME OR NICKNAME:')} <span className="text-[#C83214]">*</span>
                   </label>
                   <input
                     type="text"
@@ -322,14 +326,14 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
                     required
                     value={formName}
                     onChange={(e) => setFormName(e.target.value)}
-                    placeholder="ej. Carmen, Marcos, Ana..."
+                    placeholder={L('ej. Carmen, Marcos, Ana...', 'e.g. Carmen, Mark, Anna...')}
                     className="w-full inset-field rounded-xl px-4 py-3 text-sm font-medium text-white placeholder-gray-500 focus:outline-none focus:border-[#E84A27] transition"
                   />
                 </div>
 
                 <div>
                   <label className="block font-brand text-[10px] tracking-wider text-gray-400 uppercase mb-1.5 font-bold">
-                    2. TU EMAIL: <span className="text-[#C83214]">*</span>
+                    {L('2. TU EMAIL:', '2. YOUR EMAIL:')} <span className="text-[#C83214]">*</span>
                   </label>
                   <input
                     type="email"
@@ -337,7 +341,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
                     required
                     value={formEmail}
                     onChange={(e) => setFormEmail(e.target.value)}
-                    placeholder="ej. nombre@correo.com"
+                    placeholder={L('ej. nombre@correo.com', 'e.g. name@email.com')}
                     className="w-full inset-field rounded-xl px-4 py-3 text-sm font-medium text-white placeholder-gray-500 focus:outline-none focus:border-[#E84A27] transition"
                   />
                 </div>
@@ -350,7 +354,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
                   type="submit"
                   className="w-full py-3.5 rounded-xl btn-primary text-white font-brand font-bold text-xs uppercase tracking-wider cursor-pointer flex items-center justify-center gap-2 mt-2"
                 >
-                  <span>Continuar</span>
+                  <span>{L('Continuar', 'Continue')}</span>
                   <span>→</span>
                 </button>
               </form>
@@ -373,7 +377,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
               {/* Pregunta 1: ¿Eres? */}
               <div>
                 <label className="block font-brand text-[11px] tracking-wider text-gray-400 uppercase mb-2 font-bold">
-                  ¿ERES? <span className="text-[#C83214]">*</span>
+                  {L('¿ERES?', 'WHAT DO YOU PLAY?')} <span className="text-[#C83214]">*</span>
                 </label>
                 <div className="flex flex-col gap-2.5">
                   {ROLES.map((r) => {
@@ -392,7 +396,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
                             : 'btn-3d text-gray-300 hover:text-white'
                         }`}
                       >
-                        {r}
+                        {roleLabel(r, lang)}
                       </button>
                     );
                   })}
@@ -402,7 +406,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
               {/* Pregunta 2: ¿Qué nivel tienes? */}
               <div>
                 <label className="block font-brand text-[11px] tracking-wider text-gray-400 uppercase mb-2 font-bold">
-                  ¿QUÉ NIVEL TIENES? <span className="text-[#C83214]">*</span>
+                  {L('¿QUÉ NIVEL TIENES?', 'WHAT IS YOUR LEVEL?')} <span className="text-[#C83214]">*</span>
                 </label>
                 <div className="flex flex-col gap-2.5">
                   {LEVELS.map((lvl) => {
@@ -421,7 +425,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
                             : 'btn-3d text-gray-300 hover:text-white'
                         }`}
                       >
-                        {lvl}
+                        {levelLabel(lvl, lang)}
                       </button>
                     );
                   })}
@@ -433,7 +437,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
                 type="submit"
                 className="w-full py-4 rounded-xl btn-primary text-white font-brand font-bold text-xs sm:text-sm uppercase tracking-wider cursor-pointer flex items-center justify-center gap-2 mt-3"
               >
-                Guardar y Comenzar a Practicar
+                {L('Guardar y Comenzar a Practicar', 'Save and start practising')}
               </button>
             </form>
           </div>
@@ -443,7 +447,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
       {/* FOOTER INFERIOR MINIMALISTA ELEGANTE */}
       <div className="pb-3 text-center animate-fadeIn shrink-0">
         <p className="font-sans text-[11px] sm:text-xs tracking-[0.28em] text-gray-400 uppercase font-medium">
-          de hispana percusión
+          {L('de hispana percusión', 'by hispana percusión')}
         </p>
       </div>
     </div>

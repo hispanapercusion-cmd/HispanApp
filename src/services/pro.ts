@@ -1,6 +1,7 @@
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import { APP_CONFIG } from '../config';
+import { L } from '../i18n';
 
 /**
  * Comprueba un código PRO de verdad, sin listas guardadas dentro de la app:
@@ -76,6 +77,6 @@ export async function verifyProCode(raw: string): Promise<ProCheckResult> {
 export function proErrorMessage(result: ProCheckResult): string {
   if (result.ok) return '';
   return result.reason === 'unavailable'
-    ? 'No se pudo comprobar el código. Revisa tu conexión e inténtalo de nuevo.'
-    : 'Código no válido. Revisa que esté bien escrito.';
+    ? L('No se pudo comprobar el código. Revisa tu conexión e inténtalo de nuevo.', 'The code could not be checked. Check your connection and try again.')
+    : L('Código no válido. Revisa que esté bien escrito.', 'Invalid code. Check that it is typed correctly.');
 }

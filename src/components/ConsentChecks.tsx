@@ -1,6 +1,7 @@
 import React from 'react';
 import { Check } from 'lucide-react';
-import { APP_CONFIG } from '../config';
+import { legalUrl } from '../config';
+import { useLang } from '../i18n';
 
 /** Casilla con el estilo de la app (la casilla real queda oculta pero accesible) */
 export const CheckRow: React.FC<{
@@ -42,20 +43,22 @@ export const ConsentChecks: React.FC<{
   value: ConsentValues;
   onChange: (v: ConsentValues) => void;
   idPrefix: string;
-}> = ({ value, onChange, idPrefix }) => (
+}> = ({ value, onChange, idPrefix }) => {
+  const { lang, L } = useLang();
+  return (
   <div className="space-y-2.5">
     <CheckRow
       id={`${idPrefix}-accept`}
       checked={value.accepted}
       onChange={(accepted) => onChange({ ...value, accepted })}
     >
-      Acepto la{' '}
-      <a href={APP_CONFIG.privacyUrl} target="_blank" rel="noopener" className="text-[#FF6B4A] underline underline-offset-2" onClick={(e) => e.stopPropagation()}>
-        Política de privacidad
+      {L('Acepto la', 'I accept the')}{' '}
+      <a href={legalUrl('privacy', lang)} target="_blank" rel="noopener" className="text-[#FF6B4A] underline underline-offset-2" onClick={(e) => e.stopPropagation()}>
+        {L('Política de privacidad', 'Privacy Policy')}
       </a>{' '}
-      y los{' '}
-      <a href={APP_CONFIG.termsUrl} target="_blank" rel="noopener" className="text-[#FF6B4A] underline underline-offset-2" onClick={(e) => e.stopPropagation()}>
-        Términos y condiciones
+      {L('y los', 'and the')}{' '}
+      <a href={legalUrl('terms', lang)} target="_blank" rel="noopener" className="text-[#FF6B4A] underline underline-offset-2" onClick={(e) => e.stopPropagation()}>
+        {L('Términos y condiciones', 'Terms and Conditions')}
       </a>
       . <span className="text-[#FF6B4A]">*</span>
     </CheckRow>
@@ -64,14 +67,15 @@ export const ConsentChecks: React.FC<{
       checked={value.marketing}
       onChange={(marketing) => onChange({ ...value, marketing })}
     >
-      Quiero recibir novedades, clases y ofertas por email <span className="text-gray-500">(opcional)</span>.
+      {L('Quiero recibir novedades, clases y ofertas por email', 'Send me news, lessons and offers by email')} <span className="text-gray-500">({L('opcional', 'optional')})</span>.
     </CheckRow>
     <CheckRow
       id={`${idPrefix}-analytics`}
       checked={value.analytics}
       onChange={(analytics) => onChange({ ...value, analytics })}
     >
-      Permitir estadísticas anónimas de uso para mejorar la app <span className="text-gray-500">(opcional)</span>.
+      {L('Permitir estadísticas anónimas de uso para mejorar la app', 'Allow anonymous usage statistics to improve the app')} <span className="text-gray-500">({L('opcional', 'optional')})</span>.
     </CheckRow>
   </div>
-);
+  );
+};

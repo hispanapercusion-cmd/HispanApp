@@ -7,6 +7,8 @@ export interface RhythmDefinition {
   shortTitle: string;
   scoreTitle: string;
   palos: string;
+  /** Palos en inglés */
+  palosEn?: string;
   timeSignature: string;
   bpmRange: { min: number; max: number; default: number };
   has12CountToggle: boolean;

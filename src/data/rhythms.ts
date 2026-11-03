@@ -1,4 +1,5 @@
 import { RhythmDefinition } from '../types';
+import type { Lang } from '../i18n';
 
 export const PALMAS_METHOD: RhythmDefinition[] = [
   {
@@ -8,6 +9,7 @@ export const PALMAS_METHOD: RhythmDefinition[] = [
     shortTitle: 'Ritmo I — Alegrías / Soleá por Bulería',
     scoreTitle: 'Ritmo I — Alegrías / Soleá por Bulería',
     palos: 'Cantiñas (Alegrías, Romera, Mirabrás, Caracoles, Cantiñas Personales), familia de la Soleá (Soleá, Soleá por Bulerías, Bamberas) y Guajiras.',
+    palosEn: 'Cantiñas (Alegrías, Romera, Mirabrás, Caracoles, Cantiñas Personales), the Soleá family (Soleá, Soleá por Bulerías, Bamberas) and Guajiras.',
     timeSignature: '3/4',
     bpmRange: { min: 60, max: 220, default: 115 },
     has12CountToggle: true,
@@ -31,6 +33,7 @@ export const PALMAS_METHOD: RhythmDefinition[] = [
     shortTitle: 'Ritmo II — Seguiriyas / Martinetes',
     scoreTitle: 'Ritmo II — Seguiriyas / Martinetes',
     palos: 'Seguiriyas, Martinetes y Serranas.',
+    palosEn: 'Seguiriyas, Martinetes and Serranas.',
     timeSignature: '2/4 y 3/4',
     bpmRange: { min: 60, max: 200, default: 90 },
     has12CountToggle: false,
@@ -55,6 +58,7 @@ export const PALMAS_METHOD: RhythmDefinition[] = [
     shortTitle: 'Ritmo III — Bulerías de Jerez / Cádiz',
     scoreTitle: 'Ritmo III — Bulerías de Jerez',
     palos: 'Bulerías de Jerez y Bulerías de Cádiz.',
+    palosEn: 'Bulerías de Jerez and Bulerías de Cádiz.',
     timeSignature: '3/4',
     bpmRange: { min: 60, max: 260, default: 185 },
     has12CountToggle: true,
@@ -76,6 +80,7 @@ export const PALMAS_METHOD: RhythmDefinition[] = [
     shortTitle: 'Ritmo IV — Jaleos / Abandolaos',
     scoreTitle: 'Ritmo IV — Jaleos / Abandolaos',
     palos: 'Jaleos y Abandolaos.',
+    palosEn: 'Jaleos and Abandolaos.',
     timeSignature: '3/4',
     bpmRange: { min: 60, max: 180, default: 120 },
     has12CountToggle: true,
@@ -97,6 +102,7 @@ export const PALMAS_METHOD: RhythmDefinition[] = [
     shortTitle: 'Ritmo V — Fandangos / Sevillanas',
     scoreTitle: 'Ritmo V — Fandangos / Sevillanas',
     palos: 'Fandangos y Sevillanas.',
+    palosEn: 'Fandangos and Sevillanas.',
     timeSignature: '3/4',
     bpmRange: { min: 60, max: 180, default: 125 },
     has12CountToggle: false,
@@ -120,6 +126,7 @@ export const PALMAS_METHOD: RhythmDefinition[] = [
     shortTitle: 'Ritmo VI — Tangos / Rumbas',
     scoreTitle: 'Ritmo VI — Tangos / Rumbas',
     palos: 'Tangos (Cádiz, Triana, Jerez, Granada, Extremeños), Rumbas, Garrotín y Colombianas.',
+    palosEn: 'Tangos (Cádiz, Triana, Jerez, Granada, Extremeños), Rumbas, Garrotín and Colombianas.',
     timeSignature: '4/4',
     bpmRange: { min: 60, max: 220, default: 110 },
     has12CountToggle: false,
@@ -141,6 +148,7 @@ export const PALMAS_METHOD: RhythmDefinition[] = [
     shortTitle: 'Ritmo VII — Tientos / Farruca',
     scoreTitle: 'Ritmo VII — Tientos / Farruca',
     palos: 'Tientos, Farrucas y Tarantos.',
+    palosEn: 'Tientos, Farrucas and Tarantos.',
     timeSignature: '4/4',
     bpmRange: { min: 40, max: 100, default: 60 },
     has12CountToggle: false,
@@ -162,6 +170,7 @@ export const PALMAS_METHOD: RhythmDefinition[] = [
     shortTitle: 'Ritmo VIII — Tanguillos',
     scoreTitle: 'Ritmo VIII — Tanguillos',
     palos: 'Tanguillos de Cádiz.',
+    palosEn: 'Tanguillos de Cádiz.',
     timeSignature: '6/8',
     bpmRange: { min: 60, max: 140, default: 85 },
     has12CountToggle: false,
@@ -180,3 +189,17 @@ export const PALMAS_METHOD: RhythmDefinition[] = [
 
 // Alias exportado para compatibilidad
 export const RHYTHMS_DATA = PALMAS_METHOD;
+
+// Textos según el idioma. Los nombres de los palos se dejan en español (así se usan en todo el mundo).
+const ROMAN_PREFIX = /^Ritmo\s+[IVXLCDM]+\s*[—–-]\s*/;
+
+/** "Ritmo I — Alegrías / Soleá por Bulería" o "Rhythm I — …" */
+export const rhythmTitle = (r: RhythmDefinition, lang: Lang): string =>
+  lang === 'en' ? r.shortTitle.replace(/^Ritmo/, 'Rhythm') : r.shortTitle;
+
+/** Solo el nombre, sin "Ritmo I —": "Alegrías / Soleá por Bulería" */
+export const rhythmName = (r: RhythmDefinition): string => r.shortTitle.replace(ROMAN_PREFIX, '');
+
+/** Palos que se acompañan con este ritmo */
+export const rhythmPalos = (r: RhythmDefinition, lang: Lang): string =>
+  lang === 'en' && r.palosEn ? r.palosEn : r.palos;

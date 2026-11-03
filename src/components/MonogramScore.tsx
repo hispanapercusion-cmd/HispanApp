@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { RhythmDefinition } from '../types';
+import { useLang } from '../i18n';
 
 // Escala común de todas las figuras y alturas dentro de cada dibujo (unidades del viewBox)
 const S = 0.95;
@@ -21,6 +22,7 @@ const MonogramScoreComponent: React.FC<MonogramScoreProps> = ({
   countMode,
   onPreviewBeat,
 }) => {
+  const { L } = useLang();
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -226,7 +228,7 @@ const MonogramScoreComponent: React.FC<MonogramScoreProps> = ({
   const QuarterNote = ({ stepIdx, label, accent = false }: { stepIdx: number; label: string; accent?: boolean }) => {
     const a = activeStep === stepIdx;
     return (
-      <BeatBox id={`beatBox-${stepIdx}`} active={a} title={`Paso ${stepIdx + 1} - Clic para escuchar`} onClick={() => onPreviewBeat?.(stepIdx, 1)}>
+      <BeatBox id={`beatBox-${stepIdx}`} active={a} title={L(`Paso ${stepIdx + 1} - Clic para escuchar`, `Step ${stepIdx + 1} - tap to hear it`)} onClick={() => onPreviewBeat?.(stepIdx, 1)}>
         <Svg w={48}>
           <Label x={22} text={label} active={a} />
           <Head cx={22} active={a} />
@@ -241,7 +243,7 @@ const MonogramScoreComponent: React.FC<MonogramScoreProps> = ({
   const QuarterRest = ({ stepIdx, label }: { stepIdx: number; label: string }) => {
     const a = activeStep === stepIdx;
     return (
-      <BeatBox id={`beatBox-${stepIdx}`} active={a} title={`Paso ${stepIdx + 1} - Silencio`} onClick={() => onPreviewBeat?.(stepIdx, 1)}>
+      <BeatBox id={`beatBox-${stepIdx}`} active={a} title={L(`Paso ${stepIdx + 1} - Silencio`, `Step ${stepIdx + 1} - rest`)} onClick={() => onPreviewBeat?.(stepIdx, 1)}>
         <Svg w={48}>
           <Label x={24} text={label} active={a} />
           <QuarterRestGlyph cx={24} active={a} />
@@ -269,7 +271,7 @@ const MonogramScoreComponent: React.FC<MonogramScoreProps> = ({
     const a1 = activeStep === step1;
     const a2 = activeStep === step2;
     return (
-      <BeatBox id={`beatBox-${step1}`} active={a1 || a2} title={`Corcheas ${step1 + 1}-${step2 + 1}`} onClick={() => onPreviewBeat?.(step1, 2)}>
+      <BeatBox id={`beatBox-${step1}`} active={a1 || a2} title={L(`Corcheas ${step1 + 1}-${step2 + 1}`, `Eighth notes ${step1 + 1}-${step2 + 1}`)} onClick={() => onPreviewBeat?.(step1, 2)}>
         <Svg w={60}>
           <Label x={17} text={label1} active={a1} />
           <Label x={41} text={label2} active={a2} />
@@ -302,7 +304,7 @@ const MonogramScoreComponent: React.FC<MonogramScoreProps> = ({
     const aR = activeStep === stepRest;
     const aN = activeStep === stepNote;
     return (
-      <BeatBox id={`beatBox-${stepRest}`} active={aR || aN} title={`Contratiempo ${stepRest + 1}-${stepNote + 1}`} onClick={() => onPreviewBeat?.(stepRest, 2)}>
+      <BeatBox id={`beatBox-${stepRest}`} active={aR || aN} title={L(`Contratiempo ${stepRest + 1}-${stepNote + 1}`, `Off-beat ${stepRest + 1}-${stepNote + 1}`)} onClick={() => onPreviewBeat?.(stepRest, 2)}>
         <Svg w={60}>
           <Label x={16} text={label1} active={aR} />
           <Label x={39} text={label2} active={aN} />
@@ -330,7 +332,7 @@ const MonogramScoreComponent: React.FC<MonogramScoreProps> = ({
     const a2 = activeStep === stepStart + 3;
     const group = activeStep >= stepStart && activeStep <= stepStart + 3;
     return (
-      <BeatBox id={`beatBox-${stepStart}`} active={group} title="Corchea con puntillo + semicorchea" onClick={() => onPreviewBeat?.(stepStart, 4)}>
+      <BeatBox id={`beatBox-${stepStart}`} active={group} title={L('Corchea con puntillo + semicorchea', 'Dotted eighth + sixteenth')} onClick={() => onPreviewBeat?.(stepStart, 4)}>
         <Svg w={64}>
           <Label x={15} text={label1} active={a1} />
           <Label x={45} text={label2} active={a2} />
@@ -355,7 +357,7 @@ const MonogramScoreComponent: React.FC<MonogramScoreProps> = ({
     const a2 = activeStep === stepStart + 2;
     const group = aR || a1 || a2;
     return (
-      <BeatBox id={`beatBox-${stepStart}`} active={group} title="Tanguillo Pulso 1" onClick={() => onPreviewBeat?.(stepStart, 3)}>
+      <BeatBox id={`beatBox-${stepStart}`} active={group} title={L('Tanguillo Pulso 1', 'Tanguillo pulse 1')} onClick={() => onPreviewBeat?.(stepStart, 3)}>
         <Svg w={82}>
           <Label x={15} text={label} active={group} />
           <EighthRestGlyph cx={15} active={aR} />
@@ -376,7 +378,7 @@ const MonogramScoreComponent: React.FC<MonogramScoreProps> = ({
     const aR = activeStep === stepStart + 2;
     const group = a1 || a2 || aR;
     return (
-      <BeatBox id={`beatBox-${stepStart}`} active={group} title="Tanguillo Pulso 2" onClick={() => onPreviewBeat?.(stepStart, 3)}>
+      <BeatBox id={`beatBox-${stepStart}`} active={group} title={L('Tanguillo Pulso 2', 'Tanguillo pulse 2')} onClick={() => onPreviewBeat?.(stepStart, 3)}>
         <Svg w={82}>
           <Label x={17} text={label} active={group} />
           <Head cx={17} active={a1} />

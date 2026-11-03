@@ -7,6 +7,7 @@ import { RecoverAccessInfo, SavedProCode } from './RecoverAccessInfo';
 import { InstallCard } from './InstallCard';
 import { ShareCard } from './ShareCard';
 import { LegalLinks } from './LegalLinks';
+import { useLang, LangSwitch } from '../i18n';
 
 interface CommunityModalProps {
   isOpen: boolean;
@@ -25,9 +26,11 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
   onStartTour,
   onOpenFeedback,
 }) => {
+  const { L } = useLang();
   const [proInput, setProInput] = useState('');
   const [checkingCode, setCheckingCode] = useState(false);
   const [codeMessage, setCodeMessage] = useState<string | null>(null);
+  const [codeOk, setCodeOk] = useState(false);
 
   if (!isOpen) return null;
 
@@ -35,11 +38,12 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
     e.preventDefault();
     if (!proInput.trim() || !onActivateProCode || checkingCode) return;
     setCheckingCode(true);
-    setCodeMessage('Comprobando…');
+    setCodeMessage(L('Comprobando…', 'Checking…'));
     const result = await onActivateProCode(proInput.trim());
     setCheckingCode(false);
+    setCodeOk(result.ok);
     if (result.ok) {
-      setCodeMessage('¡Código activado con éxito! Tienes acceso PRO.');
+      setCodeMessage(L('¡Código activado con éxito! Tienes acceso PRO.', 'Code activated! You now have PRO access.'));
       setProInput('');
     } else {
       setCodeMessage(proErrorMessage(result));
@@ -58,14 +62,15 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
                 Hispana Percusión · Jordan Migues
               </span>
               <h3 className="font-serif text-lg sm:text-xl font-bold leading-tight text-white">
-                Comunidad
+                {L('Comunidad', 'Community')}
               </h3>
             </div>
           </div>
+          <LangSwitch className="ml-auto mr-2" />
           <button
             onClick={onClose}
             className="icon-btn btn-3d text-gray-400 hover:text-white cursor-pointer"
-            title="Cerrar"
+            title={L('Cerrar', 'Close')}
           >
             <X className="w-5 h-5" />
           </button>
@@ -79,7 +84,7 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
           <div className="flex items-center justify-between gap-2">
             <span className="font-brand text-[9.5px] uppercase tracking-widest text-[#FF5533] font-bold flex items-center gap-1.5">
               <Heart className="w-3.5 h-3.5 fill-[#E84A27] text-[#E84A27]" />
-              Estudio Semanal
+              {L('Estudio Semanal', 'Weekly study')}
             </span>
             <span className="text-[10px] font-sans font-semibold px-2 py-0.5 rounded-full bg-white/[0.08] text-gray-300">
               Patreon
@@ -87,10 +92,10 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
           </div>
           <div>
             <h4 className="font-serif font-bold text-sm sm:text-base text-white">
-              Comunidad en Patreon
+              {L('Comunidad en Patreon', 'Patreon community')}
             </h4>
             <p className="text-xs text-gray-300 font-sans leading-relaxed mt-0.5">
-              Lecciones exclusivas de percusión flamenca semana a semana, clases de cajón y resolución directa de dudas con Jordan Migues.
+              {L('Lecciones exclusivas de percusión flamenca semana a semana, clases de cajón y resolución directa de dudas con Jordan Migues.', 'Exclusive weekly flamenco percussion lessons, cajón classes and direct answers from Jordan Migues (in Spanish).')}
             </p>
           </div>
           <a
@@ -99,7 +104,7 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl btn-3d text-white font-sans text-xs font-bold uppercase tracking-wider cursor-pointer"
           >
-            <span>Unirme a Patreon →</span>
+            <span>{L('Unirme a Patreon →', 'Join on Patreon →')}</span>
             <ExternalLink className="w-3 h-3" />
           </a>
         </div>
@@ -109,7 +114,7 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
           <div className="flex items-center justify-between gap-2">
             <span className="font-brand text-[9.5px] uppercase tracking-widest text-[#FF5533] font-bold flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              Método Oficial
+              {L('Método Oficial', 'Official method')}
             </span>
             <span className="text-[10px] font-sans font-bold px-2 py-0.5 rounded-full bg-[#E84A27]/20 text-[#FF6B4A]">
               Hotmart
@@ -117,10 +122,10 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
           </div>
           <div>
             <h4 className="font-serif font-bold text-sm sm:text-base text-white">
-              Pack Completo: Los Ritmos del Flamenco
+              {L('Pack Completo: Los Ritmos del Flamenco', 'Full pack: Los Ritmos del Flamenco')}
             </h4>
             <p className="text-xs text-gray-300 font-sans leading-relaxed mt-0.5">
-              Incluye los 3 volúmenes completos (Compás de 12, 3/4, y 4/4 - 6/8 en cajón y palmas con demostraciones en video) y acceso a HispanApp PRO.
+              {L('Incluye los 3 volúmenes completos (Compás de 12, 3/4, y 4/4 - 6/8 en cajón y palmas con demostraciones en video) y acceso a HispanApp PRO.', 'Includes the 3 full volumes (12-beat compás, 3/4, and 4/4 - 6/8 on cajón and palmas, with video demos) and HispanApp PRO access. The books are in Spanish.')}
             </p>
           </div>
           <a
@@ -129,7 +134,7 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-2 w-full py-2.5 rounded-xl btn-primary text-white font-sans text-xs font-bold uppercase tracking-wider cursor-pointer"
           >
-            <span>Obtener Pack Completo en Hotmart</span>
+            <span>{L('Obtener Pack Completo en Hotmart', 'Get the full pack on Hotmart')}</span>
             <ExternalLink className="w-3.5 h-3.5" />
           </a>
         </div>
@@ -139,10 +144,10 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
           <div className="space-y-0.5">
             <div className="flex items-center gap-1.5 text-emerald-400 font-semibold text-xs">
               <MessageCircle className="w-4 h-4 shrink-0" />
-              <span>Contacto Directo WhatsApp</span>
+              <span>{L('Contacto Directo WhatsApp', 'Direct WhatsApp contact')}</span>
             </div>
             <p className="text-xs text-gray-300 font-sans leading-relaxed">
-              Consultas sobre cajones artesanales, clases particulares o soporte.
+              {L('Consultas sobre cajones artesanales, clases particulares o soporte.', 'Questions about handmade cajones, private lessons or support.')}
             </p>
           </div>
           <a
@@ -152,7 +157,7 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
             className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl btn-3d border-emerald-500/40 text-emerald-300 font-sans text-xs font-bold uppercase tracking-wider transition active:scale-95 shrink-0 cursor-pointer"
           >
             <MessageCircle className="w-3.5 h-3.5" />
-            <span>Abrir WhatsApp</span>
+            <span>{L('Abrir WhatsApp', 'Open WhatsApp')}</span>
           </a>
         </div>
 
@@ -161,16 +166,16 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
           <div className="flex items-center justify-between">
             <span className="font-semibold text-white flex items-center gap-1.5">
               <KeyRound className="w-3.5 h-3.5 text-[#E84A27]" />
-              <span>Código Alumno PRO</span>
+              <span>{L('Código Alumno PRO', 'PRO student code')}</span>
             </span>
             {isPro ? (
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold text-[11px]">
                 <CheckCircle2 className="w-3 h-3" />
-                <span>Activado</span>
+                <span>{L('Activado', 'Active')}</span>
               </span>
             ) : (
               <span className="px-2 py-0.5 rounded-full bg-white/[0.08] text-gray-300 text-[11px]">
-                Estándar
+                {L('Estándar', 'Free')}
               </span>
             )}
           </div>
@@ -185,7 +190,7 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
                     setProInput(e.target.value);
                     setCodeMessage(null);
                   }}
-                  placeholder="Clave de licencia o código"
+                  placeholder={L('Clave de licencia o código', 'License key or code')}
                   className="flex-1 min-w-0 inset-field focus:border-[#E84A27] rounded-lg px-3 py-1.5 text-xs text-white placeholder-gray-500 uppercase tracking-wider font-mono outline-none"
                 />
                 <button
@@ -193,11 +198,11 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
                   disabled={!proInput.trim() || checkingCode}
                   className="disabled:opacity-50 px-3 py-1.5 rounded-lg btn-primary text-white font-sans text-xs font-semibold uppercase tracking-wider cursor-pointer shrink-0"
                 >
-                  Activar
+                  {L('Activar', 'Activate')}
                 </button>
               </div>
               {codeMessage && (
-                <p className={`text-[11px] ${checkingCode ? 'text-gray-400' : codeMessage.includes('éxito') ? 'text-emerald-400' : 'text-rose-400'}`}>
+                <p className={`text-[11px] ${checkingCode ? 'text-gray-400' : codeOk ? 'text-emerald-400' : 'text-rose-400'}`}>
                   {codeMessage}
                 </p>
               )}
@@ -205,7 +210,7 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
           ) : (
             <div className="space-y-2.5">
               <p className="text-gray-400 text-[11px]">
-                Tienes acceso ilimitado a los 8 ritmos, videos oficiales y entrenador.
+                {L('Tienes acceso ilimitado a los 8 ritmos, videos oficiales y entrenador.', 'You have unlimited access to the 8 rhythms, official videos and the trainer.')}
               </p>
               <SavedProCode />
             </div>
@@ -220,14 +225,14 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
         {onOpenFeedback && (
           <div className="sub-card p-4 rounded-2xl flex items-center justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-xs font-semibold text-white">💬 Envíanos tu opinión</p>
-              <p className="text-[11.5px] text-gray-400 leading-snug mt-0.5">Sugerencias, ideas o algo que no funciona. ¡Nos ayuda mucho!</p>
+              <p className="text-xs font-semibold text-white">💬 {L('Envíanos tu opinión', 'Send us your feedback')}</p>
+              <p className="text-[11.5px] text-gray-400 leading-snug mt-0.5">{L('Sugerencias, ideas o algo que no funciona. ¡Nos ayuda mucho!', 'Suggestions, ideas or something that does not work. It helps us a lot!')}</p>
             </div>
             <button
               onClick={onOpenFeedback}
               className="px-4 py-2 rounded-full btn-primary text-white text-[11px] font-bold uppercase tracking-wider shrink-0 cursor-pointer"
             >
-              Opinar
+              {L('Opinar', 'Feedback')}
             </button>
           </div>
         )}
@@ -239,7 +244,7 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
             className="w-full py-2.5 rounded-2xl btn-3d text-gray-200 hover:text-white text-xs font-sans font-semibold flex items-center justify-center gap-2 cursor-pointer"
           >
             <span aria-hidden="true">🧭</span>
-            <span>Ver el recorrido de la app</span>
+            <span>{L('Ver el recorrido de la app', 'Take the app tour')}</span>
           </button>
         )}
 
@@ -250,7 +255,7 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
           onClick={onClose}
           className="w-full py-2.5 rounded-xl btn-3d text-white text-xs font-brand tracking-[0.18em] uppercase font-bold cursor-pointer"
         >
-          Cerrar
+          {L('Cerrar', 'Close')}
         </button>
       </div>
     </div>
