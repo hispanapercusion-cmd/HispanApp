@@ -1,6 +1,7 @@
 import React from 'react';
 import { TrainerConfig } from '../types';
 import { X, TrendingUp, Zap } from 'lucide-react';
+import { useLang } from '../i18n';
 
 interface TrainerModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ export const TrainerModal: React.FC<TrainerModalProps> = ({
   config,
   onChange,
 }) => {
+  const { L } = useLang();
   if (!isOpen) return null;
 
   return (
@@ -29,19 +31,20 @@ export const TrainerModal: React.FC<TrainerModalProps> = ({
               <span className="font-brand text-[10px] tracking-[0.25em] uppercase text-[#E84A27] font-bold block">
                 HispanApp Trainer
               </span>
-              <h3 className="font-serif text-lg font-bold leading-tight">Entrenador Progresivo</h3>
+              <h3 className="font-serif text-lg font-bold leading-tight">{L('Entrenador Progresivo', 'Progressive trainer')}</h3>
             </div>
           </div>
           <button
             onClick={onClose}
             className="icon-btn btn-3d text-gray-400 hover:text-white"
+            title={L('Cerrar', 'Close')}
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         <p className="text-xs text-gray-300 font-serif leading-relaxed italic">
-          Entrena la constancia del compás y las palmas aumentando la velocidad automáticamente de forma progresiva.
+          {L('Entrena la constancia del compás y las palmas aumentando la velocidad automáticamente de forma progresiva.', 'Train a steady compás and palmas: the speed goes up automatically, step by step.')}
         </p>
 
         <div className="space-y-3.5 text-sm">
@@ -49,7 +52,7 @@ export const TrainerModal: React.FC<TrainerModalProps> = ({
           <label className="flex items-center justify-between sub-card p-3.5 rounded-2xl cursor-pointer">
             <div className="flex items-center gap-2.5">
               <Zap className={`w-4 h-4 ${config.enabled ? 'text-[#E84A27]' : 'text-gray-500'}`} />
-              <span className="font-medium text-xs sm:text-sm">Subida Automática de Tempo</span>
+              <span className="font-medium text-xs sm:text-sm">{L('Subida Automática de Tempo', 'Automatic tempo increase')}</span>
             </div>
             {/* Interruptor (la casilla real queda oculta pero sigue siendo accesible) */}
             <input
@@ -74,7 +77,7 @@ export const TrainerModal: React.FC<TrainerModalProps> = ({
           <div className="grid grid-cols-2 gap-3">
             <div className="inset-field p-3 rounded-2xl">
               <label className="block text-[11px] text-gray-400 font-brand uppercase tracking-wider mb-1">
-                Aumentar (+BPM)
+                {L('Aumentar (+BPM)', 'Increase (+BPM)')}
               </label>
               <input
                 type="number"
@@ -88,7 +91,7 @@ export const TrainerModal: React.FC<TrainerModalProps> = ({
 
             <div className="inset-field p-3 rounded-2xl">
               <label className="block text-[11px] text-gray-400 font-brand uppercase tracking-wider mb-1">
-                Cada (N Vueltas)
+                {L('Cada (N Vueltas)', 'Every (N cycles)')}
               </label>
               <input
                 type="number"
@@ -103,7 +106,7 @@ export const TrainerModal: React.FC<TrainerModalProps> = ({
 
           <div className="inset-field p-3 rounded-2xl">
             <label className="block text-[11px] text-gray-400 font-brand uppercase tracking-wider mb-1">
-              BPM Límite Máximo
+              {L('BPM Límite Máximo', 'Maximum BPM')}
             </label>
             <input
               type="number"
@@ -120,7 +123,7 @@ export const TrainerModal: React.FC<TrainerModalProps> = ({
           onClick={onClose}
           className="w-full py-3 rounded-2xl btn-primary text-white text-xs font-brand tracking-[0.2em] uppercase font-bold cursor-pointer"
         >
-          Aplicar y Continuar
+          {L('Aplicar y Continuar', 'Apply and continue')}
         </button>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ShieldCheck } from 'lucide-react';
 import { ConsentChecks, ConsentValues } from './ConsentChecks';
+import { useLang, LangSwitch } from '../i18n';
 
 /**
  * Aviso único para quien ya estaba registrado antes de que existieran las casillas de consentimiento
@@ -9,6 +10,7 @@ import { ConsentChecks, ConsentValues } from './ConsentChecks';
 export const ConsentGateModal: React.FC<{
   onAccept: (prefs: { marketing: boolean; analytics: boolean }) => void;
 }> = ({ onAccept }) => {
+  const { L } = useLang();
   const [value, setValue] = useState<ConsentValues>({ accepted: false, marketing: false, analytics: false });
 
   return (
@@ -20,15 +22,19 @@ export const ConsentGateModal: React.FC<{
           </div>
           <div>
             <span className="font-brand text-[9.5px] tracking-[0.2em] uppercase text-[#FF6B4A] font-bold block">
-              Privacidad
+              {L('Privacidad', 'Privacy')}
             </span>
-            <h3 className="font-serif text-lg font-bold leading-tight">Tu privacidad, clara</h3>
+            <h3 className="font-serif text-lg font-bold leading-tight">{L('Tu privacidad, clara', 'Your privacy, clearly')}</h3>
           </div>
+          <LangSwitch className="ml-auto self-start" />
         </div>
 
         <p className="text-xs text-gray-300 leading-relaxed">
-          Hemos publicado nuestra Política de privacidad y los Términos y condiciones de HispanApp. Para seguir usando la app,
-          léelos y acéptalos. Las otras dos opciones son voluntarias y puedes cambiarlas cuando quieras desde <strong>Tu perfil</strong>.
+          {L(
+            'Hemos publicado nuestra Política de privacidad y los Términos y condiciones de HispanApp. Para seguir usando la app, léelos y acéptalos. Las otras dos opciones son voluntarias y puedes cambiarlas cuando quieras desde',
+            'We have published the HispanApp Privacy Policy and Terms and Conditions. To keep using the app, please read and accept them. The other two options are voluntary and you can change them any time from'
+          )}{' '}
+          <strong>{L('Tu perfil', 'Your profile')}</strong>.
         </p>
 
         <ConsentChecks idPrefix="gate" value={value} onChange={setValue} />
@@ -38,7 +44,7 @@ export const ConsentGateModal: React.FC<{
           disabled={!value.accepted}
           className="w-full py-3 rounded-2xl btn-primary text-white text-xs font-bold uppercase tracking-wider cursor-pointer disabled:cursor-not-allowed"
         >
-          Aceptar y continuar
+          {L('Aceptar y continuar', 'Accept and continue')}
         </button>
       </div>
     </div>

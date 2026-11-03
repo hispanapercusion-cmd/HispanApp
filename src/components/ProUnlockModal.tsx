@@ -6,6 +6,7 @@ import { ProCheckResult, proErrorMessage } from '../services/pro';
 import { RecoverAccessInfo } from './RecoverAccessInfo';
 import { LegalLinks } from './LegalLinks';
 import { track } from '../services/analytics';
+import { useLang } from '../i18n';
 
 interface ProUnlockModalProps {
   isOpen: boolean;
@@ -23,6 +24,7 @@ export const ProUnlockModal: React.FC<ProUnlockModalProps> = ({
   onActivate,
   onSuccess,
 }) => {
+  const { L } = useLang();
   const [code, setCode] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [checking, setChecking] = useState(false);
@@ -51,7 +53,7 @@ export const ProUnlockModal: React.FC<ProUnlockModalProps> = ({
         <button
           onClick={onClose}
           className="absolute top-4 right-4 icon-btn btn-3d text-gray-400 hover:text-white cursor-pointer"
-          title="Cerrar"
+          title={L('Cerrar', 'Close')}
         >
           <X className="w-5 h-5" />
         </button>
@@ -61,16 +63,16 @@ export const ProUnlockModal: React.FC<ProUnlockModalProps> = ({
           <HispanaLogo size="md" />
           <div>
             <span className="font-brand text-[9.5px] tracking-[0.2em] uppercase text-[#E84A27] font-bold block flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-amber-400" /> Versión PRO
+              <Sparkles className="w-3 h-3 text-amber-400" /> {L('Versión PRO', 'PRO version')}
             </span>
             <h3 className="font-serif text-lg font-bold leading-tight text-white">
-              Desbloquea los 8 Ritmos
+              {L('Desbloquea los 8 Ritmos', 'Unlock all 8 rhythms')}
             </h3>
           </div>
         </div>
 
         <p className="text-xs text-gray-300 leading-relaxed font-sans">
-          Accede a la colección completa de compases del método, videos demostrativos y el entrenador progresivo.
+          {L('Accede a la colección completa de compases del método, videos demostrativos y el entrenador progresivo.', 'Get the full collection of rhythms from the method, demo videos (in Spanish) and the progressive trainer.')}
         </p>
 
         {notice && (
@@ -88,7 +90,7 @@ export const ProUnlockModal: React.FC<ProUnlockModalProps> = ({
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl btn-primary text-white font-sans text-xs font-bold uppercase tracking-wider cursor-pointer"
           >
-            <span>Conseguir Versión PRO</span>
+            <span>{L('Conseguir Versión PRO', 'Get the PRO version')}</span>
             <ExternalLink className="w-3.5 h-3.5" />
           </a>
         </div>
@@ -97,7 +99,7 @@ export const ProUnlockModal: React.FC<ProUnlockModalProps> = ({
         <div className="relative flex py-1 items-center">
           <div className="flex-grow border-t border-white/[0.08]"></div>
           <span className="flex-shrink mx-3 text-[11px] text-gray-400 uppercase tracking-wider font-sans">
-            o activa tu acceso
+            {L('o activa tu acceso', 'or activate your access')}
           </span>
           <div className="flex-grow border-t border-white/[0.08]"></div>
         </div>
@@ -112,7 +114,7 @@ export const ProUnlockModal: React.FC<ProUnlockModalProps> = ({
                 setCode(e.target.value);
                 setError(null);
               }}
-              placeholder="Clave de licencia o código"
+              placeholder={L('Clave de licencia o código', 'License key or code')}
               className="w-full inset-field focus:border-[#E84A27] rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-gray-500 uppercase tracking-widest font-mono outline-none transition text-center"
             />
           </div>
@@ -129,15 +131,15 @@ export const ProUnlockModal: React.FC<ProUnlockModalProps> = ({
             disabled={!code.trim() || checking}
             className="w-full py-2 rounded-xl btn-3d disabled:opacity-40 disabled:pointer-events-none text-gray-200 hover:text-white font-sans font-semibold text-xs uppercase tracking-wider transition border border-white/[0.08] cursor-pointer"
           >
-            {checking ? 'Comprobando…' : 'Validar Código'}
+            {checking ? L('Comprobando…', 'Checking…') : L('Validar Código', 'Validate code')}
           </button>
           <p className="text-[10.5px] text-gray-500 text-center leading-relaxed">
-            Si compraste en la tienda, usa la clave de licencia que te llegó por email.
+            {L('Si compraste en la tienda, usa la clave de licencia que te llegó por email.', 'If you bought it in the store, use the license key you received by email.')}
           </p>
         </form>
 
         <p className="text-[10.5px] text-gray-500 text-center leading-relaxed -mt-1">
-          Pago único, sin suscripción. Al comprar aceptas los Términos y condiciones; tienes 10 días para arrepentirte.
+          {L('Pago único, sin suscripción. Al comprar aceptas los Términos y condiciones; tienes 10 días para arrepentirte.', 'One-time payment, no subscription. By buying you accept the Terms and Conditions; you have 10 days to withdraw.')}
         </p>
 
         <RecoverAccessInfo />
@@ -151,7 +153,7 @@ export const ProUnlockModal: React.FC<ProUnlockModalProps> = ({
             className="inline-flex items-center gap-1.5 text-[11.5px] text-gray-400 hover:text-emerald-400 transition"
           >
             <MessageCircle className="w-3.5 h-3.5" />
-            <span>¿Dudas con tu acceso? Escríbenos por WhatsApp</span>
+            <span>{L('¿Dudas con tu acceso? Escríbenos por WhatsApp', 'Questions about your access? Message us on WhatsApp')}</span>
           </a>
         </div>
 

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useLang } from '../i18n';
 
 /**
  * Mini recorrido por la app (primera vez tras registrarse, o a petición desde Comunidad).
@@ -30,6 +31,7 @@ const GAP = 14; // separación entre el foco y el cuadro
 const CARD_MAX_W = 340;
 
 export const AppTour: React.FC<AppTourProps> = ({ steps, onFinish }) => {
+  const { L } = useLang();
   const [index, setIndex] = useState(0);
   const [rect, setRect] = useState<Rect | null>(null);
   const [cardH, setCardH] = useState(170);
@@ -160,7 +162,7 @@ export const AppTour: React.FC<AppTourProps> = ({ steps, onFinish }) => {
           </span>
           <div className="min-w-0">
             <p className="font-brand text-[9.5px] tracking-[0.22em] uppercase text-[#FF6B4A] font-bold">
-              Paso {index + 1} de {steps.length}
+              {L(`Paso ${index + 1} de ${steps.length}`, `Step ${index + 1} of ${steps.length}`)}
             </p>
             <h3 className="font-serif text-base font-bold leading-snug mt-0.5">{step.title}</h3>
             <p className="text-[13px] text-gray-300 leading-relaxed mt-1">{step.text}</p>
@@ -186,14 +188,14 @@ export const AppTour: React.FC<AppTourProps> = ({ steps, onFinish }) => {
                 onClick={onFinish}
                 className="px-2.5 py-1.5 text-xs text-gray-400 hover:text-white transition cursor-pointer"
               >
-                Saltar
+                {L('Saltar', 'Skip')}
               </button>
             )}
             {index > 0 && (
               <button
                 onClick={prev}
                 className="px-3 py-1.5 rounded-full btn-3d text-xs text-gray-200 cursor-pointer"
-                aria-label="Paso anterior"
+                aria-label={L('Paso anterior', 'Previous step')}
               >
                 ←
               </button>
@@ -202,7 +204,7 @@ export const AppTour: React.FC<AppTourProps> = ({ steps, onFinish }) => {
               onClick={next}
               className="px-4 py-1.5 rounded-full btn-primary text-xs font-bold cursor-pointer"
             >
-              {isLast ? '¡A practicar!' : 'Siguiente'}
+              {isLast ? L('¡A practicar!', 'Let’s practise!') : L('Siguiente', 'Next')}
             </button>
           </div>
         </div>

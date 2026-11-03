@@ -1,6 +1,8 @@
 import React from 'react';
 import { X, Play, ExternalLink } from 'lucide-react';
 import { RhythmDefinition } from '../types';
+import { useLang } from '../i18n';
+import { rhythmTitle } from '../data/rhythms';
 
 interface VideoPlayerModalProps {
   isOpen: boolean;
@@ -13,6 +15,7 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
   onClose,
   rhythm,
 }) => {
+  const { lang, L } = useLang();
   if (!isOpen) return null;
 
   return (
@@ -26,17 +29,17 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
             </span>
             <div>
               <span className="text-[10px] font-brand tracking-widest text-gray-400 uppercase font-semibold block">
-                Video Demostrativo PRO · Jordan Migues
+                {L('Video Demostrativo PRO · Jordan Migues', 'PRO demo video (in Spanish) · Jordan Migues')}
               </span>
               <h3 className="font-serif font-bold text-base sm:text-lg text-white">
-                {rhythm.shortTitle}
+                {rhythmTitle(rhythm, lang)}
               </h3>
             </div>
           </div>
           <button
             onClick={onClose}
             className="icon-btn btn-3d text-gray-400 hover:text-white cursor-pointer"
-            title="Cerrar video"
+            title={L('Cerrar video', 'Close video')}
           >
             <X className="w-5 h-5" />
           </button>
@@ -46,7 +49,7 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
         <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black border border-white/[0.06] shadow-inner">
           <iframe
             src={rhythm.videoEmbedUrl}
-            title={rhythm.shortTitle}
+            title={rhythmTitle(rhythm, lang)}
             className="w-full h-full border-0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
@@ -55,7 +58,7 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-2 pt-1">
           <p className="text-gray-400 text-xs font-sans text-center sm:text-left">
-            Demostración técnica oficial del compás, acentuación y postura palmar.
+            {L('Demostración técnica oficial del compás, acentuación y postura palmar.', 'Official demo of the compás, accents and hand position.')}
           </p>
           {/* Botón de respaldo para abrir directamente en YouTube */}
           <a
@@ -64,7 +67,7 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl btn-3d text-xs font-sans font-medium text-gray-200 hover:text-white transition active:scale-95 shrink-0"
           >
-            <span>Abrir directamente en YouTube</span>
+            <span>{L('Abrir directamente en YouTube', 'Open in YouTube')}</span>
             <ExternalLink className="w-3.5 h-3.5 text-[#FF5533]" />
           </a>
         </div>

@@ -16,6 +16,14 @@ export interface AppConfig {
   withdrawalUrl: string;
 }
 
+import type { Lang } from './i18n';
+
+/** Páginas legales en el idioma de la app */
+export const legalUrl = (doc: 'privacy' | 'terms' | 'withdrawal', lang: Lang): string => {
+  if (lang === 'en') return { privacy: './legal/en/privacy.html', terms: './legal/en/terms.html', withdrawal: './legal/en/withdrawal.html' }[doc];
+  return { privacy: APP_CONFIG.privacyUrl, terms: APP_CONFIG.termsUrl, withdrawal: APP_CONFIG.withdrawalUrl }[doc];
+};
+
 export const APP_CONFIG: AppConfig = {
   patreonUrl: "https://www.patreon.com/HispanaPercusion?utm_campaign=creatorshare_creator",
   hotmartPackUrl: "https://pay.hotmart.com/R82880037W",

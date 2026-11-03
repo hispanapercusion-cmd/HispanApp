@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { PALMAS_METHOD } from './data/rhythms';
+import { PALMAS_METHOD, rhythmTitle, rhythmName, rhythmPalos } from './data/rhythms';
+import { useLang, LangSwitch } from './i18n';
 import { FlamencoAudioEngine } from './audio/engine';
 import { HispanaLogo } from './components/HispanaLogo';
 import { FlamencoClock } from './components/FlamencoClock';
@@ -25,6 +26,7 @@ import { Play, Square, Lock, CheckCircle2, Maximize2, User } from 'lucide-react'
 import { saveLeadToFirestore } from './services/firebase';
 
 export default function App() {
+  const { lang, L } = useLang();
   const [rhythmIndex, setRhythmIndex] = useState<number>(0);
   const [bpm, setBpmState] = useState<number>(115);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -173,12 +175,12 @@ export default function App() {
     if (codeFromUrl) {
       handleActivateProCode(codeFromUrl).then((result) => {
         if (!result.ok) {
-          setProModalNotice('El código del enlace no es válido. Escríbelo a mano o escríbenos por WhatsApp.');
+          setProModalNotice(L('El código del enlace no es válido. Escríbelo a mano o escríbenos por WhatsApp.', 'The code in the link is not valid. Type it in by hand or message us on WhatsApp.'));
           setIsProModalOpen(true);
         }
       });
     } else if (!localStorage.getItem('hispanapp_pro')) {
-      setProModalNotice('¡Gracias por tu compra! Pega aquí la clave de licencia que te llegó por email.');
+      setProModalNotice(L('¡Gracias por tu compra! Pega aquí la clave de licencia que te llegó por email.', 'Thank you for your purchase! Paste here the license key you received by email.'));
       setIsProModalOpen(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -576,42 +578,42 @@ export default function App() {
     {
       target: 'ritmos',
       icon: '🎵',
-      title: 'Los 8 ritmos del método',
+      title: L('Los 8 ritmos del método', 'The 8 rhythms of the method'),
       text: isPro
-        ? 'Aquí eliges el ritmo. Debajo ajustas la cuenta y el tipo de palmas: brillantes o sordas.'
-        : 'Aquí eliges el ritmo. Los que tienen candado se desbloquean con la versión PRO. Debajo ajustas la cuenta y el tipo de palmas.',
+        ? L('Aquí eliges el ritmo. Debajo ajustas la cuenta y el tipo de palmas: brillantes o sordas.', 'Choose the rhythm here. Below you set the count and the type of palmas: brillantes (bright) or sordas (muted).')
+        : L('Aquí eliges el ritmo. Los que tienen candado se desbloquean con la versión PRO. Debajo ajustas la cuenta y el tipo de palmas.', 'Choose the rhythm here. The ones with a lock are unlocked with the PRO version. Below you set the count and the type of palmas (claps).'),
     },
     {
       target: 'partitura',
       icon: '🎼',
-      title: 'Partitura y reloj de compás',
-      text: 'Toca cualquier compás para escucharlo. Mientras suena, la nota se ilumina aquí y en el reloj de compás.',
+      title: L('Partitura y reloj de compás', 'Score and compás clock'),
+      text: L('Toca cualquier compás para escucharlo. Mientras suena, la nota se ilumina aquí y en el reloj de compás.', 'Tap any bar to hear it. While it plays, the note lights up here and on the compás (rhythmic cycle) clock.'),
     },
     {
       target: 'metronomo',
       icon: '▶️',
-      title: 'Metrónomo con palmas reales',
-      text: 'Dale a Play para practicar con las palmas de Jordan. Cambia la velocidad con −/+ o marca tu pulso con TAP.',
+      title: L('Metrónomo con palmas reales', 'Metronome with real palmas'),
+      text: L('Dale a Play para practicar con las palmas de Jordan. Cambia la velocidad con −/+ o marca tu pulso con TAP.', "Press Play to practise with Jordan's real hand claps. Change the speed with −/+ or tap your own pulse with TAP."),
     },
     {
       target: 'entrenador',
       icon: '🥁',
-      title: 'Entrenador progresivo',
+      title: L('Entrenador progresivo', 'Progressive trainer'),
       text: isPro
-        ? 'Sube la velocidad sola cada pocas vueltas para que ganes soltura sin parar a tocar botones.'
-        : 'Sube la velocidad sola cada pocas vueltas para que ganes soltura. Es una función de la versión PRO.',
+        ? L('Sube la velocidad sola cada pocas vueltas para que ganes soltura sin parar a tocar botones.', 'It raises the speed by itself every few cycles, so you build fluency without stopping to press buttons.')
+        : L('Sube la velocidad sola cada pocas vueltas para que ganes soltura. Es una función de la versión PRO.', 'It raises the speed by itself every few cycles so you build fluency. It is a PRO feature.'),
     },
     {
       target: 'atril',
       icon: '🖥️',
-      title: 'Modo Atril',
-      text: 'Pantalla grande para tocar a distancia o proyectar en clase. En el móvil también se abre al girarlo.',
+      title: L('Modo Atril', 'Music stand mode (Atril)'),
+      text: L('Pantalla grande para tocar a distancia o proyectar en clase. En el móvil también se abre al girarlo.', 'A big screen to play from a distance or project in class. On a phone it also opens when you turn it sideways.'),
     },
     {
       target: 'comunidad',
       icon: '🤝',
-      title: 'Comunidad y Vocabulario',
-      text: 'En Comunidad: compartir la app con tus alumnos o compañeros, clases, el método completo y tu código PRO. En Vocabulario: los términos del flamenco explicados.',
+      title: L('Comunidad y Vocabulario', 'Community and Vocabulary'),
+      text: L('En Comunidad: compartir la app con tus alumnos o compañeros, clases, el método completo y tu código PRO. En Vocabulario: los términos del flamenco explicados.', 'In Community: share the app with your students or bandmates, lessons, the full method and your PRO code. In Vocabulary: flamenco terms explained.'),
     },
   ];
 
@@ -674,7 +676,7 @@ export default function App() {
       {showWelcomeProToast && (
         <div className="fixed top-14 left-1/2 -translate-x-1/2 z-50 bg-[#1C1E2C] border border-emerald-500/60 shadow-[0_8px_30px_rgba(16,185,129,0.35)] rounded-2xl px-4 py-2.5 flex items-center gap-2.5 text-white text-xs animate-fadeIn">
           <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span className="font-semibold">¡Acceso PRO de Hispana Percusión activado!</span>
+          <span className="font-semibold">{L('¡Acceso PRO de Hispana Percusión activado!', 'Hispana Percusión PRO access activated!')}</span>
         </div>
       )}
 
@@ -699,14 +701,17 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* Idioma (en el móvil no cabe en la cabecera: está en el registro, Comunidad y Tu perfil) */}
+            <LangSwitch className="hidden sm:inline-flex" />
+
             {/* Botón Perfil: ver y cambiar nombre, email, rol y nivel */}
             <button
               onClick={() => setIsEditNameOpen(true)}
               className="h-8.5 max-w-[9rem] flex items-center gap-1.5 px-2.5 sm:px-3 rounded-full btn-3d text-gray-200 hover:text-white text-xs font-medium tracking-wide cursor-pointer select-none"
-              title="Tu perfil"
+              title={L('Tu perfil', 'Your profile')}
             >
               <User className="w-3.5 h-3.5 shrink-0" />
-              <span className="hidden sm:inline truncate">{username || 'Perfil'}</span>
+              <span className="hidden sm:inline truncate">{username || L('Perfil', 'Profile')}</span>
             </button>
 
             {/* Botón Modo Atril (pantalla grande, útil para proyectar en clase) */}
@@ -714,10 +719,10 @@ export default function App() {
               data-tour="atril"
               onClick={() => setIsAtrilMode(true)}
               className="h-8.5 flex items-center gap-1.5 px-2.5 sm:px-3 rounded-full btn-3d text-gray-200 hover:text-white text-xs font-medium tracking-wide cursor-pointer select-none"
-              title="Modo Atril: pantalla grande para tocar a distancia"
+              title={L('Modo Atril: pantalla grande para tocar a distancia', 'Music stand mode: big screen to play from a distance')}
             >
               <Maximize2 className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Atril</span>
+              <span className="hidden sm:inline">{L('Atril', 'Stand')}</span>
             </button>
 
             {/* Botón Entrenador Progresivo */}
@@ -729,7 +734,7 @@ export default function App() {
                   ? 'border-emerald-500/40 bg-emerald-500/15 text-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.2)]'
                   : 'btn-3d text-gray-200 hover:text-white'
               }`}
-              title={isPro ? 'Entrenador Progresivo de Velocidad' : 'Entrenador Progresivo (Función Alumno PRO)'}
+              title={isPro ? L('Entrenador Progresivo de Velocidad', 'Progressive speed trainer') : L('Entrenador Progresivo (Función Alumno PRO)', 'Progressive trainer (PRO feature)')}
             >
               <span className="relative flex h-1.5 w-1.5">
                 {trainerConfig.enabled && (
@@ -755,7 +760,7 @@ export default function App() {
           {/* Botones rápidos I al VIII */}
           <div className="flex items-center justify-between gap-1 overflow-x-auto -mx-2.5 px-2.5 py-2.5 -my-2">
             <span className="font-sans text-[10px] tracking-wider uppercase text-gray-400 mr-1.5 shrink-0 hidden sm:inline font-semibold">
-              Ritmos:
+              {L('Ritmos:', 'Rhythms:')}
             </span>
             <div className="flex items-center gap-1 sm:gap-1.5 w-full sm:w-auto justify-between sm:justify-start">
               {PALMAS_METHOD.map((r, idx) => {
@@ -768,7 +773,7 @@ export default function App() {
                     className={`relative min-w-[2rem] h-8 px-2 sm:px-2.5 rounded-full font-serif text-xs font-bold transition shrink-0 cursor-pointer flex items-center justify-center ${
                       active ? 'orb-active orb-tight scale-105' : 'btn-3d text-gray-400 hover:text-white'
                     }`}
-                    title={locked ? `${r.shortTitle} (PRO)` : r.shortTitle}
+                    title={locked ? `${rhythmTitle(r, lang)} (PRO)` : rhythmTitle(r, lang)}
                   >
                     <span>{r.roman}</span>
                     {locked && (
@@ -792,7 +797,7 @@ export default function App() {
               >
                 {PALMAS_METHOD.map((r, idx) => (
                   <option key={r.id} value={idx} className="bg-[#141821] text-white">
-                    {!isRhythmUnlocked(idx) ? '🔒 ' : ''}{r.shortTitle}
+                    {!isRhythmUnlocked(idx) ? '🔒 ' : ''}{rhythmTitle(r, lang)}
                   </option>
                 ))}
               </select>
@@ -809,16 +814,16 @@ export default function App() {
                 className={`px-3 py-1.5 rounded-full text-[11px] font-medium transition flex items-center gap-1.5 cursor-pointer ${
                   countInEnabled ? 'btn-3d text-white' : 'segmented text-gray-400 hover:text-white'
                 }`}
-                title="Cuenta regresiva sincronizada con click antes de iniciar el compás"
+                title={L('Cuenta regresiva sincronizada con click antes de iniciar el compás', 'Count-in with a click before the compás starts')}
               >
                 <span className={`w-1.5 h-1.5 rounded-full ${countInEnabled ? 'bg-[#FF5533] shadow-[0_0_6px_rgba(255,85,51,0.9)]' : 'bg-gray-500'}`} />
-                <span>🗣️ Cuenta</span>
+                <span>🗣️ {L('Cuenta', 'Count-in')}</span>
               </button>
 
               {/* Selector Cuenta 2 vs 12 (para ritmos de 12 tiempos) */}
               {currentRhythm.has12CountToggle && (
                 <div className="flex items-center gap-1 segmented p-1 rounded-full">
-                  <span className="text-[11px] text-gray-400 px-1.5">Cuenta:</span>
+                  <span className="text-[11px] text-gray-400 px-1.5">{L('Cuenta:', 'Count:')}</span>
                   <button
                     onClick={() => setCountMode('phonetic')}
                     className={`px-2.5 py-1 rounded-full text-[11px] font-sans transition cursor-pointer ${
@@ -844,9 +849,10 @@ export default function App() {
 
               {/* Selector Timbre de Palmas */}
               <div className="flex items-center gap-1 segmented p-1 rounded-full">
-                <span className="text-[11px] text-gray-400 px-1.5">Palmas:</span>
+                <span className="text-[11px] text-gray-400 px-1.5" title={L('Palmas: palmadas flamencas', 'Palmas: flamenco hand claps')}>Palmas:</span>
                 <button
                   onClick={() => handleToneChange('secas')}
+                  title={L('Palmas brillantes: sonido agudo y fuerte', 'Palmas brillantes: bright, loud claps')}
                   className={`px-2.5 py-1 rounded-full text-[11px] font-sans transition cursor-pointer ${
                     palmaTone === 'secas'
                       ? 'seg-active text-white font-semibold'
@@ -857,6 +863,7 @@ export default function App() {
                 </button>
                 <button
                   onClick={() => handleToneChange('sordas')}
+                  title={L('Palmas sordas: sonido grave y suave', 'Palmas sordas: soft, muted claps')}
                   className={`px-2.5 py-1 rounded-full text-[11px] font-sans transition cursor-pointer ${
                     palmaTone === 'sordas'
                       ? 'seg-active text-white font-semibold'
@@ -878,7 +885,7 @@ export default function App() {
               viewMode === 'split' ? 'seg-active text-white font-semibold' : 'text-gray-400 hover:text-white'
             }`}
           >
-            Ambos
+            {L('Ambos', 'Both')}
           </button>
           <button
             onClick={() => setViewMode('staff')}
@@ -886,7 +893,7 @@ export default function App() {
               viewMode === 'staff' ? 'seg-active text-white font-semibold' : 'text-gray-400 hover:text-white'
             }`}
           >
-            Partitura
+            {L('Partitura', 'Score')}
           </button>
           <button
             onClick={() => setViewMode('clock')}
@@ -894,7 +901,7 @@ export default function App() {
               viewMode === 'clock' ? 'seg-active text-white font-semibold' : 'text-gray-400 hover:text-white'
             }`}
           >
-            Reloj
+            {L('Reloj', 'Clock')}
           </button>
         </div>
 
@@ -914,7 +921,7 @@ export default function App() {
                     {currentRhythm.roman}
                   </span>
                   <h2 className="font-sans text-sm sm:text-base font-semibold text-white tracking-tight truncate">
-                    {currentRhythm.shortTitle.replace(/^Ritmo\s+[IVXLCDM]+\s*[—–-]\s*/, '')}
+                    {rhythmName(currentRhythm)}
                   </h2>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
@@ -926,7 +933,7 @@ export default function App() {
                         ? 'orb-active hover:brightness-110'
                         : 'btn-3d text-amber-300 border-amber-400/30'
                     }`}
-                    title={isPro ? 'Ver video demostrativo PRO' : 'Video exclusivo Alumnos PRO'}
+                    title={isPro ? L('Ver video demostrativo PRO', 'Watch the PRO demo video') : L('Video exclusivo Alumnos PRO', 'Video for PRO students only')}
                   >
                     <span>▶ Video</span>
                     {!isPro && <Lock className="w-3 h-3 text-amber-300" />}
@@ -937,10 +944,10 @@ export default function App() {
               {/* Sección limpia de palos que se acompañan con tipografía Inter moderna */}
               <div className="py-0.5">
                 <span className="font-sans text-[10px] uppercase tracking-wider text-gray-400 font-semibold block mb-1">
-                  Palos que se acompañan
+                  {L('Palos que se acompañan', 'Palos (flamenco styles) it accompanies')}
                 </span>
                 <p className="font-sans text-xs sm:text-sm text-gray-200 font-medium leading-relaxed">
-                  {currentRhythm.palos}
+                  {rhythmPalos(currentRhythm, lang)}
                 </p>
               </div>
 
@@ -964,7 +971,7 @@ export default function App() {
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="text-sm shrink-0">📘</span>
                   <span className="font-sans font-semibold text-xs text-gray-200 group-hover:text-white transition">
-                    Consigue el método LRDF aquí
+                    {L('Consigue el método LRDF aquí', 'Get the LRDF method (in Spanish) here')}
                   </span>
                 </div>
                 <span className="text-sm shrink-0 group-hover:scale-110 group-hover:-translate-x-0.5 transition-transform">
@@ -975,10 +982,10 @@ export default function App() {
               <div className="flex items-center justify-between text-[11px] text-gray-400 pt-1 border-t border-white/[0.04] font-sans">
                 <span className="flex items-center gap-1.5">
                   <strong className="text-[#FF5533] font-serif text-sm">&gt;</strong>
-                  <span>Acento de Palma</span>
+                  <span>{L('Acento de Palma', 'Clap accent')}</span>
                 </span>
                 <span className="text-[11px] text-gray-400">
-                  Toca cualquier compás para escucharlo
+                  {L('Toca cualquier compás para escucharlo', 'Tap any bar to hear it')}
                 </span>
               </div>
             </div>
@@ -993,10 +1000,10 @@ export default function App() {
             >
               <div className="w-full flex items-center justify-between">
                 <span className="font-sans text-[10px] tracking-wider uppercase text-gray-400 font-semibold">
-                  Ciclo de Compás
+                  {L('Ciclo de Compás', 'Compás cycle')}
                 </span>
                 <span className="text-xs font-sans text-gray-300 font-medium px-2 py-0.5 rounded-full bg-white/[0.05]">
-                  Vuelta: <span className="text-white font-semibold tabular-nums">{cycleCount}</span>
+                  {L('Vuelta:', 'Cycle:')} <span className="text-white font-semibold tabular-nums">{cycleCount}</span>
                 </span>
               </div>
 
@@ -1010,10 +1017,10 @@ export default function App() {
 
               <div className="w-full flex items-center justify-center gap-6 pt-2 border-t border-white/[0.04] text-[11px] text-gray-400 font-sans">
                 <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#E84A27] inline-block shadow-[0_0_6px_rgba(232,74,39,0.5)]" /> Acento (&gt;)
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#E84A27] inline-block shadow-[0_0_6px_rgba(232,74,39,0.5)]" /> {L('Acento', 'Accent')} (&gt;)
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-white/30 inline-block" /> Pulso
+                  <span className="w-2.5 h-2.5 rounded-full bg-white/30 inline-block" /> {L('Pulso', 'Pulse')}
                 </span>
               </div>
             </div>
@@ -1031,14 +1038,14 @@ export default function App() {
               <button
                 onClick={() => adjustBpm(-5)}
                 className="w-8.5 sm:w-9 h-9 rounded-full btn-3d text-gray-200 hover:text-white font-sans font-bold text-xs cursor-pointer flex items-center justify-center"
-                title="Restar 5 BPM"
+                title={L('Restar 5 BPM', '5 BPM slower')}
               >
                 -5
               </button>
               <button
                 onClick={() => adjustBpm(-1)}
                 className="w-8.5 sm:w-9 h-9 rounded-full btn-3d text-gray-200 hover:text-white font-sans font-bold text-xs cursor-pointer flex items-center justify-center"
-                title="Restar 1 BPM"
+                title={L('Restar 1 BPM', '1 BPM slower')}
               >
                 -1
               </button>
@@ -1050,7 +1057,7 @@ export default function App() {
               <button
                 onClick={togglePlay}
                 className="w-12 h-12 sm:w-13 sm:h-13 rounded-full orb-active flex items-center justify-center hover:brightness-110 active:scale-95 transition shrink-0 cursor-pointer"
-                title={isPlaying ? 'Pausar (Espacio)' : 'Reproducir (Espacio)'}
+                title={isPlaying ? L('Pausar (Espacio)', 'Pause (Space)') : L('Reproducir (Espacio)', 'Play (Space)')}
               >
                 {isPlaying ? (
                   <Square className="w-4 h-4 fill-white" />
@@ -1075,7 +1082,7 @@ export default function App() {
               <button
                 onClick={handleTapTempo}
                 className="px-2.5 sm:px-3 h-8.5 rounded-full btn-3d text-white text-[10.5px] sm:text-xs font-sans font-bold tracking-wider uppercase cursor-pointer"
-                title="Marcar pulso al ritmo deseado (Tap Tempo)"
+                title={L('Marcar pulso al ritmo deseado (Tap Tempo)', 'Tap the pulse you want (Tap Tempo)')}
               >
                 Tap
               </button>
@@ -1086,14 +1093,14 @@ export default function App() {
               <button
                 onClick={() => adjustBpm(1)}
                 className="w-8.5 sm:w-9 h-9 rounded-full btn-3d text-gray-200 hover:text-white font-sans font-bold text-xs cursor-pointer flex items-center justify-center"
-                title="Sumar 1 BPM"
+                title={L('Sumar 1 BPM', '1 BPM faster')}
               >
                 +1
               </button>
               <button
                 onClick={() => adjustBpm(5)}
                 className="w-8.5 sm:w-9 h-9 rounded-full btn-3d text-gray-200 hover:text-white font-sans font-bold text-xs cursor-pointer flex items-center justify-center"
-                title="Sumar 5 BPM"
+                title={L('Sumar 5 BPM', '5 BPM faster')}
               >
                 +5
               </button>
@@ -1107,7 +1114,7 @@ export default function App() {
               className="py-1.5 sm:py-2 px-3 rounded-2xl btn-3d text-gray-200 hover:text-white flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer text-xs font-sans font-medium"
             >
               <span className="text-sm">🤝</span>
-              <span className="truncate">Comunidad</span>
+              <span className="truncate">{L('Comunidad', 'Community')}</span>
             </button>
 
             <button
@@ -1115,7 +1122,7 @@ export default function App() {
               className="py-1.5 sm:py-2 px-3 rounded-2xl btn-3d text-gray-200 hover:text-white flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer text-xs font-sans font-medium"
             >
               <span className="text-sm">📖</span>
-              <span className="truncate">Vocabulario</span>
+              <span className="truncate">{L('Vocabulario', 'Vocabulary')}</span>
             </button>
           </div>
         </div>
@@ -1221,7 +1228,7 @@ export default function App() {
 
             <div className="mt-2 sm:mt-4 flex flex-col items-center gap-2">
               <span className="font-sans text-xs sm:text-sm font-bold tracking-[0.35em] uppercase text-white/80 drop-shadow-sm">
-                Cuenta Regresiva
+                {L('Cuenta Regresiva', 'Count-in')}
               </span>
               <div className="flex items-center gap-2.5 mt-1">
                 <span

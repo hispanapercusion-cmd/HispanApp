@@ -70,6 +70,14 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   `utm_source=compartir`. Para dar PRO a un alumno se usa a mano `?acceso=CODIGO`, un código por alumno.
 - **Recuperar el acceso PRO**: explicación desplegable en la ventana PRO y en Comunidad; la clave o código
   activado se guarda en `hispanapp_pro_code` y se muestra en Comunidad para copiarlo.
+- **Idiomas (español / inglés)** (`src/i18n.tsx`): cada texto lleva sus dos versiones juntas, `L('Hola', 'Hello')`
+  (en componentes con `const { L } = useLang()`; en servicios, `import { L } from '../i18n'`). El idioma sale del
+  teléfono (español si empieza por "es"; si no, inglés) y se cambia con el botón ES/EN (`LangSwitch`: en la cabecera en
+  pantallas grandes, en el registro, Comunidad y Tu perfil). Se guarda en `hispanapp_lang`. Los nombres de los palos y
+  términos flamencos se dejan en español con explicación en inglés (`palosEn` en `rhythms.ts`, `gloss` en el Vocabulario).
+  Rol y nivel se guardan siempre en español en Firebase (`roleLabel`/`levelLabel` solo cambian lo que se ve).
+  Páginas legales en inglés en `public/legal/en/` (`legalUrl()` en `config.ts` elige según el idioma).
+  **Al añadir un texto nuevo, escribirlo siempre en los dos idiomas.** Los vídeos y el método (libros) están en español.
 - **Gratis vs PRO**: gratis los ritmos I y VI; PRO desbloquea los 8 ritmos, los vídeos
   (YouTube **no listados**, solo accesibles desde la app) y el entrenador progresivo.
 
@@ -100,19 +108,22 @@ una compra real con Lemon), 23/11 (congelar cambios y preparar campaña), 30/11 
 - [x] Botón "Abrir HispanApp" del email de recibo de Lemon apunta a la dirección nueva (3/11/2026).
 - [ ] **La tienda de Lemon está en revisión** ("Your application has been received"): sin aprobación solo funciona en
   modo prueba. Tiene que estar aprobada antes del 1/12.
-- [ ] **Activar la verificación en 2 pasos** de la cuenta de Google antes del 7/11/2026 (si no, se pierde el acceso a Firebase).
+- [x] Verificación en 2 pasos de la cuenta de Google activada (3/11/2026).
 - [ ] Probar una compra real de Lemon y la validación de la license key.
 - [x] Botón "Enviar opinión", vista previa al compartir, política de privacidad, términos, arrepentimiento,
   consentimiento, borrado de datos, estadísticas, instalar app y carga más rápida (octubre 2026).
 - [ ] **Revisión legal** de los textos de `public/legal/` por un profesional en Argentina.
 - [ ] **Registrar la base de datos** de alumnos en la AAIP (Registro Nacional de Bases de Datos) — lo hace Jordan.
-- [x] Reglas nuevas de `firestore.rules` publicadas en Firebase (3/11/2026).
+- [x] Reglas nuevas de `firestore.rules` publicadas en Firebase y probadas con una opinión real (3/11/2026).
+- [ ] Comprobar que los 4 códigos de alumno de la prueba (más el de Jordan) estén creados en `codigos_pro`.
 - [ ] Activar Google Analytics en Firebase si no está activado (Configuración del proyecto → Integraciones).
 - [ ] Borrar de `leads` los registros de prueba con emails `@example.com` creados en las pruebas de octubre.
 - [ ] Recordar el último ritmo, BPM y tipo de palma.
 - [ ] Modo "Ahora tú" (silenciar palmas y dejar el reloj/click) y progreso/racha de práctica.
 - [ ] Plan de marketing y textos de la campaña.
-- [ ] Más adelante: versión en inglés; App Store y Google Play.
+- [x] Versión en inglés de la app y de las páginas legales (noviembre 2026). Falta: que alguien nativo revise los textos
+  y que el abogado revise las páginas legales en inglés.
+- [ ] Más adelante: App Store y Google Play.
 
 ## Trucos del entorno
 

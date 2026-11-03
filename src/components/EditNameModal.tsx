@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, User, Check, ShieldCheck, ChevronDown } from 'lucide-react';
-import { APP_CONFIG } from '../config';
+import { APP_CONFIG, legalUrl } from '../config';
+import { useLang, LangSwitch, roleLabel, levelLabel } from '../i18n';
 import { getConsent, saveConsent, CONSENT_VERSION } from '../services/consent';
 import { saveLeadToFirestore } from '../services/firebase';
 import { CheckRow } from './ConsentChecks';
@@ -28,6 +29,7 @@ export const EditNameModal: React.FC<EditNameModalProps> = ({
   onClose,
   onSave,
 }) => {
+  const { lang, L } = useLang();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<UserFlamencoRole>('Percusionista 🥁');
@@ -71,8 +73,11 @@ export const EditNameModal: React.FC<EditNameModalProps> = ({
   };
 
   const deletionMailto = () => {
-    const subject = 'Solicitud de borrado de datos - HispanApp';
-    const body = `Hola,\n\nQuiero que borren mis datos personales de HispanApp.\n\nNombre: ${profile?.name || ''}\nEmail registrado: ${profile?.contact || ''}\n\nGracias.`;
+    const subject = L('Solicitud de borrado de datos - HispanApp', 'Data deletion request - HispanApp');
+    const body = L(
+      `Hola,\n\nQuiero que borren mis datos personales de HispanApp.\n\nNombre: ${profile?.name || ''}\nEmail registrado: ${profile?.contact || ''}\n\nGracias.`,
+      `Hello,\n\nPlease delete my personal data from HispanApp.\n\nName: ${profile?.name || ''}\nRegistered email: ${profile?.contact || ''}\n\nThank you.`
+    );
     return `mailto:${APP_CONFIG.contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
 
@@ -96,7 +101,7 @@ export const EditNameModal: React.FC<EditNameModalProps> = ({
     const cleanEmail = email.trim();
 
     if (!cleanName || !cleanEmail) {
-      setError('Por favor ingresa tu nombre y tu email.');
+      setError(L('Por favor ingresa tu nombre y tu email.', 'Please enter your name and your email.'));
       return;
     }
     setError(null);
@@ -120,7 +125,7 @@ export const EditNameModal: React.FC<EditNameModalProps> = ({
         <button
           onClick={onClose}
           className="absolute top-4 right-4 icon-btn btn-3d text-gray-400 hover:text-white cursor-pointer"
-          title="Cerrar"
+          title={L('Cerrar', 'Close')}
         >
           <X className="w-4 h-4" />
         </button>
@@ -131,10 +136,10 @@ export const EditNameModal: React.FC<EditNameModalProps> = ({
           </div>
           <div>
             <span className="font-brand text-[9px] uppercase tracking-widest text-[#FF5533] font-bold block">
-              Tu Perfil
+              {L('Tu Perfil', 'Your profile')}
             </span>
             <h3 className="font-serif font-bold text-base text-white">
-              Datos de Usuario
+              {L('Datos de Usuario', 'Your details')}
             </h3>
           </div>
         </div>
@@ -148,35 +153,35 @@ export const EditNameModal: React.FC<EditNameModalProps> = ({
 
           <div>
             <label className="block text-[10px] font-brand font-bold text-gray-400 uppercase tracking-wider mb-1.5">
-              1. TU NOMBRE O APODO: <span className="text-[#C83214]">*</span>
+              {L('1. TU NOMBRE O APODO:', '1. YOUR NAME OR NICKNAME:')} <span className="text-[#C83214]">*</span>
             </label>
             <input
               type="text"
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="ej. Carmen, Marcos, Ana..."
+              placeholder={L('ej. Carmen, Marcos, Ana...', 'e.g. Carmen, Mark, Anna...')}
               className="w-full inset-field focus:border-[#E84A27] rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none transition font-medium"
             />
           </div>
 
           <div>
             <label className="block text-[10px] font-brand font-bold text-gray-400 uppercase tracking-wider mb-1.5">
-              2. TU EMAIL: <span className="text-[#C83214]">*</span>
+              {L('2. TU EMAIL:', '2. YOUR EMAIL:')} <span className="text-[#C83214]">*</span>
             </label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="ej. nombre@correo.com"
+              placeholder={L('ej. nombre@correo.com', 'e.g. name@email.com')}
               className="w-full inset-field focus:border-[#E84A27] rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none transition font-medium"
             />
           </div>
 
           <div>
             <label className="block text-[10px] font-brand font-bold text-gray-400 uppercase tracking-wider mb-1.5">
-              ¿ERES?
+              {L('¿ERES?', 'WHAT DO YOU PLAY?')}
             </label>
             <div className="grid grid-cols-2 gap-1.5">
               {ROLES.map((r) => (
@@ -190,7 +195,7 @@ export const EditNameModal: React.FC<EditNameModalProps> = ({
                       : 'btn-3d text-gray-300'
                   }`}
                 >
-                  {r}
+                  {roleLabel(r, lang)}
                 </button>
               ))}
             </div>
@@ -198,7 +203,7 @@ export const EditNameModal: React.FC<EditNameModalProps> = ({
 
           <div>
             <label className="block text-[10px] font-brand font-bold text-gray-400 uppercase tracking-wider mb-1.5">
-              NIVEL
+              {L('NIVEL', 'LEVEL')}
             </label>
             <div className="grid grid-cols-3 gap-1.5">
               {LEVELS.map((lvl) => (
@@ -212,10 +217,18 @@ export const EditNameModal: React.FC<EditNameModalProps> = ({
                       : 'btn-3d text-gray-300'
                   }`}
                 >
-                  {lvl}
+                  {levelLabel(lvl, lang)}
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Idioma */}
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[10px] font-brand font-bold text-gray-400 uppercase tracking-wider">
+              {L('IDIOMA', 'LANGUAGE')}
+            </span>
+            <LangSwitch />
           </div>
 
           {/* Privacidad y datos */}
@@ -228,7 +241,7 @@ export const EditNameModal: React.FC<EditNameModalProps> = ({
             >
               <span className="flex items-center gap-2 text-xs font-semibold text-gray-200">
                 <ShieldCheck className="w-4 h-4 text-[#FF6B4A]" />
-                Privacidad y datos
+                {L('Privacidad y datos', 'Privacy and data')}
               </span>
               <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${privacyOpen ? 'rotate-180' : ''}`} />
             </button>
@@ -236,25 +249,25 @@ export const EditNameModal: React.FC<EditNameModalProps> = ({
             {privacyOpen && (
               <div className="px-3.5 pb-3.5 space-y-3 animate-fadeIn">
                 <CheckRow id="prof-marketing" checked={marketing} onChange={(v) => updatePrefs({ marketing: v, analytics })}>
-                  Recibir novedades, clases y ofertas por email.
+                  {L('Recibir novedades, clases y ofertas por email.', 'Receive news, lessons and offers by email.')}
                 </CheckRow>
                 <CheckRow id="prof-analytics" checked={analytics} onChange={(v) => updatePrefs({ marketing, analytics: v })}>
-                  Permitir estadísticas anónimas de uso.
+                  {L('Permitir estadísticas anónimas de uso.', 'Allow anonymous usage statistics.')}
                 </CheckRow>
 
                 <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11.5px]">
-                  <a href={APP_CONFIG.privacyUrl} target="_blank" rel="noopener" className="text-[#FF6B4A] underline underline-offset-2">Política de privacidad</a>
-                  <a href={APP_CONFIG.termsUrl} target="_blank" rel="noopener" className="text-[#FF6B4A] underline underline-offset-2">Términos y condiciones</a>
+                  <a href={legalUrl('privacy', lang)} target="_blank" rel="noopener" className="text-[#FF6B4A] underline underline-offset-2">{L('Política de privacidad', 'Privacy Policy')}</a>
+                  <a href={legalUrl('terms', lang)} target="_blank" rel="noopener" className="text-[#FF6B4A] underline underline-offset-2">{L('Términos y condiciones', 'Terms and Conditions')}</a>
                 </div>
 
                 <a
                   href={deletionMailto()}
                   className="block w-full text-center py-2 rounded-xl btn-3d text-gray-200 text-[11.5px] font-semibold"
                 >
-                  Solicitar el borrado de mis datos
+                  {L('Solicitar el borrado de mis datos', 'Request deletion of my data')}
                 </a>
                 <p className="text-[10.5px] text-gray-500 leading-relaxed -mt-1">
-                  Se abrirá tu correo con la solicitud lista. Respondemos en un máximo de 5 días hábiles.
+                  {L('Se abrirá tu correo con la solicitud lista. Respondemos en un máximo de 5 días hábiles.', 'Your email app will open with the request ready. We reply within 5 business days.')}
                 </p>
 
                 {!confirmWipe ? (
@@ -263,19 +276,19 @@ export const EditNameModal: React.FC<EditNameModalProps> = ({
                     onClick={() => setConfirmWipe(true)}
                     className="w-full py-2 rounded-xl text-[11.5px] text-gray-400 hover:text-white transition cursor-pointer"
                   >
-                    Borrar los datos de este dispositivo
+                    {L('Borrar los datos de este dispositivo', 'Delete the data on this device')}
                   </button>
                 ) : (
                   <div className="rounded-xl bg-[#E84A27]/12 border border-[#E84A27]/35 p-2.5 space-y-2">
                     <p className="text-[11.5px] text-[#FFB4A2] leading-relaxed">
-                      Se borrarán tu perfil, tus ajustes y tu acceso PRO de este dispositivo. Para volver a ser PRO tendrás que escribir otra vez tu clave o código.
+                      {L('Se borrarán tu perfil, tus ajustes y tu acceso PRO de este dispositivo. Para volver a ser PRO tendrás que escribir otra vez tu clave o código.', 'Your profile, settings and PRO access will be deleted from this device. To get PRO back you will need to enter your key or code again.')}
                     </p>
                     <div className="flex gap-2">
                       <button type="button" onClick={() => setConfirmWipe(false)} className="flex-1 py-1.5 rounded-lg btn-3d text-[11px] text-gray-300 cursor-pointer">
-                        Cancelar
+                        {L('Cancelar', 'Cancel')}
                       </button>
                       <button type="button" onClick={wipeDevice} className="flex-1 py-1.5 rounded-lg btn-primary text-[11px] font-bold cursor-pointer">
-                        Sí, borrar
+                        {L('Sí, borrar', 'Yes, delete')}
                       </button>
                     </div>
                   </div>
@@ -290,14 +303,14 @@ export const EditNameModal: React.FC<EditNameModalProps> = ({
               onClick={onClose}
               className="flex-1 py-2.5 rounded-xl btn-3d text-gray-300 text-xs font-semibold cursor-pointer"
             >
-              Cancelar
+              {L('Cancelar', 'Cancel')}
             </button>
             <button
               type="submit"
               className="flex-1 py-2.5 rounded-xl btn-primary text-white text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
             >
               <Check className="w-3.5 h-3.5" />
-              <span>Guardar</span>
+              <span>{L('Guardar', 'Save')}</span>
             </button>
           </div>
         </form>
