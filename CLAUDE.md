@@ -97,13 +97,16 @@ una compra real con Lemon), 23/11 (congelar cambios y preparar campaña), 30/11 
   `hispanapercusion-cmd.github.io` en Cloudflare con **nube gris (DNS only)**, DNS check OK y Enforce HTTPS activado.
   Se quitó el dominio del Worker `hispanapp` de Cloudflare (copia vieja de la app, sigue conectado al repo y comenta
   en los PR: se puede desconectar en Workers → hispanapp → Settings → Builds).
-- [ ] Cambiar el botón "Abrir HispanApp" del email de recibo de Lemon a la dirección nueva.
+- [x] Botón "Abrir HispanApp" del email de recibo de Lemon apunta a la dirección nueva (3/11/2026).
+- [ ] **La tienda de Lemon está en revisión** ("Your application has been received"): sin aprobación solo funciona en
+  modo prueba. Tiene que estar aprobada antes del 1/12.
+- [ ] **Activar la verificación en 2 pasos** de la cuenta de Google antes del 7/11/2026 (si no, se pierde el acceso a Firebase).
 - [ ] Probar una compra real de Lemon y la validación de la license key.
 - [x] Botón "Enviar opinión", vista previa al compartir, política de privacidad, términos, arrepentimiento,
   consentimiento, borrado de datos, estadísticas, instalar app y carga más rápida (octubre 2026).
 - [ ] **Revisión legal** de los textos de `public/legal/` por un profesional en Argentina.
 - [ ] **Registrar la base de datos** de alumnos en la AAIP (Registro Nacional de Bases de Datos) — lo hace Jordan.
-- [ ] Publicar en Firebase las reglas nuevas de `firestore.rules` (validación de leads + `opiniones`).
+- [x] Reglas nuevas de `firestore.rules` publicadas en Firebase (3/11/2026).
 - [ ] Activar Google Analytics en Firebase si no está activado (Configuración del proyecto → Integraciones).
 - [ ] Borrar de `leads` los registros de prueba con emails `@example.com` creados en las pruebas de octubre.
 - [ ] Recordar el último ritmo, BPM y tipo de palma.
