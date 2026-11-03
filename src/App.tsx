@@ -355,7 +355,9 @@ export default function App() {
   // Keyboard shortcuts (Space to Play/Pause, Arrow keys for BPM)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement) return;
+      // No usar los atajos mientras se escribe (opinión, perfil, código PRO…)
+      const t = e.target as HTMLElement | null;
+      if (t && (t instanceof HTMLInputElement || t instanceof HTMLTextAreaElement || t instanceof HTMLSelectElement || t.isContentEditable)) return;
       if (e.code === 'Space') {
         e.preventDefault();
         togglePlay();
