@@ -10,7 +10,9 @@ export const CheckRow: React.FC<{
   onChange: (v: boolean) => void;
   children: React.ReactNode;
   required?: boolean;
-}> = ({ id, checked, onChange, children, required }) => (
+  /** Resaltar en naranja (p. ej. si falta marcar la casilla obligatoria) */
+  highlight?: boolean;
+}> = ({ id, checked, onChange, children, required, highlight }) => (
   <label htmlFor={id} className="flex items-start gap-2.5 cursor-pointer select-none text-left">
     <input
       id={id}
@@ -22,8 +24,12 @@ export const CheckRow: React.FC<{
     />
     <span
       aria-hidden="true"
-      className={`mt-0.5 w-[18px] h-[18px] rounded-md shrink-0 flex items-center justify-center transition ${
-        checked ? 'btn-primary' : 'segmented ring-1 ring-inset ring-white/30'
+      className={`mt-0.5 w-5 h-5 rounded-md shrink-0 flex items-center justify-center transition ${
+        checked
+          ? 'btn-primary'
+          : highlight
+            ? 'bg-[#E84A27]/15 border-2 border-[#FF6B4A] shadow-[0_0_0_3px_rgba(232,74,39,0.25)]'
+            : 'bg-white/[0.08] border-2 border-white/70'
       }`}
     >
       {checked && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
@@ -43,7 +49,9 @@ export const ConsentChecks: React.FC<{
   value: ConsentValues;
   onChange: (v: ConsentValues) => void;
   idPrefix: string;
-}> = ({ value, onChange, idPrefix }) => {
+  /** Resaltar la casilla obligatoria si se intentó continuar sin marcarla */
+  highlightAccept?: boolean;
+}> = ({ value, onChange, idPrefix, highlightAccept }) => {
   const { lang, L } = useLang();
   return (
   <div className="space-y-2.5">
@@ -51,6 +59,7 @@ export const ConsentChecks: React.FC<{
       id={`${idPrefix}-accept`}
       checked={value.accepted}
       onChange={(accepted) => onChange({ ...value, accepted })}
+      highlight={highlightAccept && !value.accepted}
     >
       {L('Acepto la', 'I accept the')}{' '}
       <a href={legalUrl('privacy', lang)} target="_blank" rel="noopener" className="text-[#FF6B4A] underline underline-offset-2" onClick={(e) => e.stopPropagation()}>
