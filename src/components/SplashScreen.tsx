@@ -44,6 +44,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
   const [formRole, setFormRole] = useState<UserFlamencoRole | null>(null);
   const [formLevel, setFormLevel] = useState<UserFlamencoLevel | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [missingConsent, setMissingConsent] = useState(false);
   const [consent, setConsent] = useState<ConsentValues>({ accepted: false, marketing: false, analytics: false });
 
   // 1. Verificación de Perfil en localStorage
@@ -140,6 +141,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
       return;
     }
     if (!consent.accepted) {
+      setMissingConsent(true);
       setErrorMsg(L('Para continuar, acepta la Política de privacidad y los Términos y condiciones.', 'To continue, please accept the Privacy Policy and the Terms and Conditions.'));
       return;
     }
@@ -347,7 +349,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
                 </div>
 
                 <div className="pt-1">
-                  <ConsentChecks idPrefix="reg" value={consent} onChange={(v) => { setConsent(v); setErrorMsg(null); }} />
+                  <ConsentChecks idPrefix="reg" value={consent} highlightAccept={missingConsent} onChange={(v) => { setConsent(v); setErrorMsg(null); }} />
                 </div>
 
                 <button
