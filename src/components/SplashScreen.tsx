@@ -280,7 +280,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
             >
               <div ref={welcomeTextRef} className="welcome-text">
                 <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight leading-tight text-center sm:text-left sm:whitespace-nowrap sm:overflow-hidden sm:text-ellipsis">
-                  {L('Bienvenido', 'Welcome')}, {displayName}
+                  {L(`¡Hola, ${displayName}!`, `Welcome, ${displayName}`)}
                 </h2>
               </div>
             </div>
