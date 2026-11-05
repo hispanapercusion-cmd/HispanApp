@@ -16,6 +16,8 @@ import { SplashScreen } from './components/SplashScreen';
 import { EditNameModal } from './components/EditNameModal';
 import { AppTour, TourStep } from './components/AppTour';
 import { ConsentGateModal } from './components/ConsentGateModal';
+import { InstallWelcome } from './components/InstallWelcome';
+import { isStandalone } from './services/install';
 import { FeedbackModal } from './components/FeedbackModal';
 import { track } from './services/analytics';
 import { hasValidConsent, onConsentChange, saveConsent, CONSENT_VERSION } from './services/consent';
@@ -64,6 +66,19 @@ export default function App() {
 
   // Pantalla de Inicio y Carga (Splash Screen) + Perfil de Usuario Inteligente
   const [showSplash, setShowSplash] = useState<boolean>(true);
+  // Llegada desde la web con ?instalar: abrir la ventana para guardar la app en el móvil
+  const [showInstallWelcome, setShowInstallWelcome] = useState<boolean>(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (!params.has('instalar')) return false;
+      params.delete('instalar');
+      const q = params.toString() ? `?${params.toString()}` : '';
+      window.history.replaceState(null, '', `${window.location.pathname}${q}${window.location.hash}`);
+      return !isStandalone();
+    } catch {
+      return false;
+    }
+  });
   const [userProfile, setUserProfile] = useState<UserProfile | null>(() => {
     if (typeof window === 'undefined') return null;
     try {
@@ -636,7 +651,7 @@ export default function App() {
 
   // Primera vez: al terminar la bienvenida, lanzar el recorrido (si no hay otra ventana abierta)
   useEffect(() => {
-    if (showSplash || isAtrilMode || !consentOk) return;
+    if (showSplash || isAtrilMode || !consentOk || showInstallWelcome) return;
     let done = false;
     try {
       done = localStorage.getItem('hispanapp_tour_done') === 'true';
@@ -649,7 +664,7 @@ export default function App() {
     }, 600);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showSplash, isAtrilMode, consentOk]);
+  }, [showSplash, isAtrilMode, consentOk, showInstallWelcome]);
 
   // Si se abre el Atril (por ejemplo al girar el móvil), cerrar el recorrido sin marcarlo como visto
   useEffect(() => {
@@ -1189,6 +1204,8 @@ export default function App() {
         onClose={() => setIsEditNameOpen(false)}
         onSave={handleProfileEdit}
       />
+
+      {showInstallWelcome && <InstallWelcome onClose={() => setShowInstallWelcome(false)} />}
 
       {/* AVISO DE PRIVACIDAD (una vez, para quien se registró antes de existir las casillas) */}
       {!showSplash && isRegistered && !consentOk && <ConsentGateModal onAccept={handleConsentGateAccept} />}
