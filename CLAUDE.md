@@ -61,9 +61,13 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   pedir borrado por email y borrar los datos del dispositivo.
 - **Estadísticas** (`src/services/analytics.ts`): Firebase Analytics solo si el alumno las permite y solo en
   producción. Eventos: sign_up, select_rhythm, play, open_pro_modal, click_checkout, pro_activated,
-  open_community/vocabulary/video/trainer/atril, tour_closed, feedback_sent, install_prompt/steps.
+  open_community/vocabulary/video/trainer/atril, tour_closed, feedback_sent, install_prompt/steps, install_welcome.
 - **Instalar app** (`src/services/install.ts` + `InstallCard` en Comunidad): botón nativo en Android/Chrome,
-  pasos para iPhone. **Vista previa al compartir**: `public/og-image.jpg` + metas `og:*` en `index.html`
+  pasos para iPhone. **Llegada desde la web** (`?instalar`, lo usa el botón "Empezar gratis" de
+  hispanapercusion.com): `InstallWelcome` se abre encima de todo (antes del recorrido). Android/Chrome: un solo botón
+  "Instalar HispanApp" (si el aviso de Chrome no llega en 4 s, muestra los pasos del menú ⋮). iPhone/Safari: dos pasos
+  y una flecha animada hacia la barra de abajo (Apple no deja instalar por código). Dentro de Instagram: pide abrir en
+  el navegador. No sale si la app ya está instalada. **Vista previa al compartir**: `public/og-image.jpg` + metas `og:*` en `index.html`
   (con la dirección completa: actualizarlas al cambiar de dominio).
 - **Compartir la app** (`src/services/share.ts` + `ShareCard`, primera tarjeta de Comunidad): menú nativo del
   móvil o WhatsApp + copiar. El enlace es siempre la app limpia (sin `?acceso=` ni claves) con
