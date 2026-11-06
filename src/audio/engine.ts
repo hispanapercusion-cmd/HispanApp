@@ -41,6 +41,10 @@ export interface CountInBeat {
 // Compás 2: Tiempo 3 [negra], Tiempo 4 [negra], Tiempo 5 [negra]
 // Compás 3: Tiempo 6 [negra], Tiempo 7 [dos corcheas], Tiempo 8 [negra]
 // Compás 4: Tiempo 9 [dos corcheas], Tiempo 10 [negra], Tiempo 1 [negra de cierre]
+// Volumen de las palmas acentuadas y sin acentuar (velocity)
+const ACCENT_GAIN = 1.3;
+const NORMAL_GAIN = 0.7;
+
 const RITMO_I_STEP_TO_HIT_INDEX: Record<number, number> = {
   0: 0,   // Golpe 01 (t=0.99s) -> Tiempo 12 ('2' negra)
   3: 1,   // Golpe 02 (t=1.83s) -> Tiempo 1  ('1' corchea a contratiempo)
@@ -564,7 +568,9 @@ export class FlamencoAudioEngine {
     source.buffer = buffer;
 
     const gainNode = this.ctx.createGain();
-    const volume = isAccent ? 1.1 : 0.9;
+    // Dinámica: los acentos suenan bastante más fuertes que el resto para que se sienta el groove
+    // (las muestras llegan como mucho al 65 % de la escala, así que 1,3 no satura)
+    const volume = isAccent ? ACCENT_GAIN : NORMAL_GAIN;
     const scheduleTime = Math.max(time, this.ctx.currentTime);
     gainNode.gain.setValueAtTime(volume, scheduleTime);
 

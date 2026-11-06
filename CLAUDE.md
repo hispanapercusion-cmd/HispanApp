@@ -91,6 +91,8 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   primero; Bulería (III) y Jaleos/Abandolaos (IV) en el 12 y el 6; Tangos (VI) y Tientos (VII) en el 1 de cada compás
   `[0, 4]`; Tanguillos (VIII) en los dos 1 `[0, 2]`; Fandangos/Sevillanas (V) solo en el primero (sin confirmar).
   En Seguiriyas el tac suena solo en sus 5 pulsos. Ritmo I lleva acentos en 12, 3, 6, 8 y 10 (partitura y sonido).
+- **Dinámica de las palmas** (`ACCENT_GAIN` 1,3 / `NORMAL_GAIN` 0,7 en `engine.ts`): los acentos suenan bastante más
+  fuertes que el resto para que se note el groove (las muestras llegan al 65 % de la escala: no saturan).
 - **Gratis vs PRO**: gratis los ritmos I y VI; PRO desbloquea los 8 ritmos, los vídeos
   (YouTube **no listados**, solo accesibles desde la app) y el entrenador progresivo.
 
