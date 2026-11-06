@@ -490,7 +490,7 @@ export class FlamencoAudioEngine {
     // "tum" grave para la referencia, "tac" agudo y corto para el resto de tiempos
     osc.frequency.setValueAtTime(strong ? 560 : 1500, t);
     osc.frequency.exponentialRampToValueAtTime(strong ? 380 : 1150, t + (strong ? 0.07 : 0.025));
-    const peak = strong ? 0.34 : 0.13;
+    const peak = strong ? 0.42 : 0.17;
     const len = strong ? 0.11 : 0.04;
     gain.gain.setValueAtTime(0.0001, t);
     gain.gain.linearRampToValueAtTime(peak, t + 0.002);
@@ -564,7 +564,7 @@ export class FlamencoAudioEngine {
     source.buffer = buffer;
 
     const gainNode = this.ctx.createGain();
-    const volume = isAccent ? 1.05 : 0.95;
+    const volume = isAccent ? 1.1 : 0.9;
     const scheduleTime = Math.max(time, this.ctx.currentTime);
     gainNode.gain.setValueAtTime(volume, scheduleTime);
 
@@ -625,7 +625,8 @@ export class FlamencoAudioEngine {
         if (this.rhythm.id === 'r1') {
           const hitIdx = RITMO_I_STEP_TO_HIT_INDEX[stepIdx];
           if (hitIdx !== undefined && this.jordanAgudaBuffers[hitIdx]) {
-            const isCompasAccent = hitIdx === 0 || hitIdx === 3 || hitIdx === 6 || hitIdx === 9 || hitIdx === 12 || hitIdx === 13;
+            // Tiempos 12, 3, 6, 8 y 10 del compás de 12
+            const isCompasAccent = hitIdx === 0 || hitIdx === 3 || hitIdx === 6 || hitIdx === 9 || hitIdx === 12;
             this.playJordanSample(this.jordanAgudaBuffers[hitIdx], time, isAccent || isCompasAccent);
             return;
           }
