@@ -22,7 +22,7 @@ import { FeedbackModal } from './components/FeedbackModal';
 import { track } from './services/analytics';
 import { hasValidConsent, onConsentChange, saveConsent, CONSENT_VERSION } from './services/consent';
 import { CountMode, PalmaTone, TrainerConfig, ViewMode, UserProfile } from './types';
-import { APP_CONFIG } from './config';
+import { APP_CONFIG, methodUrl } from './config';
 import { verifyProCode, ProCheckResult } from './services/pro';
 import { Play, Square, Lock, CheckCircle2, Maximize2, User } from 'lucide-react';
 import { saveLeadToFirestore } from './services/firebase';
@@ -1085,9 +1085,9 @@ export default function App() {
                 />
               </div>
 
-              {/* Banner Clicable hacia el Método en Hotmart */}
+              {/* Banner hacia el método LRDF (Lemon Squeezy, en el idioma de la app) */}
               <a
-                href={APP_CONFIG.hotmartPackUrl}
+                href={methodUrl(lang)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-2xl btn-3d border-[#E84A27]/30 hover:border-[#E84A27]/70 text-xs text-gray-200 hover:text-white transition shadow-sm active:scale-[0.99]"
@@ -1095,7 +1095,7 @@ export default function App() {
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="text-sm shrink-0">📘</span>
                   <span className="font-sans font-semibold text-xs text-gray-200 group-hover:text-white transition">
-                    {L('Consigue el método LRDF aquí', 'Get the LRDF method (in Spanish) here')}
+                    {L('Consigue el método LRDF aquí', 'Get the LRDF method here')}
                   </span>
                 </div>
                 <span className="text-sm shrink-0 group-hover:scale-110 group-hover:-translate-x-0.5 transition-transform">

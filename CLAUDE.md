@@ -93,6 +93,9 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   En Seguiriyas el tac suena solo en sus 5 pulsos. Ritmo I lleva acentos en 12, 3, 6, 8 y 10 (partitura y sonido).
 - **Dinámica de las palmas** (`ACCENT_GAIN` 1,3 / `NORMAL_GAIN` 0,7 en `engine.ts`): los acentos suenan bastante más
   fuertes que el resto para que se note el groove (las muestras llegan al 65 % de la escala: no saturan).
+- **Método LRDF a la venta** (7/11/2026): en Lemon Squeezy, un producto por idioma (`METHOD_URL_ES` / `METHOD_URL_EN`
+  y `methodUrl(lang)` en `config.ts`). Lo usan el banner bajo la partitura y la tarjeta "Método completo" de Comunidad.
+  Antes apuntaban al Pack de Hotmart (`hotmartPackUrl`, ya sin uso en la app).
 - **Gratis vs PRO**: gratis los ritmos I y VI; PRO desbloquea los 8 ritmos, los vídeos
   (YouTube **no listados**, solo accesibles desde la app) y el entrenador progresivo.
 
