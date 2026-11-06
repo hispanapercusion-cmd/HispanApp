@@ -50,7 +50,7 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
     en `src/config.ts`.
   - `lemonStoreId` en `src/config.ts` está en `null`. Conviene poner el ID de la tienda.
 - **Recorrido guiado** (`src/components/AppTour.tsx`): 6 pasos que iluminan elementos marcados con
-  `data-tour="..."` en `App.tsx` (ritmos, partitura, metronomo, entrenador, atril, comunidad). Sale una vez
+  `data-tour="..."` en `App.tsx` (ritmos, reloj, metronomo, entrenador, atril, comunidad). Sale una vez
   tras la bienvenida (`localStorage` `hispanapp_tour_done`) y se puede repetir desde Comunidad.
 - **Legal y privacidad**: páginas estáticas en `public/legal/` (`privacidad.html`, `terminos.html`,
   `arrepentimiento.html`), enlazadas desde Comunidad, la ventana PRO, el registro y Tu perfil.
@@ -82,6 +82,13 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   Rol y nivel se guardan siempre en español en Firebase (`roleLabel`/`levelLabel` solo cambian lo que se ve).
   Páginas legales en inglés en `public/legal/en/` (`legalUrl()` en `config.ts` elige según el idioma).
   **Al añadir un texto nuevo, escribirlo siempre en los dos idiomas.** Los vídeos y el método (libros) están en español.
+- **Pantalla principal**: primero el **reloj de compás** (con el título del ritmo y el botón Video) y debajo la
+  **partitura**, los palos y el banner del método (pedido de los alumnos de la prueba: el reloj es más visual para
+  quien no lee música). En pantallas grandes, reloj a la izquierda y partitura a la derecha.
+- **Metrónomo de fondo** (botón "⏱️ Metrónomo", activo por defecto, se recuerda en `hispanapp_metronome`):
+  `scheduleMetronome` en `engine.ts` da un "tac" en cada tiempo con número en la cuenta y un "tum" grave en los
+  tiempos de `metroDownbeats` del ritmo (por defecto `[0]`, el primero del ritmo completo; Bulería `[0, 6]`, el 12 y el 6).
+  En Seguiriyas suena solo en sus 5 pulsos.
 - **Gratis vs PRO**: gratis los ritmos I y VI; PRO desbloquea los 8 ritmos, los vídeos
   (YouTube **no listados**, solo accesibles desde la app) y el entrenador progresivo.
 
@@ -123,6 +130,7 @@ una compra real con Lemon), 23/11 (congelar cambios y preparar campaña), 30/11 
 - [ ] Activar Google Analytics en Firebase si no está activado (Configuración del proyecto → Integraciones).
 - [ ] Borrar de `leads` los registros de prueba con emails `@example.com` creados en las pruebas de octubre.
 - [ ] Recordar el último ritmo, BPM y tipo de palma.
+- [ ] Confirmar con Jordan los tiempos de referencia del metrónomo de cada ritmo (`metroDownbeats`).
 - [ ] Modo "Ahora tú" (silenciar palmas y dejar el reloj/click) y progreso/racha de práctica.
 - [ ] Plan de marketing y textos de la campaña.
 - [x] Versión en inglés de la app y de las páginas legales (noviembre 2026). Falta: que alguien nativo revise los textos

@@ -58,6 +58,24 @@ export default function App() {
 
   // Cuenta Previa (Count-In) state (activo por defecto sincronizado con click percusivo sin voz humana)
   const [countInEnabled, setCountInEnabled] = useState<boolean>(true);
+  // Metrónomo de fondo (activo por defecto; se recuerda en este dispositivo)
+  const [metronomeOn, setMetronomeOn] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('hispanapp_metronome') !== 'off';
+    } catch {
+      return true;
+    }
+  });
+  const toggleMetronome = () => {
+    const next = !metronomeOn;
+    setMetronomeOn(next);
+    engineRef.current?.setMetronomeEnabled(next);
+    try {
+      localStorage.setItem('hispanapp_metronome', next ? 'on' : 'off');
+    } catch {
+      // Ignorar
+    }
+  };
   const [countInText, setCountInText] = useState<string | null>(null);
 
   // Screen Wake Lock API state & ref
@@ -226,6 +244,7 @@ export default function App() {
     engine.setPalmaTone(palmaTone);
     engine.setAudioSourceMode('jordan');
     engine.setCountInEnabled(countInEnabled);
+    engine.setMetronomeEnabled(metronomeOn);
 
     engine.setCallbacks(
       (step, cycle) => {
@@ -599,10 +618,10 @@ export default function App() {
         : L('Aquí eliges el ritmo. Los que tienen candado se desbloquean con la versión PRO. Debajo ajustas la cuenta y el tipo de palmas.', 'Choose the rhythm here. The ones with a lock are unlocked with the PRO version. Below you set the count and the type of palmas (claps).'),
     },
     {
-      target: 'partitura',
-      icon: '🎼',
-      title: L('Partitura y reloj de compás', 'Score and compás clock'),
-      text: L('Toca cualquier compás para escucharlo. Mientras suena, la nota se ilumina aquí y en el reloj de compás.', 'Tap any bar to hear it. While it plays, the note lights up here and on the compás (rhythmic cycle) clock.'),
+      target: 'reloj',
+      icon: '🕐',
+      title: L('Reloj de compás y partitura', 'Compás clock and score'),
+      text: L('El reloj muestra cada tiempo del compás mientras suena: el número grande es el tiempo que suena. Debajo está la partitura; toca cualquier compás para escucharlo.', 'The clock shows each beat of the compás (rhythmic cycle) as it plays. The score is below it: tap any bar to hear it.'),
     },
     {
       target: 'metronomo',
@@ -835,6 +854,19 @@ export default function App() {
                 <span>🗣️ {L('Cuenta', 'Count-in')}</span>
               </button>
 
+              {/* Metrónomo de fondo: "tac" en cada tiempo y "tum" grave en el primero del ritmo */}
+              <button
+                onClick={toggleMetronome}
+                aria-pressed={metronomeOn}
+                className={`px-3 py-1.5 rounded-full text-[11px] font-medium transition flex items-center gap-1.5 cursor-pointer ${
+                  metronomeOn ? 'btn-3d text-white' : 'segmented text-gray-400 hover:text-white'
+                }`}
+                title={L('Metrónomo de fondo: marca cada tiempo y un golpe grave en el primero del ritmo para ubicarte', 'Background metronome: a click on every beat and a low click on the first beat of the rhythm, to help you find your place')}
+              >
+                <span className={`w-1.5 h-1.5 rounded-full ${metronomeOn ? 'bg-[#FF5533] shadow-[0_0_6px_rgba(255,85,51,0.9)]' : 'bg-gray-500'}`} />
+                <span>⏱️ {L('Metrónomo', 'Metronome')}</span>
+              </button>
+
               {/* Selector Cuenta 2 vs 12 (para ritmos de 12 tiempos) */}
               {currentRhythm.has12CountToggle && (
                 <div className="flex items-center gap-1 segmented p-1 rounded-full">
@@ -892,7 +924,7 @@ export default function App() {
           </div>
         </section>
 
-        {/* Selector de Vista (Ambos / Partitura / Reloj) */}
+        {/* Selector de Vista (Ambos / Reloj / Partitura) */}
         <div className="flex segmented p-1 rounded-full text-xs">
           <button
             onClick={() => setViewMode('split')}
@@ -903,14 +935,6 @@ export default function App() {
             {L('Ambos', 'Both')}
           </button>
           <button
-            onClick={() => setViewMode('staff')}
-            className={`flex-1 py-2 rounded-full font-sans transition cursor-pointer ${
-              viewMode === 'staff' ? 'seg-active text-white font-semibold' : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            {L('Partitura', 'Score')}
-          </button>
-          <button
             onClick={() => setViewMode('clock')}
             className={`flex-1 py-2 rounded-full font-sans transition cursor-pointer ${
               viewMode === 'clock' ? 'seg-active text-white font-semibold' : 'text-gray-400 hover:text-white'
@@ -918,17 +942,105 @@ export default function App() {
           >
             {L('Reloj', 'Clock')}
           </button>
+          <button
+            onClick={() => setViewMode('staff')}
+            className={`flex-1 py-2 rounded-full font-sans transition cursor-pointer ${
+              viewMode === 'staff' ? 'seg-active text-white font-semibold' : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            {L('Partitura', 'Score')}
+          </button>
         </div>
 
-        {/* 2. VISUALIZADOR: PARTITURA CON PALOS + RELOJ DE COMPÁS */}
+        {/* 2. VISUALIZADOR: primero el RELOJ DE COMPÁS (más visual para quien no lee música) y debajo la PARTITURA */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-          {/* A. PARTITURA MONOGRAMA */}
+          {/* A. RELOJ DE COMPÁS (lleva el título del ritmo y el botón de Video) */}
+          {(viewMode === 'split' || viewMode === 'clock') && (
+            <div
+              data-tour="reloj"
+              className={`${
+                viewMode === 'clock' ? 'lg:col-span-12' : 'lg:col-span-5'
+              } glass-card rounded-3xl p-4 sm:p-5 flex flex-col items-center space-y-3`}
+            >
+              <div className="w-full">
+                {/* Encabezado limpio con título del ritmo en blanco, botón de Video PRO y badge de compás */}
+                <div className="flex items-center justify-between gap-3 pb-2 border-b border-white/[0.06]">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <span className="font-serif text-xs sm:text-sm font-bold text-[#E84A27] px-2 py-0.5 rounded-lg bg-[#E84A27]/10">
+                      {currentRhythm.roman}
+                    </span>
+                    <h2 className="font-sans text-sm sm:text-base font-semibold text-white tracking-tight truncate">
+                      {rhythmName(currentRhythm)}
+                    </h2>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {/* Botón destacado ▶ Video (Exclusivo Alumnos PRO) */}
+                    <button
+                      onClick={handleOpenVideo}
+                      className={`px-3 py-1 rounded-full text-xs font-sans font-bold flex items-center gap-1.5 transition active:scale-95 cursor-pointer shadow-sm ${
+                        isPro
+                          ? 'orb-active hover:brightness-110'
+                          : 'btn-3d text-amber-300 border-amber-400/30'
+                      }`}
+                      title={isPro ? L('Ver video demostrativo PRO', 'Watch the PRO demo video') : L('Video exclusivo Alumnos PRO', 'Video for PRO students only')}
+                    >
+                      <span>▶ Video</span>
+                      {!isPro && <Lock className="w-3 h-3 text-amber-300" />}
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+              <div className="w-full flex items-center justify-between">
+                <span className="font-sans text-[10px] tracking-wider uppercase text-gray-400 font-semibold">
+                  {L('Ciclo de Compás', 'Compás cycle')}
+                </span>
+                <span className="text-xs font-sans text-gray-300 font-medium px-2 py-0.5 rounded-full bg-white/[0.05]">
+                  {L('Vuelta:', 'Cycle:')} <span className="text-white font-semibold tabular-nums">{cycleCount}</span>
+                </span>
+              </div>
+
+              <FlamencoClock
+                rhythm={currentRhythm}
+                activeStep={activeStep}
+                countMode={countMode}
+                countInText={countInText}
+                onBeatClick={(b) => handlePreviewBeatGroup(b * currentRhythm.stepsPerBeat, currentRhythm.stepsPerBeat)}
+              />
+
+              <div className="w-full flex items-center justify-center gap-6 pt-2 border-t border-white/[0.04] text-[11px] text-gray-400 font-sans">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#E84A27] inline-block shadow-[0_0_6px_rgba(232,74,39,0.5)]" /> {L('Acento', 'Accent')} (&gt;)
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-white/30 inline-block" /> {L('Pulso', 'Pulse')}
+                </span>
+              </div>
+              {viewMode === 'clock' && <div className="w-full">
+              {/* Sección limpia de palos que se acompañan con tipografía Inter moderna */}
+              <div className="py-0.5">
+                <span className="font-sans text-[10px] uppercase tracking-wider text-gray-400 font-semibold block mb-1">
+                  {L('Palos que se acompañan', 'Palos (flamenco styles) it accompanies')}
+                </span>
+                <p className="font-sans text-xs sm:text-sm text-gray-200 font-medium leading-relaxed">
+                  {rhythmPalos(currentRhythm, lang)}
+                </p>
+              </div>
+
+              </div>}
+            </div>
+          )}
+
+          {/* B. PARTITURA MONOGRAMA (debajo del reloj, como apoyo para quien lee música) */}
           {(viewMode === 'split' || viewMode === 'staff') && (
             <div
+              data-tour="partitura"
               className={`${
                 viewMode === 'staff' ? 'lg:col-span-12' : 'lg:col-span-7'
               } glass-card rounded-3xl p-4 sm:p-5 space-y-3.5 overflow-hidden`}
             >
+              {viewMode === 'staff' ? (
+                <>
               {/* Encabezado limpio con título del ritmo en blanco, botón de Video PRO y badge de compás */}
               <div className="flex items-center justify-between gap-3 pb-2 border-b border-white/[0.06]">
                 <div className="flex items-center gap-2.5 min-w-0">
@@ -956,18 +1068,15 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Sección limpia de palos que se acompañan con tipografía Inter moderna */}
-              <div className="py-0.5">
-                <span className="font-sans text-[10px] uppercase tracking-wider text-gray-400 font-semibold block mb-1">
-                  {L('Palos que se acompañan', 'Palos (flamenco styles) it accompanies')}
+                </>
+              ) : (
+                <span className="font-sans text-[10px] tracking-wider uppercase text-gray-400 font-semibold block">
+                  {L('Partitura', 'Score')}
                 </span>
-                <p className="font-sans text-xs sm:text-sm text-gray-200 font-medium leading-relaxed">
-                  {rhythmPalos(currentRhythm, lang)}
-                </p>
-              </div>
+              )}
 
               {/* Lienzo Oscuro con el Monograma Exacto del Libro en una sola tira horizontal continua */}
-              <div data-tour="partitura">
+              <div>
                 <MonogramScore
                   rhythm={currentRhythm}
                   activeStep={activeStep}
@@ -1003,41 +1112,16 @@ export default function App() {
                   {L('Toca cualquier compás para escucharlo', 'Tap any bar to hear it')}
                 </span>
               </div>
-            </div>
-          )}
-
-          {/* B. RELOJ DE COMPÁS */}
-          {(viewMode === 'split' || viewMode === 'clock') && (
-            <div
-              className={`${
-                viewMode === 'clock' ? 'lg:col-span-12' : 'lg:col-span-5'
-              } glass-card rounded-3xl p-4 sm:p-5 flex flex-col items-center space-y-3`}
-            >
-              <div className="w-full flex items-center justify-between">
-                <span className="font-sans text-[10px] tracking-wider uppercase text-gray-400 font-semibold">
-                  {L('Ciclo de Compás', 'Compás cycle')}
+              {/* Sección limpia de palos que se acompañan con tipografía Inter moderna */}
+              <div className="py-0.5">
+                <span className="font-sans text-[10px] uppercase tracking-wider text-gray-400 font-semibold block mb-1">
+                  {L('Palos que se acompañan', 'Palos (flamenco styles) it accompanies')}
                 </span>
-                <span className="text-xs font-sans text-gray-300 font-medium px-2 py-0.5 rounded-full bg-white/[0.05]">
-                  {L('Vuelta:', 'Cycle:')} <span className="text-white font-semibold tabular-nums">{cycleCount}</span>
-                </span>
+                <p className="font-sans text-xs sm:text-sm text-gray-200 font-medium leading-relaxed">
+                  {rhythmPalos(currentRhythm, lang)}
+                </p>
               </div>
 
-              <FlamencoClock
-                rhythm={currentRhythm}
-                activeStep={activeStep}
-                countMode={countMode}
-                countInText={countInText}
-                onBeatClick={(b) => handlePreviewBeatGroup(b * currentRhythm.stepsPerBeat, currentRhythm.stepsPerBeat)}
-              />
-
-              <div className="w-full flex items-center justify-center gap-6 pt-2 border-t border-white/[0.04] text-[11px] text-gray-400 font-sans">
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#E84A27] inline-block shadow-[0_0_6px_rgba(232,74,39,0.5)]" /> {L('Acento', 'Accent')} (&gt;)
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-white/30 inline-block" /> {L('Pulso', 'Pulse')}
-                </span>
-              </div>
             </div>
           )}
         </div>

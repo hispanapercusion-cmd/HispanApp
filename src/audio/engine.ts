@@ -109,6 +109,7 @@ export class FlamencoAudioEngine {
 
   // Count-in state (Cuenta previa con voz en español Web Speech API)
   private countInEnabled: boolean = true;
+  private metronomeEnabled: boolean = true;
   private isCountingIn: boolean = false;
   private countInIndex: number = 0;
   private countInBeats: CountInBeat[] = [];
@@ -295,6 +296,11 @@ export class FlamencoAudioEngine {
     return this.bpm;
   }
 
+  /** Metrónomo de fondo: un "tac" en cada tiempo y un "tum" grave en el primer tiempo del ritmo */
+  public setMetronomeEnabled(enabled: boolean) {
+    this.metronomeEnabled = enabled;
+  }
+
   public setCountInEnabled(enabled: boolean) {
     this.countInEnabled = enabled;
   }
@@ -437,6 +443,7 @@ export class FlamencoAudioEngine {
         }
       } else {
         // Schedule pattern step
+        this.scheduleMetronome(this.currentStep, this.nextNoteTime);
         this.scheduleStepAudio(this.currentStep, this.nextNoteTime);
         this.visualQueue.push({ step: this.currentStep, time: this.nextNoteTime });
 
@@ -458,6 +465,40 @@ export class FlamencoAudioEngine {
 
     // Sonido de click limpio y definido en cada pulso de la cuenta
     this.synthesizeClick(time, isLastCount);
+  }
+
+  // Metrónomo de fondo: suena al empezar cada tiempo que tiene número en la cuenta (en Seguiriyas, solo
+  // los 5 pulsos). En los tiempos de referencia del ritmo (metroDownbeats, por defecto el primero) el golpe
+  // es más grave y fuerte: "tum, tac, tac, tac…". Así se ubica el 1 aunque la palma calle en ese tiempo.
+  private scheduleMetronome(stepIdx: number, time: number) {
+    if (!this.ctx || !this.metronomeEnabled) return;
+    const spb = this.rhythm.stepsPerBeat || 1;
+    if (stepIdx % spb !== 0) return;
+    const beat = stepIdx / spb;
+    const label = this.rhythm.countsPhon[beat];
+    if (label === undefined || label === '·') return;
+    const strong = (this.rhythm.metroDownbeats ?? [0]).includes(beat);
+    this.synthesizeMetronomeTick(time, strong);
+  }
+
+  private synthesizeMetronomeTick(time: number, strong: boolean) {
+    if (!this.ctx) return;
+    const t = Math.max(time, this.ctx.currentTime);
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = strong ? 'triangle' : 'sine';
+    // "tum" grave para la referencia, "tac" agudo y corto para el resto de tiempos
+    osc.frequency.setValueAtTime(strong ? 560 : 1500, t);
+    osc.frequency.exponentialRampToValueAtTime(strong ? 380 : 1150, t + (strong ? 0.07 : 0.025));
+    const peak = strong ? 0.34 : 0.13;
+    const len = strong ? 0.11 : 0.04;
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.linearRampToValueAtTime(peak, t + 0.002);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + len);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(t);
+    osc.stop(t + len + 0.02);
   }
 
   // Click percusivo de metrónomo nítido y profesional (optimizado sin re-alocación de memoria)

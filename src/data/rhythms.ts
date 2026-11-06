@@ -64,6 +64,7 @@ export const PALMAS_METHOD: RhythmDefinition[] = [
     has12CountToggle: true,
     countsPhon: ['2', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '1'],
     countsTrad: ['12', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'],
+    metroDownbeats: [0, 6], // Bulería: referencia en el 12 y en el 6
     clockAccents: [1, 3, 7, 9],
     stepsPerBeat: 1, // 12 corcheas = 12 pasos
     steps: [
