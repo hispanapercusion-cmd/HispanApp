@@ -87,8 +87,10 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   quien no lee música). En pantallas grandes, reloj a la izquierda y partitura a la derecha.
 - **Metrónomo de fondo** (botón "⏱️ Metrónomo", activo por defecto, se recuerda en `hispanapp_metronome`):
   `scheduleMetronome` en `engine.ts` da un "tac" en cada tiempo con número en la cuenta y un "tum" grave en los
-  tiempos de `metroDownbeats` del ritmo (por defecto `[0]`, el primero del ritmo completo; Bulería `[0, 6]`, el 12 y el 6).
-  En Seguiriyas suena solo en sus 5 pulsos.
+  tiempos de `metroDownbeats` del ritmo, definidos por Jordan (6/11/2026): compás de 12 (I) y Seguiriyas (II) solo en el
+  primero; Bulería (III) y Jaleos/Abandolaos (IV) en el 12 y el 6; Tangos (VI) y Tientos (VII) en el 1 de cada compás
+  `[0, 4]`; Tanguillos (VIII) en los dos 1 `[0, 2]`; Fandangos/Sevillanas (V) solo en el primero (sin confirmar).
+  En Seguiriyas el tac suena solo en sus 5 pulsos. Ritmo I lleva acentos en 12, 3, 6, 8 y 10 (partitura y sonido).
 - **Gratis vs PRO**: gratis los ritmos I y VI; PRO desbloquea los 8 ritmos, los vídeos
   (YouTube **no listados**, solo accesibles desde la app) y el entrenador progresivo.
 
@@ -130,7 +132,7 @@ una compra real con Lemon), 23/11 (congelar cambios y preparar campaña), 30/11 
 - [ ] Activar Google Analytics en Firebase si no está activado (Configuración del proyecto → Integraciones).
 - [ ] Borrar de `leads` los registros de prueba con emails `@example.com` creados en las pruebas de octubre.
 - [ ] Recordar el último ritmo, BPM y tipo de palma.
-- [ ] Confirmar con Jordan los tiempos de referencia del metrónomo de cada ritmo (`metroDownbeats`).
+- [ ] Confirmar con Jordan el tiempo de referencia del metrónomo de Fandangos/Sevillanas (ritmo V).
 - [ ] Modo "Ahora tú" (silenciar palmas y dejar el reloj/click) y progreso/racha de práctica.
 - [ ] Plan de marketing y textos de la campaña.
 - [x] Versión en inglés de la app y de las páginas legales (noviembre 2026). Falta: que alguien nativo revise los textos

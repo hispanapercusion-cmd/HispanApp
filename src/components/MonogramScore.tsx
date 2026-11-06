@@ -413,26 +413,26 @@ const MonogramScoreComponent: React.FC<MonogramScoreProps> = ({
           <>
             <div className="flex items-start shrink-0">
               <ClefAndTimeSig num="3" den="4" includeClef={true} />
-              <QuarterNote stepIdx={0} label={counts[0]} accent={false} />
+              <QuarterNote stepIdx={0} label={counts[0]} accent={true} />
               <EighthRestAndEighth stepRest={2} stepNote={3} label1={counts[1]} label2="" accentNote={false} />
               <QuarterNote stepIdx={4} label={counts[2]} accent={false} />
               <Barline />
             </div>
             <div className="flex items-start shrink-0">
-              <QuarterNote stepIdx={6} label={counts[3]} accent={false} />
+              <QuarterNote stepIdx={6} label={counts[3]} accent={true} />
               <QuarterNote stepIdx={8} label={counts[4]} accent={false} />
               <QuarterNote stepIdx={10} label={counts[5]} accent={false} />
               <Barline />
             </div>
             <div className="flex items-start shrink-0">
-              <QuarterNote stepIdx={12} label={counts[6]} accent={false} />
+              <QuarterNote stepIdx={12} label={counts[6]} accent={true} />
               <TwoBeamedEighths step1={14} step2={15} label1={counts[7]} label2="" accent1={false} accent2={false} />
-              <QuarterNote stepIdx={16} label={counts[8]} accent={false} />
+              <QuarterNote stepIdx={16} label={counts[8]} accent={true} />
               <Barline />
             </div>
             <div className="flex items-start shrink-0">
               <TwoBeamedEighths step1={18} step2={19} label1={counts[9]} label2="" accent1={false} accent2={false} />
-              <QuarterNote stepIdx={20} label={counts[10]} accent={false} />
+              <QuarterNote stepIdx={20} label={counts[10]} accent={true} />
               <QuarterNote stepIdx={22} label={counts[11]} accent={false} />
               <Barline isFinal={true} />
             </div>

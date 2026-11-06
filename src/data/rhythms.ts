@@ -17,11 +17,12 @@ export const PALMAS_METHOD: RhythmDefinition[] = [
     countsTrad: ['12', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'],
     clockAccents: [0, 3, 6, 8, 10],
     stepsPerBeat: 2, // 12 negras = 24 pasos de corchea
+    // Acentos en los tiempos 12, 3, 6, 8 y 10 (pasos 0, 6, 12, 16 y 20)
     steps: [
-      'P', 'R', 'R', 'P', 'P', 'R',
-      'P', 'R', 'P', 'R', 'P', 'R',
-      'P', 'R', 'P', 'P', 'P', 'R',
-      'P', 'P', 'P', 'R', 'P', 'R',
+      'A', 'R', 'R', 'P', 'P', 'R',
+      'A', 'R', 'P', 'R', 'P', 'R',
+      'A', 'R', 'P', 'P', 'A', 'R',
+      'P', 'P', 'A', 'R', 'P', 'R',
     ],
     videoUrl: 'https://youtu.be/V4eKkZvdvCw?si=UrHBMB2lleHJAlT5',
     videoEmbedUrl: 'https://www.youtube.com/embed/V4eKkZvdvCw',
@@ -87,6 +88,7 @@ export const PALMAS_METHOD: RhythmDefinition[] = [
     has12CountToggle: true,
     countsPhon: ['2', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '1'],
     countsTrad: ['12', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'],
+    metroDownbeats: [0, 6], // Abandolaos: referencia en el 12 y en el 6
     clockAccents: [0, 2, 4, 5, 6, 8, 10, 11],
     stepsPerBeat: 2, // 24 pasos de semicorchea
     steps: [
@@ -133,6 +135,7 @@ export const PALMAS_METHOD: RhythmDefinition[] = [
     has12CountToggle: false,
     countsPhon: ['1', '2', '3', '4', '1', '2', '3', '4'],
     countsTrad: ['1', '2', '3', '4', '1', '2', '3', '4'],
+    metroDownbeats: [0, 4], // Tangos: en el 1 de cada compás
     clockAccents: [1, 3, 5, 7],
     stepsPerBeat: 2, // 16 pasos de corchea
     steps: [
@@ -155,6 +158,7 @@ export const PALMAS_METHOD: RhythmDefinition[] = [
     has12CountToggle: false,
     countsPhon: ['1', '2', '3', '4', '1', '2', '3', '4'],
     countsTrad: ['1', '2', '3', '4', '1', '2', '3', '4'],
+    metroDownbeats: [0, 4], // Tientos: en el 1 de cada compás
     clockAccents: [0, 2, 4, 6],
     stepsPerBeat: 2, // 16 pasos de corchea
     steps: [
@@ -177,6 +181,7 @@ export const PALMAS_METHOD: RhythmDefinition[] = [
     has12CountToggle: false,
     countsPhon: ['1', '2', '1', '2'],
     countsTrad: ['1', '2', '1', '2'],
+    metroDownbeats: [0, 2], // Tanguillos: en el 1 de cada compás
     clockAccents: [0, 1, 2, 3],
     stepsPerBeat: 3, // 12 pasos de corchea
     steps: [
