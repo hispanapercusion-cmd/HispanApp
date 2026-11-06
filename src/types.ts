@@ -15,6 +15,11 @@ export interface RhythmDefinition {
   countsPhon: string[];
   countsTrad: string[];
   clockAccents: number[];
+  /**
+   * Metrónomo de fondo: tiempos (índice de tiempo, desde 0) donde suena el golpe grave de referencia.
+   * Por defecto solo el primero del ritmo completo ([0]).
+   */
+  metroDownbeats?: number[];
   stepsPerBeat: number;
   steps: PalmaHit[];
   videoUrl: string;
