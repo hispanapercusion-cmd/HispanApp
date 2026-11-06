@@ -18,6 +18,11 @@ export interface AppConfig {
 
 import type { Lang } from './i18n';
 
+/** Método «Los Ritmos del Flamenco» en Lemon Squeezy, en el idioma de la app */
+export const METHOD_URL_ES = 'https://hispanapercusion.lemonsqueezy.com/checkout/buy/b631cc57-af72-4282-96b8-9967cb562df1';
+export const METHOD_URL_EN = 'https://hispanapercusion.lemonsqueezy.com/checkout/buy/9deded9a-4641-48af-9c28-a60586d2d536';
+export const methodUrl = (lang: Lang): string => (lang === 'en' ? METHOD_URL_EN : METHOD_URL_ES);
+
 /** Páginas legales en el idioma de la app */
 export const legalUrl = (doc: 'privacy' | 'terms' | 'withdrawal', lang: Lang): string => {
   if (lang === 'en') return { privacy: './legal/en/privacy.html', terms: './legal/en/terms.html', withdrawal: './legal/en/withdrawal.html' }[doc];

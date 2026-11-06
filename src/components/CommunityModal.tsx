@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, ExternalLink, Sparkles, Heart, MessageCircle, KeyRound, CheckCircle2 } from 'lucide-react';
 import { HispanaLogo } from './HispanaLogo';
-import { APP_CONFIG } from '../config';
+import { APP_CONFIG, methodUrl } from '../config';
 import { ProCheckResult, proErrorMessage } from '../services/pro';
 import { RecoverAccessInfo, SavedProCode } from './RecoverAccessInfo';
 import { InstallCard } from './InstallCard';
@@ -26,7 +26,7 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
   onStartTour,
   onOpenFeedback,
 }) => {
-  const { L } = useLang();
+  const { lang, L } = useLang();
   const [proInput, setProInput] = useState('');
   const [checkingCode, setCheckingCode] = useState(false);
   const [codeMessage, setCodeMessage] = useState<string | null>(null);
@@ -109,7 +109,7 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
           </a>
         </div>
 
-        {/* 2. TARJETA PACK COMPLETO MÉTODO (HOTMART) */}
+        {/* 2. TARJETA MÉTODO COMPLETO (Lemon Squeezy, versión en el idioma de la app) */}
         <div className="sub-card sub-card-accent p-4 rounded-2xl space-y-2.5">
           <div className="flex items-center justify-between gap-2">
             <span className="font-brand text-[9.5px] uppercase tracking-widest text-[#FF5533] font-bold flex items-center gap-1.5">
@@ -117,24 +117,24 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
               {L('Método Oficial', 'Official method')}
             </span>
             <span className="text-[10px] font-sans font-bold px-2 py-0.5 rounded-full bg-[#E84A27]/20 text-[#FF6B4A]">
-              Hotmart
+              {L('Español', 'English')}
             </span>
           </div>
           <div>
             <h4 className="font-serif font-bold text-sm sm:text-base text-white">
-              {L('Pack Completo: Los Ritmos del Flamenco', 'Full pack: Los Ritmos del Flamenco')}
+              {L('Método completo: Los Ritmos del Flamenco', 'Full method: Los Ritmos del Flamenco')}
             </h4>
             <p className="text-xs text-gray-300 font-sans leading-relaxed mt-0.5">
-              {L('Incluye los 3 volúmenes completos (Compás de 12, 3/4, y 4/4 - 6/8 en cajón y palmas con demostraciones en video) y acceso a HispanApp PRO.', 'Includes the 3 full volumes (12-beat compás, 3/4, and 4/4 - 6/8 on cajón and palmas, with video demos) and HispanApp PRO access. The books are in Spanish.')}
+              {L('Incluye los 3 volúmenes completos: Compás de 12, 3/4, y 4/4 - 6/8 en cajón y palmas, con demostraciones en video.', 'Includes the 3 full volumes: 12-beat compás, 3/4, and 4/4 - 6/8 on cajón and palmas, with video demos.')}
             </p>
           </div>
           <a
-            href={APP_CONFIG.hotmartPackUrl}
+            href={methodUrl(lang)}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-2 w-full py-2.5 rounded-xl btn-primary text-white font-sans text-xs font-bold uppercase tracking-wider cursor-pointer"
           >
-            <span>{L('Obtener Pack Completo en Hotmart', 'Get the full pack on Hotmart')}</span>
+            <span>{L('Conseguir el método completo', 'Get the full method')}</span>
             <ExternalLink className="w-3.5 h-3.5" />
           </a>
         </div>
