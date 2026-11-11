@@ -85,6 +85,12 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
 - **Pantalla principal**: primero el **reloj de compás** (con el título del ritmo y el botón Video) y debajo la
   **partitura**, los palos y el banner del método (pedido de los alumnos de la prueba: el reloj es más visual para
   quien no lee música). En pantallas grandes, reloj a la izquierda y partitura a la derecha.
+- **Pantalla encendida** (`src/services/keepAwake.ts`): Wake Lock del navegador y, si no existe o el sistema lo
+  niega, respaldo con un vídeo diminuto, negro y en silencio, en bucle. Se activa dentro del toque de Play (necesario
+  para el respaldo) y en el Atril. Sin probar todavía en un iPhone real.
+- **Controles** (cambios pedidos por un alumno, 11/11/2026): botón "⏳ Cuenta previa" (antes "Cuenta"), controles a
+  todo el ancho en el móvil, textos más grandes, selector "Ambos / 🕐 Reloj / 🎼 Partitura" más visible y el logo de la
+  cabecera enlaza a hispanapercusion.com.
 - **Metrónomo de fondo** (botón "⏱️ Metrónomo", activo por defecto, se recuerda en `hispanapp_metronome`):
   `scheduleMetronome` en `engine.ts` da un "tac" en cada tiempo con número en la cuenta y un "tum" grave en los
   tiempos de `metroDownbeats` del ritmo, definidos por Jordan (6/11/2026): compás de 12 (I) y Seguiriyas (II) solo en el
