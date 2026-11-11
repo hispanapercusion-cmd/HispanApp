@@ -26,6 +26,7 @@ import { APP_CONFIG, methodUrl } from './config';
 import { verifyProCode, ProCheckResult } from './services/pro';
 import { Play, Square, Lock, CheckCircle2, Maximize2, User } from 'lucide-react';
 import { saveLeadToFirestore } from './services/firebase';
+import { enableKeepAwake, disableKeepAwake, onKeepAwakeChange } from './services/keepAwake';
 
 export default function App() {
   const { lang, L } = useLang();
@@ -310,34 +311,13 @@ export default function App() {
     };
   }, []);
 
-  // Screen Wake Lock API handlers
-  const requestWakeLock = async () => {
-    if (typeof navigator === 'undefined' || !('wakeLock' in navigator)) return;
-    try {
-      if (!wakeLockRef.current || wakeLockRef.current.released) {
-        const lock = await navigator.wakeLock.request('screen');
-        wakeLockRef.current = lock;
-        setIsWakeLockActive(true);
-        lock.addEventListener('release', () => {
-          setIsWakeLockActive(false);
-        });
-      }
-    } catch {
-      // Graceful silent fallback for browsers that block or lack Wake Lock
-      setIsWakeLockActive(false);
-    }
+  // Pantalla siempre encendida mientras suena o en el Atril (Wake Lock, con respaldo: ver keepAwake.ts)
+  useEffect(() => onKeepAwakeChange(setIsWakeLockActive), []);
+  const requestWakeLock = () => {
+    enableKeepAwake();
   };
-
-  const releaseWakeLock = async () => {
-    if (wakeLockRef.current) {
-      try {
-        await wakeLockRef.current.release();
-      } catch {
-        // silent
-      }
-      wakeLockRef.current = null;
-      setIsWakeLockActive(false);
-    }
+  const releaseWakeLock = () => {
+    disableKeepAwake();
   };
 
   // Sync wake lock with isPlaying state and isAtrilMode (mantiene pantalla encendida en el atril)
@@ -472,6 +452,8 @@ export default function App() {
       setActiveStep(-1);
       setCountInText(null);
     } else {
+      // Dentro del toque de Play: así puede arrancar el respaldo que mantiene la pantalla encendida
+      enableKeepAwake();
       engineRef.current.setCountInEnabled(countInEnabled);
       engineRef.current.start(countInEnabled);
       setIsPlaying(true);
@@ -718,9 +700,16 @@ export default function App() {
       <header className="border-b border-white/[0.06] bg-[#0B0D12]/85 backdrop-blur-2xl sticky top-0 z-30 shadow-[0_4px_24px_rgba(0,0,0,0.5)] transition-all">
         <div className="max-w-5xl mx-auto px-3.5 sm:px-4 py-2 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-            <div className="select-none" title="Hispana Percusión">
+            <a
+              href="https://hispanapercusion.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="select-none"
+              title={L('Ir a la web de Hispana Percusión', 'Visit the Hispana Percusión website')}
+              aria-label={L('Ir a la web de Hispana Percusión', 'Visit the Hispana Percusión website')}
+            >
               <HispanaLogo size="md" />
-            </div>
+            </a>
 
             <div className="flex items-center gap-2 min-w-0">
               <span className="font-brand text-lg sm:text-xl font-extrabold tracking-tight text-white leading-none">
@@ -734,7 +723,7 @@ export default function App() {
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <div className="flex items-center gap-1 min-[380px]:gap-1.5 sm:gap-2 shrink-0">
             {/* Idioma (en el móvil no cabe en la cabecera: está en el registro, Comunidad y Tu perfil) */}
             <LangSwitch className="hidden sm:inline-flex" />
 
@@ -763,7 +752,7 @@ export default function App() {
             <button
               data-tour="entrenador"
               onClick={handleOpenTrainer}
-              className={`h-8.5 flex items-center gap-1.5 px-3 rounded-full border text-xs font-medium tracking-wide transition shadow-sm active:scale-95 cursor-pointer select-none ${
+              className={`h-8.5 flex items-center gap-1 px-2 min-[380px]:gap-1.5 min-[380px]:px-3 rounded-full border text-xs font-medium tracking-wide transition shadow-sm active:scale-95 cursor-pointer select-none ${
                 trainerConfig.enabled
                   ? 'border-emerald-500/40 bg-emerald-500/15 text-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.2)]'
                   : 'btn-3d text-gray-200 hover:text-white'
@@ -793,7 +782,7 @@ export default function App() {
         <section data-tour="ritmos" className="glass-card rounded-3xl p-3.5 sm:p-4 space-y-3">
           {/* Botones rápidos I al VIII */}
           <div className="flex items-center justify-between gap-1 overflow-x-auto -mx-2.5 px-2.5 py-2.5 -my-2">
-            <span className="font-sans text-[10px] tracking-wider uppercase text-gray-400 mr-1.5 shrink-0 hidden sm:inline font-semibold">
+            <span className="font-sans text-[11px] tracking-wider uppercase text-gray-400 mr-1.5 shrink-0 hidden sm:inline font-semibold">
               {L('Ritmos:', 'Rhythms:')}
             </span>
             <div className="flex items-center gap-1 sm:gap-1.5 w-full sm:w-auto justify-between sm:justify-start">
@@ -837,7 +826,7 @@ export default function App() {
               </select>
             </div>
 
-            <div className="flex flex-wrap items-center justify-between sm:justify-end gap-2 shrink-0">
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center sm:justify-end gap-2 shrink-0">
               {/* Botón Toggle Cuenta Previa (Activo por defecto) */}
               <button
                 onClick={() => {
@@ -845,20 +834,21 @@ export default function App() {
                   setCountInEnabled(nextVal);
                   engineRef.current?.setCountInEnabled(nextVal);
                 }}
-                className={`px-3 py-1.5 rounded-full text-[11px] font-medium transition flex items-center gap-1.5 cursor-pointer ${
+                className={`px-3 py-2 rounded-full text-[13px] font-medium transition flex items-center justify-center gap-1.5 cursor-pointer ${
                   countInEnabled ? 'btn-3d text-white' : 'segmented text-gray-400 hover:text-white'
                 }`}
-                title={L('Cuenta regresiva sincronizada con click antes de iniciar el compás', 'Count-in with a click before the compás starts')}
+                aria-pressed={countInEnabled}
+                title={L('Cuenta previa: antes de empezar suenan unos clics de preparación (3, 2, 1)', 'Count-in: a few preparation clicks (3, 2, 1) before the rhythm starts')}
               >
                 <span className={`w-1.5 h-1.5 rounded-full ${countInEnabled ? 'bg-[#FF5533] shadow-[0_0_6px_rgba(255,85,51,0.9)]' : 'bg-gray-500'}`} />
-                <span>🗣️ {L('Cuenta', 'Count-in')}</span>
+                <span>⏳ {L('Cuenta previa', 'Count-in')}</span>
               </button>
 
               {/* Metrónomo de fondo: "tac" en cada tiempo y "tum" grave en el primero del ritmo */}
               <button
                 onClick={toggleMetronome}
                 aria-pressed={metronomeOn}
-                className={`px-3 py-1.5 rounded-full text-[11px] font-medium transition flex items-center gap-1.5 cursor-pointer ${
+                className={`px-3 py-2 rounded-full text-[13px] font-medium transition flex items-center justify-center gap-1.5 cursor-pointer ${
                   metronomeOn ? 'btn-3d text-white' : 'segmented text-gray-400 hover:text-white'
                 }`}
                 title={L('Metrónomo de fondo: marca cada tiempo y un golpe grave en el primero del ritmo para ubicarte', 'Background metronome: a click on every beat and a low click on the first beat of the rhythm, to help you find your place')}
@@ -869,11 +859,11 @@ export default function App() {
 
               {/* Selector Cuenta 2 vs 12 (para ritmos de 12 tiempos) */}
               {currentRhythm.has12CountToggle && (
-                <div className="flex items-center gap-1 segmented p-1 rounded-full">
-                  <span className="text-[11px] text-gray-400 px-1.5">{L('Cuenta:', 'Count:')}</span>
+                <div className="col-span-2 sm:col-span-1 flex items-center gap-1 segmented p-1 rounded-full">
+                  <span className="text-[13px] text-gray-400 px-2 shrink-0">{L('Cuenta:', 'Count:')}</span>
                   <button
                     onClick={() => setCountMode('phonetic')}
-                    className={`px-2.5 py-1 rounded-full text-[11px] font-sans transition cursor-pointer ${
+                    className={`flex-1 sm:flex-none px-3 py-1.5 rounded-full text-[13px] font-sans transition cursor-pointer ${
                       countMode === 'phonetic'
                         ? 'seg-active text-white font-semibold'
                         : 'text-gray-400 hover:text-white'
@@ -883,7 +873,7 @@ export default function App() {
                   </button>
                   <button
                     onClick={() => setCountMode('traditional')}
-                    className={`px-2.5 py-1 rounded-full text-[11px] font-sans transition cursor-pointer ${
+                    className={`flex-1 sm:flex-none px-3 py-1.5 rounded-full text-[13px] font-sans transition cursor-pointer ${
                       countMode === 'traditional'
                         ? 'seg-active text-white font-semibold'
                         : 'text-gray-400 hover:text-white'
@@ -895,12 +885,12 @@ export default function App() {
               )}
 
               {/* Selector Timbre de Palmas */}
-              <div className="flex items-center gap-1 segmented p-1 rounded-full">
-                <span className="text-[11px] text-gray-400 px-1.5" title={L('Palmas: palmadas flamencas', 'Palmas: flamenco hand claps')}>Palmas:</span>
+              <div className="col-span-2 sm:col-span-1 flex items-center gap-1 segmented p-1 rounded-full">
+                <span className="text-[13px] text-gray-400 px-2 shrink-0" title={L('Palmas: palmadas flamencas', 'Palmas: flamenco hand claps')}>Palmas:</span>
                 <button
                   onClick={() => handleToneChange('secas')}
                   title={L('Palmas brillantes: sonido agudo y fuerte', 'Palmas brillantes: bright, loud claps')}
-                  className={`px-2.5 py-1 rounded-full text-[11px] font-sans transition cursor-pointer ${
+                  className={`flex-1 sm:flex-none px-3 py-1.5 rounded-full text-[13px] font-sans transition cursor-pointer ${
                     palmaTone === 'secas'
                       ? 'seg-active text-white font-semibold'
                       : 'text-gray-400 hover:text-white'
@@ -911,7 +901,7 @@ export default function App() {
                 <button
                   onClick={() => handleToneChange('sordas')}
                   title={L('Palmas sordas: sonido grave y suave', 'Palmas sordas: soft, muted claps')}
-                  className={`px-2.5 py-1 rounded-full text-[11px] font-sans transition cursor-pointer ${
+                  className={`flex-1 sm:flex-none px-3 py-1.5 rounded-full text-[13px] font-sans transition cursor-pointer ${
                     palmaTone === 'sordas'
                       ? 'seg-active text-white font-semibold'
                       : 'text-gray-400 hover:text-white'
@@ -925,30 +915,30 @@ export default function App() {
         </section>
 
         {/* Selector de Vista (Ambos / Reloj / Partitura) */}
-        <div className="flex segmented p-1 rounded-full text-xs">
+        <div className="flex segmented p-1 rounded-full text-sm">
           <button
             onClick={() => setViewMode('split')}
-            className={`flex-1 py-2 rounded-full font-sans transition cursor-pointer ${
-              viewMode === 'split' ? 'seg-active text-white font-semibold' : 'text-gray-400 hover:text-white'
+            className={`flex-1 py-2.5 rounded-full font-sans transition cursor-pointer ${
+              viewMode === 'split' ? 'seg-active text-white font-semibold' : 'text-gray-200 hover:text-white'
             }`}
           >
             {L('Ambos', 'Both')}
           </button>
           <button
             onClick={() => setViewMode('clock')}
-            className={`flex-1 py-2 rounded-full font-sans transition cursor-pointer ${
-              viewMode === 'clock' ? 'seg-active text-white font-semibold' : 'text-gray-400 hover:text-white'
+            className={`flex-1 py-2.5 rounded-full font-sans transition cursor-pointer ${
+              viewMode === 'clock' ? 'seg-active text-white font-semibold' : 'text-gray-200 hover:text-white'
             }`}
           >
-            {L('Reloj', 'Clock')}
+            🕐 {L('Reloj', 'Clock')}
           </button>
           <button
             onClick={() => setViewMode('staff')}
-            className={`flex-1 py-2 rounded-full font-sans transition cursor-pointer ${
-              viewMode === 'staff' ? 'seg-active text-white font-semibold' : 'text-gray-400 hover:text-white'
+            className={`flex-1 py-2.5 rounded-full font-sans transition cursor-pointer ${
+              viewMode === 'staff' ? 'seg-active text-white font-semibold' : 'text-gray-200 hover:text-white'
             }`}
           >
-            {L('Partitura', 'Score')}
+            🎼 {L('Partitura', 'Score')}
           </button>
         </div>
 
@@ -992,7 +982,7 @@ export default function App() {
 
               </div>
               <div className="w-full flex items-center justify-between">
-                <span className="font-sans text-[10px] tracking-wider uppercase text-gray-400 font-semibold">
+                <span className="font-sans text-[11px] tracking-wider uppercase text-gray-400 font-semibold">
                   {L('Ciclo de Compás', 'Compás cycle')}
                 </span>
                 <span className="text-xs font-sans text-gray-300 font-medium px-2 py-0.5 rounded-full bg-white/[0.05]">
@@ -1008,7 +998,7 @@ export default function App() {
                 onBeatClick={(b) => handlePreviewBeatGroup(b * currentRhythm.stepsPerBeat, currentRhythm.stepsPerBeat)}
               />
 
-              <div className="w-full flex items-center justify-center gap-6 pt-2 border-t border-white/[0.04] text-[11px] text-gray-400 font-sans">
+              <div className="w-full flex items-center justify-center gap-6 pt-2 border-t border-white/[0.04] text-[12px] text-gray-400 font-sans">
                 <span className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-[#E84A27] inline-block shadow-[0_0_6px_rgba(232,74,39,0.5)]" /> {L('Acento', 'Accent')} (&gt;)
                 </span>
@@ -1019,10 +1009,10 @@ export default function App() {
               {viewMode === 'clock' && <div className="w-full">
               {/* Sección limpia de palos que se acompañan con tipografía Inter moderna */}
               <div className="py-0.5">
-                <span className="font-sans text-[10px] uppercase tracking-wider text-gray-400 font-semibold block mb-1">
+                <span className="font-sans text-[11px] uppercase tracking-wider text-gray-400 font-semibold block mb-1">
                   {L('Palos que se acompañan', 'Palos (flamenco styles) it accompanies')}
                 </span>
-                <p className="font-sans text-xs sm:text-sm text-gray-200 font-medium leading-relaxed">
+                <p className="font-sans text-sm text-gray-200 font-medium leading-relaxed">
                   {rhythmPalos(currentRhythm, lang)}
                 </p>
               </div>
@@ -1070,7 +1060,7 @@ export default function App() {
 
                 </>
               ) : (
-                <span className="font-sans text-[10px] tracking-wider uppercase text-gray-400 font-semibold block">
+                <span className="font-sans text-[11px] tracking-wider uppercase text-gray-400 font-semibold block">
                   {L('Partitura', 'Score')}
                 </span>
               )}
@@ -1103,21 +1093,21 @@ export default function App() {
                 </span>
               </a>
 
-              <div className="flex items-center justify-between text-[11px] text-gray-400 pt-1 border-t border-white/[0.04] font-sans">
+              <div className="flex items-center justify-between text-[12px] text-gray-400 pt-1 border-t border-white/[0.04] font-sans">
                 <span className="flex items-center gap-1.5">
                   <strong className="text-[#FF5533] font-serif text-sm">&gt;</strong>
                   <span>{L('Acento de Palma', 'Clap accent')}</span>
                 </span>
-                <span className="text-[11px] text-gray-400">
+                <span className="text-[12px] text-gray-400">
                   {L('Toca cualquier compás para escucharlo', 'Tap any bar to hear it')}
                 </span>
               </div>
               {/* Sección limpia de palos que se acompañan con tipografía Inter moderna */}
               <div className="py-0.5">
-                <span className="font-sans text-[10px] uppercase tracking-wider text-gray-400 font-semibold block mb-1">
+                <span className="font-sans text-[11px] uppercase tracking-wider text-gray-400 font-semibold block mb-1">
                   {L('Palos que se acompañan', 'Palos (flamenco styles) it accompanies')}
                 </span>
-                <p className="font-sans text-xs sm:text-sm text-gray-200 font-medium leading-relaxed">
+                <p className="font-sans text-sm text-gray-200 font-medium leading-relaxed">
                   {rhythmPalos(currentRhythm, lang)}
                 </p>
               </div>
@@ -1171,7 +1161,7 @@ export default function App() {
                   <span className="font-sans text-2xl sm:text-3xl font-black text-white tabular-nums tracking-tight leading-none">
                     {bpm}
                   </span>
-                  <span className="font-sans text-[10px] tracking-wider uppercase text-gray-400 font-semibold">
+                  <span className="font-sans text-[11px] tracking-wider uppercase text-gray-400 font-semibold">
                     BPM
                   </span>
                 </div>
