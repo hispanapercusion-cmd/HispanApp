@@ -27,17 +27,39 @@ import { verifyProCode, ProCheckResult } from './services/pro';
 import { Play, Square, Lock, CheckCircle2, Maximize2, User } from 'lucide-react';
 import { saveLeadToFirestore } from './services/firebase';
 import { enableKeepAwake, disableKeepAwake, onKeepAwakeChange } from './services/keepAwake';
+import { loadSession, saveSession } from './services/session';
+import { addPracticeSeconds, getPracticeStats, PracticeStats } from './services/practice';
+import { PracticeStreak } from './components/PracticeStreak';
+
+// Última sesión guardada en este dispositivo (ritmo, velocidad, palmas…): se retoma al abrir la app.
+// Un ritmo PRO solo se recupera si el acceso PRO sigue activo.
+const SAVED = loadSession();
+const SAVED_RHYTHM_INDEX = (() => {
+  const idx = PALMAS_METHOD.findIndex((r) => r.id === SAVED.rhythmId);
+  if (idx < 0) return 0;
+  let pro = false;
+  try {
+    pro = localStorage.getItem('hispanapp_pro') === 'true';
+  } catch {
+    pro = false;
+  }
+  return pro || idx === 0 || idx === 5 ? idx : 0;
+})();
+const SAVED_BPM =
+  SAVED.bpm && PALMAS_METHOD[SAVED_RHYTHM_INDEX].id === SAVED.rhythmId
+    ? SAVED.bpm
+    : PALMAS_METHOD[SAVED_RHYTHM_INDEX].bpmRange.default;
 
 export default function App() {
   const { lang, L } = useLang();
-  const [rhythmIndex, setRhythmIndex] = useState<number>(0);
-  const [bpm, setBpmState] = useState<number>(115);
+  const [rhythmIndex, setRhythmIndex] = useState<number>(SAVED_RHYTHM_INDEX);
+  const [bpm, setBpmState] = useState<number>(SAVED_BPM);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [activeStep, setActiveStep] = useState<number>(-1);
   const [cycleCount, setCycleCount] = useState<number>(1);
-  const [viewMode, setViewMode] = useState<ViewMode>('split');
-  const [countMode, setCountMode] = useState<CountMode>('phonetic');
-  const [palmaTone, setPalmaToneState] = useState<PalmaTone>('secas');
+  const [viewMode, setViewMode] = useState<ViewMode>(SAVED.viewMode ?? 'split');
+  const [countMode, setCountMode] = useState<CountMode>(SAVED.countMode ?? 'phonetic');
+  const [palmaTone, setPalmaToneState] = useState<PalmaTone>(SAVED.palmaTone ?? 'secas');
 
   // Embudo de negocio: Estado de Registro y Alumno PRO
   const [isRegistered, setIsRegistered] = useState<boolean>(() => {
@@ -58,7 +80,29 @@ export default function App() {
   const [isAtrilMode, setIsAtrilMode] = useState<boolean>(false);
 
   // Cuenta Previa (Count-In) state (activo por defecto sincronizado con click percusivo sin voz humana)
-  const [countInEnabled, setCountInEnabled] = useState<boolean>(true);
+  const [countInEnabled, setCountInEnabled] = useState<boolean>(SAVED.countIn ?? true);
+
+  // Guardar la sesión cada vez que cambia algo
+  useEffect(() => {
+    saveSession({ rhythmId: PALMAS_METHOD[rhythmIndex].id, bpm, palmaTone, countMode, viewMode, countIn: countInEnabled });
+  }, [rhythmIndex, bpm, palmaTone, countMode, viewMode, countInEnabled]);
+
+  // Racha de práctica: se suma el tiempo que suena el ritmo (cada 10 s y al parar)
+  const [practice, setPractice] = useState<PracticeStats>(() => getPracticeStats());
+  useEffect(() => {
+    if (!isPlaying) return;
+    let last = Date.now();
+    const flush = () => {
+      const now = Date.now();
+      setPractice(addPracticeSeconds((now - last) / 1000));
+      last = now;
+    };
+    const id = window.setInterval(flush, 10000);
+    return () => {
+      window.clearInterval(id);
+      flush();
+    };
+  }, [isPlaying]);
   // Metrónomo de fondo (activo por defecto; se recuerda en este dispositivo)
   const [metronomeOn, setMetronomeOn] = useState<boolean>(() => {
     try {
@@ -169,6 +213,12 @@ export default function App() {
   const [isCommunityModalOpen, setIsCommunityModalOpen] = useState<boolean>(false);
   const [isTheoryModalOpen, setIsTheoryModalOpen] = useState<boolean>(false);
 
+  // ¿Hay alguna ventana abierta encima de la app? (para no reaccionar a los atajos de teclado)
+  const anyModalOpenRef = useRef(false);
+  anyModalOpenRef.current =
+    showSplash || isProModalOpen || isVideoModalOpen || isRegistrationModalOpen || isEditNameOpen ||
+    isFeedbackOpen || isTrainerOpen || isCommunityModalOpen || isTheoryModalOpen || isTourOpen || showInstallWelcome;
+
   // Tap tempo state
   const tapTimesRef = useRef<number[]>([]);
 
@@ -209,7 +259,11 @@ export default function App() {
     if (codeFromUrl) {
       handleActivateProCode(codeFromUrl).then((result) => {
         if (!result.ok) {
-          setProModalNotice(L('El código del enlace no es válido. Escríbelo a mano o escríbenos por WhatsApp.', 'The code in the link is not valid. Type it in by hand or message us on WhatsApp.'));
+          setProModalNotice(
+            result.reason === 'unavailable'
+              ? L('No se pudo comprobar el código del enlace. Revisa tu conexión y escríbelo aquí.', 'The code in the link could not be checked. Check your connection and type it in here.')
+              : L('El código del enlace no es válido. Escríbelo a mano o escríbenos por WhatsApp.', 'The code in the link is not valid. Type it in by hand or message us on WhatsApp.')
+          );
           setIsProModalOpen(true);
         }
       });
@@ -256,9 +310,14 @@ export default function App() {
       (newCycle) => {
         setCycleCount(newCycle);
         const cfg = trainerConfigRef.current;
-        if (cfg.enabled && newCycle > 1 && (newCycle - 1) % cfg.everyCycles === 0) {
+        // Valores del entrenador dentro de límites sensatos (el alumno puede escribir cualquier número)
+        const every = Math.max(1, Math.min(64, Math.round(cfg.everyCycles) || 4));
+        const stepUp = Math.max(1, Math.min(40, Math.round(cfg.stepBpm) || 5));
+        const maxBpm = Math.max(40, Math.min(250, Math.round(cfg.maxBpm) || 180));
+        if (cfg.enabled && newCycle > 1 && (newCycle - 1) % every === 0) {
           setBpmState((prevBpm) => {
-            const nextBpm = Math.min(cfg.maxBpm, prevBpm + cfg.stepBpm);
+            if (prevBpm >= maxBpm) return prevBpm;
+            const nextBpm = Math.min(maxBpm, prevBpm + stepUp);
             engine.setBpm(nextBpm);
             return nextBpm;
           });
@@ -340,9 +399,12 @@ export default function App() {
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      releaseWakeLock();
     };
   }, [isPlaying, isAtrilMode]);
+
+  // Soltar la pantalla solo al cerrar la app. (Antes se soltaba y se volvía a pedir en cada Play, fuera del
+  // toque del usuario: en iPhone eso impedía arrancar el respaldo que mantiene la pantalla encendida.)
+  useEffect(() => () => disableKeepAwake(), []);
 
   // Modo atril automático solo en móviles y tablets: se abre al girar a horizontal y se cierra al volver a vertical.
   // Solo reacciona cuando la orientación cambia de verdad (no en cada "resize", que en móvil ocurre
@@ -374,6 +436,8 @@ export default function App() {
       // No usar los atajos mientras se escribe (opinión, perfil, código PRO…)
       const t = e.target as HTMLElement | null;
       if (t && (t instanceof HTMLInputElement || t instanceof HTMLTextAreaElement || t instanceof HTMLSelectElement || t.isContentEditable)) return;
+      // Con una ventana abierta (Comunidad, PRO, perfil…) los atajos no deben arrancar el ritmo por detrás
+      if (anyModalOpenRef.current) return;
       if (e.code === 'Space') {
         e.preventDefault();
         togglePlay();
@@ -487,17 +551,28 @@ export default function App() {
   };
 
   // Preview beat group
+  const previewTimersRef = useRef<number[]>([]);
   const handlePreviewBeatGroup = (startStep: number, length: number) => {
     engineRef.current?.previewBeatGroup(startStep, length);
+    // Mientras suena el ritmo, la iluminación la lleva el motor: aquí solo se escucha el compás tocado
+    if (isPlayingRef.current) return;
+    previewTimersRef.current.forEach((id) => window.clearTimeout(id));
+    previewTimersRef.current = [];
     setActiveStep(startStep);
-    if (length > 1) {
-      const stepDurMs = (60000 / bpm) / (currentRhythm.stepsPerBeat || 2);
-      for (let i = 1; i < length; i++) {
-        setTimeout(() => {
-          setActiveStep(startStep + i);
-        }, i * stepDurMs);
-      }
+    const stepDurMs = (60000 / bpm) / (currentRhythm.stepsPerBeat || 2);
+    for (let i = 1; i < length; i++) {
+      previewTimersRef.current.push(
+        window.setTimeout(() => {
+          if (!isPlayingRef.current) setActiveStep(startStep + i);
+        }, i * stepDurMs)
+      );
     }
+    // Al terminar, apagar la nota iluminada (antes se quedaba encendida)
+    previewTimersRef.current.push(
+      window.setTimeout(() => {
+        if (!isPlayingRef.current) setActiveStep(-1);
+      }, length * stepDurMs + 250)
+    );
   };
 
   // Set Palma Tone
@@ -913,6 +988,9 @@ export default function App() {
             </div>
           </div>
         </section>
+
+        {/* Racha de práctica */}
+        <PracticeStreak stats={practice} />
 
         {/* Selector de Vista (Ambos / Reloj / Partitura) */}
         <div className="flex segmented p-1 rounded-full text-sm">
