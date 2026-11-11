@@ -159,7 +159,8 @@ export class FlamencoAudioEngine {
         (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       this.ctx = new AudioCtxClass({ latencyHint: 'interactive' });
     }
-    if (this.ctx.state === 'suspended') {
+    // 'suspended' o 'interrupted' (iPhone tras una llamada, Siri o una alarma): hay que reanudar
+    if (this.ctx.state !== 'running') {
       this.ctx.resume().catch(() => {});
     }
     this.buildSyntheticNoiseBuffers();
@@ -177,7 +178,7 @@ export class FlamencoAudioEngine {
         (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       this.ctx = new AudioCtxClass({ latencyHint: 'interactive' });
     }
-    if (this.ctx.state === 'suspended') {
+    if (this.ctx.state !== 'running') {
       this.ctx.resume().catch(() => {});
     }
     try {
@@ -290,6 +291,8 @@ export class FlamencoAudioEngine {
   public setRhythm(rhythm: RhythmDefinition) {
     this.rhythm = rhythm;
     this.currentStep = 0;
+    // La cuenta de vueltas empieza de nuevo con el ritmo (la usa el entrenador progresivo)
+    this.cycleCount = 1;
   }
 
   public setBpm(bpm: number) {
@@ -560,7 +563,7 @@ export class FlamencoAudioEngine {
   private playJordanSample(buffer: AudioBuffer, time: number, isAccent: boolean) {
     if (!this.ctx) return;
 
-    if (this.ctx.state === 'suspended') {
+    if (this.ctx.state !== 'running') {
       this.ctx.resume().catch(() => {});
     }
 

@@ -85,9 +85,14 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
 - **Pantalla principal**: primero el **reloj de compás** (con el título del ritmo y el botón Video) y debajo la
   **partitura**, los palos y el banner del método (pedido de los alumnos de la prueba: el reloj es más visual para
   quien no lee música). En pantallas grandes, reloj a la izquierda y partitura a la derecha.
+- **Última sesión** (`src/services/session.ts`, `hispanapp_session`): al abrir la app se retoman el último ritmo,
+  velocidad, tipo de palmas, cuenta, vista y cuenta previa. Un ritmo PRO solo se recupera si el PRO sigue activo.
+- **Racha de práctica** (`src/services/practice.ts` + `PracticeStreak`, `hispanapp_practice`): se suman los segundos que
+  suena el ritmo; un día cuenta con 1 minuto. Muestra días seguidos, los últimos 7 días y los minutos de la semana.
+  Solo se guarda en el dispositivo (mencionado en la política de privacidad).
 - **Pantalla encendida** (`src/services/keepAwake.ts`): Wake Lock del navegador y, si no existe o el sistema lo
   niega, respaldo con un vídeo diminuto, negro y en silencio, en bucle. Se activa dentro del toque de Play (necesario
-  para el respaldo) y en el Atril. Sin probar todavía en un iPhone real.
+  para el respaldo) y en el Atril; solo se suelta al cerrar la app. Sin probar todavía en un iPhone real.
 - **Controles** (cambios pedidos por un alumno, 11/11/2026): botón "⏳ Cuenta previa" (antes "Cuenta"), controles a
   todo el ancho en el móvil, textos más grandes, selector "Ambos / 🕐 Reloj / 🎼 Partitura" más visible y el logo de la
   cabecera enlaza a hispanapercusion.com.
@@ -142,9 +147,9 @@ una compra real con Lemon), 23/11 (congelar cambios y preparar campaña), 30/11 
 - [ ] Comprobar que los 4 códigos de alumno de la prueba (más el de Jordan) estén creados en `codigos_pro`.
 - [ ] Activar Google Analytics en Firebase si no está activado (Configuración del proyecto → Integraciones).
 - [ ] Borrar de `leads` los registros de prueba con emails `@example.com` creados en las pruebas de octubre.
-- [ ] Recordar el último ritmo, BPM y tipo de palma.
+- [x] Recordar la última sesión y racha de práctica (11/11/2026).
 - [ ] Confirmar con Jordan el tiempo de referencia del metrónomo de Fandangos/Sevillanas (ritmo V).
-- [ ] Modo "Ahora tú" (silenciar palmas y dejar el reloj/click) y progreso/racha de práctica.
+- [ ] Modo "Ahora tú" (silenciar palmas y dejar el reloj/click).
 - [ ] Plan de marketing y textos de la campaña.
 - [x] Versión en inglés de la app y de las páginas legales (noviembre 2026). Falta: que alguien nativo revise los textos
   y que el abogado revise las páginas legales en inglés.
