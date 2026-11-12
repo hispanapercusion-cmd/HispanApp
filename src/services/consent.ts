@@ -4,7 +4,7 @@
  * Si cambian la Política de privacidad o los Términos, subir CONSENT_VERSION
  * para que la app vuelva a pedir la aceptación.
  */
-export const CONSENT_VERSION = '2026-10';
+export const CONSENT_VERSION = '2026-11';
 const KEY = 'hispanapp_consent';
 
 export interface ConsentState {
