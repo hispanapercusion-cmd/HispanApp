@@ -141,8 +141,8 @@ una compra real con Lemon), 23/11 (congelar cambios y preparar campaña), 30/11 
 - [ ] Probar una compra real de Lemon y la validación de la license key.
 - [x] Botón "Enviar opinión", vista previa al compartir, política de privacidad, términos, arrepentimiento,
   consentimiento, borrado de datos, estadísticas, instalar app y carga más rápida (octubre 2026).
-- [ ] **Revisión legal** de los textos de `public/legal/` por un profesional en Argentina.
-- [ ] **Registrar la base de datos** de alumnos en la AAIP (Registro Nacional de Bases de Datos) — lo hace Jordan.
+- [ ] **Revisión legal** de los textos de `public/legal/` por un profesional en Argentina (privacidad ya revisada con Gemini el 12/11; faltan términos y arrepentimiento).
+- [x] Base de datos de alumnos registrada en la AAIP por Jordan (12/11/2026); la política de privacidad lo dice y cita el art. 9 de la Ley 25.326 (versión 2026-11).
 - [x] Reglas nuevas de `firestore.rules` publicadas en Firebase y probadas con una opinión real (3/11/2026).
 - [ ] Comprobar que los 4 códigos de alumno de la prueba (más el de Jordan) estén creados en `codigos_pro`.
 - [ ] Activar Google Analytics en Firebase si no está activado (Configuración del proyecto → Integraciones).
