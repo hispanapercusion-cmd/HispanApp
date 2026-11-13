@@ -69,14 +69,18 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   y una flecha animada hacia la barra de abajo (Apple no deja instalar por código). Dentro de Instagram: pide abrir en
   el navegador. No sale si la app ya está instalada. **Vista previa al compartir**: `public/og-image.jpg` + metas `og:*` en `index.html`
   (con la dirección completa: actualizarlas al cambiar de dominio).
-- **Después de comprar** (13/11/2026): el botón de Lemon (pantalla de confirmación y email de recibo) debe llevar a
-  `https://hispanapp.hispanapercusion.com/?instalar&compra`. Lemon añade al enlace los datos de la compra y, al parecer,
-  la clave (`?license_key=`): la app la lee, la valida y activa el PRO sola (sin registro: saluda «¡Hola, amigo!»).
-  La guía de instalar cambia a «¡PRO activado!» y guardar la app es opcional (en iPhone la app guardada empieza
-  vacía y pide la clave del email: botón «Pegar la clave copiada y activar» de la ventana PRO). Si el enlace no trae
-  clave, la guía dice «¡Gracias por tu compra!» con los pasos para guardar la app y, al cerrarla, se abre la ventana
-  PRO. Mantener la clave visible en el email de recibo como respaldo. **Falta confirmar con una compra real que Lemon
-  añade `license_key` al enlace.**
+- **Entradas a la app** (ordenadas el 13/11/2026):
+  1. **Gratis** (enlace común, «Empezar gratis» de la web, compartir): registro (nombre, email, rol, nivel) y app gratis.
+  2. **Comprador** (botón de Lemon, pantalla de confirmación y email de recibo): el **Button link** debe ser
+     `https://hispanapp.hispanapercusion.com/?compra&license_key=[license_key]&email=[email]&name=[name]`
+     (variables oficiales de Lemon). `ARRIVAL` en `App.tsx` guarda nombre (solo el primero) y email como perfil, la
+     app saluda «¡Hola, Nombre!», valida la clave y activa el PRO sola; sigue el aviso de privacidad, la guía opcional
+     «¡PRO activado! Guárdala en tu pantalla» (en iPhone la app guardada empieza vacía y pide la clave del email:
+     botón «Pegar la clave copiada y activar» de la ventana PRO) y el recorrido. Sin clave en el enlace: guía
+     «¡Gracias por tu compra!» y ventana PRO para pegarla. Mantener la clave visible en el email de recibo.
+  3. **Alumno con enlace de acceso** (`?acceso=CODIGO`) en un móvil nuevo: el PRO se activa, pero **no cuenta como
+     registro**: pide nombre y email y luego saluda por el nombre. Antes marcaba «registrado» y saludaba «¡Hola,
+     amigo!» sin guardar al alumno. Un móvil «registrado» sin nombre también pide nombre y email.
 - **Compartir la app** (`src/services/share.ts` + `ShareCard`, primera tarjeta de Comunidad): menú nativo del
   móvil o WhatsApp + copiar. El enlace es siempre la app limpia (sin `?acceso=` ni claves) con
   `utm_source=compartir`. Para dar PRO a un alumno se usa a mano `?acceso=CODIGO`, un código por alumno.
