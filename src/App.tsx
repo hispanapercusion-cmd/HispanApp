@@ -130,11 +130,18 @@ export default function App() {
   // Pantalla de Inicio y Carga (Splash Screen) + Perfil de Usuario Inteligente
   const [showSplash, setShowSplash] = useState<boolean>(true);
   // Llegada desde la web con ?instalar: abrir la ventana para guardar la app en el móvil
+  // Con ?instalar&compra (botón de Lemon Squeezy tras pagar) el texto habla de la compra y, al cerrar, se abre la
+  // ventana para pegar la clave del email.
+  const purchaseArrivalRef = useRef<boolean>(false);
   const [showInstallWelcome, setShowInstallWelcome] = useState<boolean>(() => {
     try {
       const params = new URLSearchParams(window.location.search);
-      if (!params.has('instalar')) return false;
+      const wantsInstall = params.has('instalar');
+      const fromPurchase = params.has('compra');
+      if (!wantsInstall && !fromPurchase) return false;
+      purchaseArrivalRef.current = fromPurchase;
       params.delete('instalar');
+      params.delete('compra');
       const q = params.toString() ? `?${params.toString()}` : '';
       window.history.replaceState(null, '', `${window.location.pathname}${q}${window.location.hash}`);
       return !isStandalone();
@@ -142,6 +149,16 @@ export default function App() {
       return false;
     }
   });
+
+  // Llegada tras la compra: si ya está instalada (o no hay que instalar), ir directo a pegar la clave
+  useEffect(() => {
+    if (!purchaseArrivalRef.current || showInstallWelcome) return;
+    if (localStorage.getItem('hispanapp_pro') === 'true') return;
+    setProModalNotice(L('¡Gracias por tu compra! Pega aquí la clave de licencia que te llegó por email.', 'Thank you for your purchase! Paste here the license key you received by email.'));
+    setIsProModalOpen(true);
+    purchaseArrivalRef.current = false;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showInstallWelcome]);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(() => {
     if (typeof window === 'undefined') return null;
     try {
@@ -1357,7 +1374,7 @@ export default function App() {
         onSave={handleProfileEdit}
       />
 
-      {showInstallWelcome && <InstallWelcome onClose={() => setShowInstallWelcome(false)} />}
+      {showInstallWelcome && <InstallWelcome purchase={purchaseArrivalRef.current} onClose={() => setShowInstallWelcome(false)} />}
 
       {/* AVISO DE PRIVACIDAD (una vez, para quien se registró antes de existir las casillas) */}
       {!showSplash && isRegistered && !consentOk && <ConsentGateModal onAccept={handleConsentGateAccept} />}

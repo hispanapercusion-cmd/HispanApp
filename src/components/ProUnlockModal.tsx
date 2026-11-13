@@ -31,18 +31,41 @@ export const ProUnlockModal: React.FC<ProUnlockModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleValidateCode = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!code.trim() || checking) return;
+  const validate = async (value: string) => {
+    if (!value.trim() || checking) return;
     setChecking(true);
     setError(null);
-    const result = await onActivate(code);
+    const result = await onActivate(value);
     setChecking(false);
     if (result.ok) {
       setCode('');
       onSuccess();
     } else {
       setError(proErrorMessage(result));
+    }
+  };
+
+  const handleValidateCode = (e: React.FormEvent) => {
+    e.preventDefault();
+    validate(code);
+  };
+
+  // "Pegar y activar": lee lo último copiado (la clave del email) y la comprueba en un toque.
+  // El teléfono puede mostrar un pequeño aviso «Pegar»: hay que tocarlo.
+  const canPaste = typeof navigator !== 'undefined' && !!navigator.clipboard && typeof navigator.clipboard.readText === 'function';
+  const pasteAndActivate = async () => {
+    try {
+      const text = (await navigator.clipboard.readText()).trim();
+      const uuid = text.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+      const value = (uuid ? uuid[0] : text).slice(0, 64);
+      if (!value) {
+        setError(L('No hay nada copiado. Copia la clave de tu email y vuelve a tocar el botón.', 'Nothing copied yet. Copy the key from your email and tap the button again.'));
+        return;
+      }
+      setCode(value);
+      await validate(value);
+    } catch {
+      setError(L('No se pudo pegar. Mantén pulsado el cuadro de abajo y elige «Pegar».', 'Could not paste. Press and hold the box below and choose “Paste”.'));
     }
   };
 
@@ -106,6 +129,17 @@ export const ProUnlockModal: React.FC<ProUnlockModalProps> = ({
 
         {/* Opción 2: Formulario de código sin ejemplos en el placeholder */}
         <form onSubmit={handleValidateCode} className="space-y-2.5">
+          {canPaste && (
+            <button
+              type="button"
+              onClick={pasteAndActivate}
+              disabled={checking}
+              className="w-full py-3 rounded-xl btn-primary disabled:opacity-60 text-white font-sans font-bold text-sm flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span aria-hidden="true">📋</span>
+              {L('Pegar la clave copiada y activar', 'Paste the copied key and activate')}
+            </button>
+          )}
           <div>
             <input
               type="text"
@@ -134,7 +168,7 @@ export const ProUnlockModal: React.FC<ProUnlockModalProps> = ({
             {checking ? L('Comprobando…', 'Checking…') : L('Validar Código', 'Validate code')}
           </button>
           <p className="text-[10.5px] text-gray-500 text-center leading-relaxed">
-            {L('Si compraste en la tienda, usa la clave de licencia que te llegó por email.', 'If you bought it in the store, use the license key you received by email.')}
+            {L('Si compraste en la tienda: copia la clave de licencia de tu email (mantén pulsada → Copiar) y toca el botón de arriba.', 'If you bought in the store: copy the license key from your email (press and hold → Copy) and tap the button above.')}
           </p>
         </form>
 

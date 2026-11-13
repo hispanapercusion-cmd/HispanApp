@@ -69,6 +69,11 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   y una flecha animada hacia la barra de abajo (Apple no deja instalar por código). Dentro de Instagram: pide abrir en
   el navegador. No sale si la app ya está instalada. **Vista previa al compartir**: `public/og-image.jpg` + metas `og:*` en `index.html`
   (con la dirección completa: actualizarlas al cambiar de dominio).
+- **Después de comprar** (13/11/2026): los botones de Lemon (pantalla de confirmación y email de recibo) llevan a
+  `https://hispanapp.hispanapercusion.com/?instalar&compra`. Se abre la guía para guardar la app con «¡Gracias por tu
+  compra!» y los pasos de después (abrirla desde el ícono y pegar la clave; en iPhone la app guardada tiene su propio
+  almacenamiento, así que la clave se pega dentro de ella). Al cerrar la guía (o si ya está instalada) se abre la
+  ventana PRO, que tiene el botón «Pegar la clave copiada y activar» (lee el portapapeles y valida en un toque).
 - **Compartir la app** (`src/services/share.ts` + `ShareCard`, primera tarjeta de Comunidad): menú nativo del
   móvil o WhatsApp + copiar. El enlace es siempre la app limpia (sin `?acceso=` ni claves) con
   `utm_source=compartir`. Para dar PRO a un alumno se usa a mano `?acceso=CODIGO`, un código por alumno.
