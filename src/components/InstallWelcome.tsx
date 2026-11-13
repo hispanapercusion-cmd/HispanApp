@@ -21,7 +21,7 @@ function detectBrowser(): Browser {
   return p;
 }
 
-export const InstallWelcome: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+export const InstallWelcome: React.FC<{ onClose: () => void; purchase?: boolean; activated?: boolean }> = ({ onClose, purchase = false, activated = false }) => {
   const { L } = useLang();
   const [, force] = useState(0);
   const [waited, setWaited] = useState(false);
@@ -60,9 +60,13 @@ export const InstallWelcome: React.FC<{ onClose: () => void }> = ({ onClose }) =
             <HispanaLogo size="md" />
           </div>
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#E84A27]">{L('Gratis para empezar', 'Free to start')}</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#E84A27]">{purchase ? (activated ? L('¡PRO activado! 🎉', 'PRO activated! 🎉') : L('¡Gracias por tu compra!', 'Thank you for your purchase!')) : L('Gratis para empezar', 'Free to start')}</p>
             <h2 id="install-welcome-title" className="font-brand text-xl font-extrabold text-white leading-tight">
-              {L('Guarda HispanApp en tu móvil', 'Save HispanApp on your phone')}
+              {purchase
+                ? activated
+                  ? L('Guárdala en tu pantalla (opcional)', 'Save it on your screen (optional)')
+                  : L('Último paso: guarda la app', 'Last step: save the app')
+                : L('Guarda HispanApp en tu móvil', 'Save HispanApp on your phone')}
             </h2>
           </div>
         </div>
@@ -142,8 +146,38 @@ export const InstallWelcome: React.FC<{ onClose: () => void }> = ({ onClose }) =
           </div>
         )}
 
+        {/* Tras una compra: qué hacer después de guardar la app (en iPhone la clave se pega dentro de la app guardada) */}
+        {purchase && !activated && (
+          <div className="mt-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-3.5 text-[13px] text-gray-200 leading-snug">
+            <p className="font-bold text-white mb-1.5">{L('Después de guardarla:', 'After saving it:')}</p>
+            <ol className="space-y-1.5">
+              <li className="flex items-start gap-2">
+                <span className="step-num">1</span>
+                <span>{L('Ábrela desde el ícono nuevo de tu pantalla.', 'Open it from the new icon on your screen.')}</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="step-num">2</span>
+                <span>
+                  {L('Toca un ritmo con candado 🔒 y pega la clave que te llegó por email. ', 'Tap a rhythm with a lock 🔒 and paste the key you received by email. ')}
+                  <strong className="text-white">{L('Tip: cópiala antes en tu correo (mantén pulsada la clave → Copiar).', 'Tip: copy it first in your email (press and hold the key → Copy).')}</strong>
+                </span>
+              </li>
+            </ol>
+          </div>
+        )}
+
+        {/* Ya activado con el botón del email: guardar la app es opcional. En iPhone la app guardada empieza vacía. */}
+        {purchase && activated && (browser === 'ios-safari' || browser === 'ios-otro') && (
+          <p className="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-[12.5px] text-gray-300 leading-snug">
+            {L(
+              'Ya puedes usar HispanApp PRO aquí mismo. Si la guardas en tu pantalla, al abrirla desde el ícono te pedirá la clave de tu email. Si prefieres no complicarte, sigue en el navegador: si algún día se desactiva, toca otra vez el botón de tu email.',
+              'You can use HispanApp PRO right here. If you save it on your screen, opening it from the icon will ask for the key from your email. If you’d rather keep it simple, stay in the browser: if it ever turns off, tap the button in your email again.'
+            )}
+          </p>
+        )}
+
         <button onClick={onClose} className="mt-4 w-full py-2.5 text-[13px] font-semibold text-gray-400 cursor-pointer">
-          {L('Ahora no, usar en el navegador', 'Not now, use it in the browser')}
+          {purchase && !activated ? L('Ahora no, pegar mi clave aquí', 'Not now, paste my key here') : purchase ? L('Ahora no, seguir en el navegador', 'Not now, keep using the browser') : L('Ahora no, usar en el navegador', 'Not now, use it in the browser')}
         </button>
       </div>
 
