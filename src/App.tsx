@@ -150,11 +150,20 @@ export default function App() {
     }
   });
 
+  // Si el PRO se activa mientras la ventana PRO está abierta (p. ej. el código del enlace tardó en comprobarse), cerrarla
+  useEffect(() => {
+    if (isPro) {
+      setIsProModalOpen(false);
+      setProModalNotice(null);
+    }
+  }, [isPro]);
+
   // Llegada tras la compra: si ya está instalada (o no hay que instalar), ir directo a pegar la clave
   useEffect(() => {
     if (!purchaseArrivalRef.current || showInstallWelcome) return;
     if (localStorage.getItem('hispanapp_pro') === 'true') return;
-    setProModalNotice(L('¡Gracias por tu compra! Pega aquí la clave de licencia que te llegó por email.', 'Thank you for your purchase! Paste here the license key you received by email.'));
+    // (si el código del enlace falló, se conserva ese aviso, más concreto)
+    setProModalNotice((prev) => prev ?? L('¡Gracias por tu compra! Pega aquí la clave de licencia que te llegó por email.', 'Thank you for your purchase! Paste here the license key you received by email.'));
     setIsProModalOpen(true);
     purchaseArrivalRef.current = false;
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1374,7 +1383,7 @@ export default function App() {
         onSave={handleProfileEdit}
       />
 
-      {showInstallWelcome && <InstallWelcome purchase={purchaseArrivalRef.current} onClose={() => setShowInstallWelcome(false)} />}
+      {showInstallWelcome && <InstallWelcome purchase={purchaseArrivalRef.current} activated={isPro} onClose={() => setShowInstallWelcome(false)} />}
 
       {/* AVISO DE PRIVACIDAD (una vez, para quien se registró antes de existir las casillas) */}
       {!showSplash && isRegistered && !consentOk && <ConsentGateModal onAccept={handleConsentGateAccept} />}
