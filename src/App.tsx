@@ -106,6 +106,8 @@ export default function App() {
   const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState<boolean>(false);
   const [isProModalOpen, setIsProModalOpen] = useState<boolean>(false);
   const [proModalNotice, setProModalNotice] = useState<string | null>(null);
+  // La ventana PRO se abrió por una compra: ya pagó, así que no se le ofrece comprar otra vez
+  const [proModalPurchased, setProModalPurchased] = useState<boolean>(false);
   const [isVideoModalOpen, setIsVideoModalOpen] = useState<boolean>(false);
   const [showWelcomeProToast, setShowWelcomeProToast] = useState<boolean>(false);
 
@@ -199,6 +201,7 @@ export default function App() {
     if (localStorage.getItem('hispanapp_pro') === 'true') return;
     // (si el código del enlace falló, se conserva ese aviso, más concreto)
     setProModalNotice((prev) => prev ?? L('¡Gracias por tu compra! Pega aquí la clave de licencia que te llegó por email.', 'Thank you for your purchase! Paste here the license key you received by email.'));
+    setProModalPurchased(true);
     setIsProModalOpen(true);
     purchaseArrivalRef.current = false;
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -325,11 +328,13 @@ export default function App() {
               ? L('No se pudo comprobar el código del enlace. Revisa tu conexión y escríbelo aquí.', 'The code in the link could not be checked. Check your connection and type it in here.')
               : L('El código del enlace no es válido. Escríbelo a mano o escríbenos por WhatsApp.', 'The code in the link is not valid. Type it in by hand or message us on WhatsApp.')
           );
+          setProModalPurchased(ARRIVAL.fromPurchase);
           setIsProModalOpen(true);
         }
       });
     } else if (!localStorage.getItem('hispanapp_pro')) {
       setProModalNotice(L('¡Gracias por tu compra! Pega aquí la clave de licencia que te llegó por email.', 'Thank you for your purchase! Paste here the license key you received by email.'));
+      setProModalPurchased(true);
       setIsProModalOpen(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -787,8 +792,11 @@ export default function App() {
   };
 
   // Primera vez: al terminar la bienvenida, lanzar el recorrido (si no hay otra ventana abierta)
+  const windowOpen =
+    isProModalOpen || isCommunityModalOpen || isTheoryModalOpen || isTrainerOpen || isVideoModalOpen ||
+    isEditNameOpen || isFeedbackOpen || isRegistrationModalOpen;
   useEffect(() => {
-    if (showSplash || isAtrilMode || !consentOk || showInstallWelcome) return;
+    if (showSplash || isAtrilMode || !consentOk || showInstallWelcome || windowOpen) return;
     let done = false;
     try {
       done = localStorage.getItem('hispanapp_tour_done') === 'true';
@@ -797,11 +805,11 @@ export default function App() {
     }
     if (done) return;
     const t = setTimeout(() => {
-      if (!isProModalOpen && !isCommunityModalOpen && !isTheoryModalOpen && !isTrainerOpen) startTour();
+      if (!anyModalOpenRef.current) startTour();
     }, 600);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showSplash, isAtrilMode, consentOk, showInstallWelcome]);
+  }, [showSplash, isAtrilMode, consentOk, showInstallWelcome, windowOpen]);
 
   // Si se abre el Atril (por ejemplo al girar el móvil), cerrar el recorrido sin marcarlo como visto
   useEffect(() => {
@@ -1394,14 +1402,17 @@ export default function App() {
       <ProUnlockModal
         isOpen={isProModalOpen}
         notice={proModalNotice}
+        purchased={proModalPurchased}
         onClose={() => {
           setIsProModalOpen(false);
           setProModalNotice(null);
+          setProModalPurchased(false);
         }}
         onActivate={handleActivateProCode}
         onSuccess={() => {
           setIsProModalOpen(false);
           setProModalNotice(null);
+          setProModalPurchased(false);
         }}
       />
 

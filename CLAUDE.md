@@ -78,6 +78,9 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
      «¡PRO activado! Guárdala en tu pantalla» (en iPhone la app guardada empieza vacía y pide la clave del email:
      botón «Pegar la clave copiada y activar» de la ventana PRO) y el recorrido. Sin clave en el enlace: guía
      «¡Gracias por tu compra!» y ventana PRO para pegarla. Mantener la clave visible en el email de recibo.
+     Si el enlace llega **sin clave** (botón de Lemon sin las variables, o sin sustituir), la ventana PRO se abre en modo
+     «Activa tu PRO» (sin botón de comprar, con el botón de pegar) y el recorrido de la app espera a que se cierre
+     (antes se superponían). Si el comprador ve esa ventana, el enlace de Lemon no trae la clave: revisar el Button link.
   3. **Alumno con enlace de acceso** (`?acceso=CODIGO`) en un móvil nuevo: el PRO se activa, pero **no cuenta como
      registro**: pide nombre y email y luego saluda por el nombre. Antes marcaba «registrado» y saludaba «¡Hola,
      amigo!» sin guardar al alumno. Un móvil «registrado» sin nombre también pide nombre y email.
