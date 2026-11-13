@@ -80,24 +80,9 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
         return;
       }
 
-      // Si ya está registrado por lead magnet previo, nunca volver a mostrar registro
-      const isRegistered = localStorage.getItem('hispanapp_registered') === 'true';
-      if (isRegistered) {
-        const storedName = localStorage.getItem('hispanapp_username') || 'Amigo';
-        const fallbackProfile: UserProfile = {
-          name: storedName,
-          contact: '',
-          role: 'Percusionista 🥁',
-          level: 'Medio',
-          createdAt: new Date().toISOString(),
-        };
-        setProfile(fallbackProfile);
-        setFormName(storedName);
-        setMode('welcome_cinematic');
-        return;
-      }
-
-      // Si no hay perfil ni registro previo, iniciar con el onboarding de primera vez
+      // Sin nombre guardado (aunque el dispositivo figure como registrado, p. ej. por haber activado un acceso PRO
+      // desde un enlace): pedir nombre y email para poder saludar por el nombre y registrar al alumno.
+      // Primera vez: onboarding de registro
       setMode('step1_name_email');
     } catch {
       setMode('step1_name_email');

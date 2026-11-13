@@ -31,6 +31,39 @@ import { loadSession, saveSession } from './services/session';
 import { addPracticeSeconds, getPracticeStats, PracticeStats } from './services/practice';
 import { PracticeStreak } from './components/PracticeStreak';
 
+// Llegada desde el botón de Lemon Squeezy tras una compra:
+//   /?compra&license_key=[license_key]&email=[email]&name=[name]
+// Se guardan el nombre y el email del comprador como su perfil (así la app lo saluda y no hay que registrarse
+// otra vez) y se quitan de la dirección. La clave la valida el efecto de activación más abajo.
+// Se ejecuta una sola vez, antes de dibujar la app, para que la bienvenida ya conozca al comprador.
+const ARRIVAL = (() => {
+  const out = { fromPurchase: false, hasKey: false };
+  try {
+    const params = new URLSearchParams(window.location.search);
+    out.hasKey = !!params.get('license_key');
+    out.fromPurchase = params.has('compra') || out.hasKey;
+    const rawName = (params.get('name') || '').trim();
+    const rawEmail = (params.get('email') || '').trim().replace(/ /g, '+'); // un «+» sin codificar llega como espacio
+    if (out.hasKey && rawName && !localStorage.getItem('hispanapp_user_profile')) {
+      const firstName = rawName.split(/\s+/)[0].slice(0, 60);
+      const now = new Date().toISOString();
+      const profile: UserProfile = { name: firstName, contact: rawEmail.slice(0, 200), createdAt: now, updatedAt: now };
+      localStorage.setItem('hispanapp_user_profile', JSON.stringify(profile));
+      localStorage.setItem('hispanapp_username', firstName);
+      localStorage.setItem('hispanapp_registered', 'true');
+    }
+    if (params.has('name') || params.has('email')) {
+      params.delete('name');
+      params.delete('email');
+      const q = params.toString() ? `?${params.toString()}` : '';
+      window.history.replaceState(null, '', `${window.location.pathname}${q}${window.location.hash}`);
+    }
+  } catch {
+    // Sin almacenamiento o sin dirección: seguir con el arranque normal
+  }
+  return out;
+})();
+
 // Última sesión guardada en este dispositivo (ritmo, velocidad, palmas…): se retoma al abrir la app.
 // Un ritmo PRO solo se recupera si el acceso PRO sigue activo.
 const SAVED = loadSession();
@@ -161,6 +194,8 @@ export default function App() {
   // Llegada tras la compra: si ya está instalada (o no hay que instalar), ir directo a pegar la clave
   useEffect(() => {
     if (!purchaseArrivalRef.current || showInstallWelcome) return;
+    // Si el enlace trae la clave, la activación lo resuelve sola (y avisa si falla): no mostrar la ventana de pegar
+    if (ARRIVAL.hasKey) return;
     if (localStorage.getItem('hispanapp_pro') === 'true') return;
     // (si el código del enlace falló, se conserva ese aviso, más concreto)
     setProModalNotice((prev) => prev ?? L('¡Gracias por tu compra! Pega aquí la clave de licencia que te llegó por email.', 'Thank you for your purchase! Paste here the license key you received by email.'));
@@ -638,9 +673,9 @@ export default function App() {
       localStorage.setItem('hispanapp_pro', 'true');
       localStorage.setItem('hispanapp_pro_code', code.trim());
       track('pro_activated', { method: result.source });
-      localStorage.setItem('hispanapp_registered', 'true');
+      // Ojo: activar el PRO NO cuenta como registro. Quien entra con un enlace de acceso en un móvil nuevo
+      // tiene que dejar su nombre y su email (registro normal) y la app lo saluda por su nombre.
       setIsPro(true);
-      setIsRegistered(true);
       setShowWelcomeProToast(true);
       setTimeout(() => setShowWelcomeProToast(false), 5000);
     }
@@ -1383,7 +1418,7 @@ export default function App() {
         onSave={handleProfileEdit}
       />
 
-      {showInstallWelcome && <InstallWelcome purchase={purchaseArrivalRef.current} activated={isPro} onClose={() => setShowInstallWelcome(false)} />}
+      {showInstallWelcome && (!ARRIVAL.fromPurchase || (!showSplash && consentOk)) && <InstallWelcome purchase={purchaseArrivalRef.current} activated={isPro} onClose={() => setShowInstallWelcome(false)} />}
 
       {/* AVISO DE PRIVACIDAD (una vez, para quien se registró antes de existir las casillas) */}
       {!showSplash && isRegistered && !consentOk && <ConsentGateModal onAccept={handleConsentGateAccept} />}
