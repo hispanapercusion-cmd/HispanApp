@@ -81,6 +81,11 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
      Si el enlace llega **sin clave** (botón de Lemon sin las variables, o sin sustituir), la ventana PRO se abre en modo
      «Activa tu PRO» (sin botón de comprar, con el botón de pegar) y el recorrido de la app espera a que se cierre
      (antes se superponían). Si el comprador ve esa ventana, el enlace de Lemon no trae la clave: revisar el Button link.
+     **Página de prueba del enlace** (`public/diagnostico.html`): poner temporalmente el Button link de Lemon en
+     `https://hispanapp.hispanapercusion.com/diagnostico.html?compra&license_key=[license_key]&email=[email]&name=[name]`,
+     hacer una compra de prueba y tocar el botón: muestra qué datos llegaron (clave enmascarada) y tiene el botón
+     «Continuar a HispanApp» que conserva los datos. No guarda ni envía nada. Los enlaces del email pasan por un
+     enlace de seguimiento de Lemon (`lemonsqueezy-mail.com/ls/click…`) que oculta el destino.
   3. **Alumno con enlace de acceso** (`?acceso=CODIGO`) en un móvil nuevo: el PRO se activa, pero **no cuenta como
      registro**: pide nombre y email y luego saluda por el nombre. Antes marcaba «registrado» y saludaba «¡Hola,
      amigo!» sin guardar al alumno. Un móvil «registrado» sin nombre también pide nombre y email.

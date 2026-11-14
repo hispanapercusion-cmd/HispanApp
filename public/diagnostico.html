@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Prueba del enlace de compra — HispanApp</title>
+  <style>
+    body{margin:0;background:#0A0C11;color:#F3F4F6;font:16px/1.45 -apple-system,Segoe UI,Roboto,sans-serif}
+    main{max-width:520px;margin:0 auto;padding:24px 18px 48px}
+    h1{font-size:22px;margin:0 0 6px}
+    p{color:#A7ADBA;margin:6px 0 16px}
+    .row{background:#151821;border:1px solid #2a2f3a;border-radius:14px;padding:12px 14px;margin:10px 0}
+    .row b{display:block;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#A7ADBA;margin-bottom:4px}
+    .ok{color:#34d399;font-weight:700}.bad{color:#fb7185;font-weight:700}
+    code{word-break:break-all;color:#F3F4F6}
+    a.btn{display:block;text-align:center;background:#E84A27;color:#fff;text-decoration:none;font-weight:700;padding:14px;border-radius:14px;margin-top:22px}
+    small{color:#7b8190}
+  </style>
+</head>
+<body>
+<main>
+  <h1>Prueba del enlace de compra</h1>
+  <p>Esta página solo muestra qué datos llegaron en el enlace. No guarda ni envía nada.</p>
+  <div id="rows"></div>
+  <p id="names"></p>
+  <a id="go" class="btn" href="./">Continuar a HispanApp</a>
+  <p><small>Para la prueba, en Lemon el «Button link» debe ser
+    <code>https://hispanapp.hispanapercusion.com/diagnostico.html?compra&amp;license_key=[license_key]&amp;email=[email]&amp;name=[name]</code></small></p>
+</main>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search);
+  var rows = document.getElementById('rows');
+  function mask(s, keep) { return s.length <= keep * 2 ? s : s.slice(0, keep) + '…' + s.slice(-keep); }
+  [['license_key', 'Clave de licencia', 4], ['email', 'Email', 3], ['name', 'Nombre', 99]].forEach(function (f) {
+    var v = q.get(f[0]);
+    var div = document.createElement('div'); div.className = 'row';
+    var b = document.createElement('b'); b.textContent = f[1];
+    var s = document.createElement('span'); var c = document.createElement('code');
+    if (v === null) { s.className = 'bad'; s.textContent = '❌ No llegó (el enlace de Lemon no la incluye)'; }
+    else if (/^\[.*\]$/.test(v.trim())) { s.className = 'bad'; s.textContent = '❌ Llegó sin sustituir: ' + v + ' (en Lemon el producto no genera claves, o la variable está mal escrita)'; }
+    else if (!v.trim()) { s.className = 'bad'; s.textContent = '❌ Llegó vacía'; }
+    else { s.className = 'ok'; s.textContent = '✅ Llegó: '; c.textContent = f[0] === 'name' ? v : mask(v.trim(), f[2]); }
+    div.appendChild(b); div.appendChild(s); div.appendChild(c); rows.appendChild(div);
+  });
+  var names = []; q.forEach(function (_, k) { names.push(k); });
+  document.getElementById('names').textContent = 'Datos que llegaron en el enlace: ' + (names.join(', ') || 'ninguno');
+  document.getElementById('go').href = './' + location.search;
+})();
+</script>
+</body>
+</html>
