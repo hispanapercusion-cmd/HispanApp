@@ -158,7 +158,11 @@ una compra real con Lemon), 23/11 (congelar cambios y preparar campaña), 30/11 
 - [ ] **La tienda de Lemon está en revisión** ("Your application has been received"): sin aprobación solo funciona en
   modo prueba. Tiene que estar aprobada antes del 1/12.
 - [x] Verificación en 2 pasos de la cuenta de Google activada (3/11/2026).
-- [ ] Probar una compra real de Lemon y la validación de la license key.
+- [x] Compra de **prueba** (modo test) de punta a punta funcionando (14/11/2026): clave, email y nombre llegan en el
+  enlace del botón, la app saluda por el nombre y activa el PRO sola. Lo que faltaba era activar **«Generate license
+  keys» en la variante** del producto en Lemon (se configura por variante; sin eso `[license_key]` llega vacío).
+- [ ] Repetir la compra con el Button link **definitivo** (sin `diagnostico.html`) y, cuando Lemon apruebe la tienda,
+  una compra real con reembolso.
 - [x] Botón "Enviar opinión", vista previa al compartir, política de privacidad, términos, arrepentimiento,
   consentimiento, borrado de datos, estadísticas, instalar app y carga más rápida (octubre 2026).
 - [ ] **Revisión legal** de los textos de `public/legal/` por un profesional en Argentina (privacidad ya revisada con Gemini el 12/11; faltan términos y arrepentimiento).
