@@ -132,7 +132,7 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   arrancar desde cero**; el botón Play/Pausa ahora **pausa y reanuda donde quedó** sin cuenta previa (`atStart` /
   `resetPosition()` en `engine.ts`; botón «↺ Reiniciar» junto a «Vuelta» cuando hay pausa a medias; cambiar de ritmo
   también vuelve a cero). El botón «⏳ Cuenta previa» sigue siendo la opción para desactivarla. (2) **Menú desplegable**
-  abajo (☰ Menú): Método LRDF (abre la tienda), Vocabulario, Comunidad, Ver el recorrido y la opción «Marca roja en la
+  abajo (☰ Menú): «Método: Los Ritmos del Flamenco» (abre la tienda; ya no se escribe «LRDF» en la app), Vocabulario, Comunidad, Ver el recorrido y la opción «Marca roja en la
   partitura» (`hispanapp_guide`); el recorrido ya no está dentro de Comunidad. (3) Quitado «Toca cualquier compás…».
   (4) **Globito con el nombre del palo** sobre los botones I–VIII (`rhythmPaloShort` en `rhythms.ts`). (5) Un solo
   término: «Reloj de compás» / «Compás clock». (6) **Ayudas «i»** (`Hint.tsx`, se tocan) en Acento, Acento de palma y
