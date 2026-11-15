@@ -91,7 +91,24 @@ export default function App() {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [activeStep, setActiveStep] = useState<number>(-1);
   const [cycleCount, setCycleCount] = useState<number>(1);
-  const [viewMode, setViewMode] = useState<ViewMode>(SAVED.viewMode ?? 'split');
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    // Pantalla principal: solo el reloj. Se respeta la vista guardada solo si el alumno la eligió desde el menú.
+    try {
+      if (localStorage.getItem('hispanapp_view_set') === '1' && SAVED.viewMode) return SAVED.viewMode;
+    } catch {
+      // Ignorar
+    }
+    return 'clock';
+  });
+  const viewBeforeTourRef = useRef<ViewMode | null>(null);
+  const chooseView = (v: ViewMode) => {
+    setViewMode(v);
+    try {
+      localStorage.setItem('hispanapp_view_set', '1');
+    } catch {
+      // Ignorar
+    }
+  };
   const [countMode, setCountMode] = useState<CountMode>(SAVED.countMode ?? 'phonetic');
   const [palmaTone, setPalmaToneState] = useState<PalmaTone>(SAVED.palmaTone ?? 'secas');
 
@@ -835,6 +852,8 @@ export default function App() {
 
   const startTour = () => {
     setIsCommunityModalOpen(false);
+    // El recorrido enseña el reloj y la partitura: se muestran los dos y luego se vuelve a la vista de antes
+    if (viewBeforeTourRef.current === null) viewBeforeTourRef.current = viewMode;
     setViewMode('split');
     if (isPlaying) togglePlay();
     setIsTourOpen(true);
@@ -842,6 +861,10 @@ export default function App() {
 
   const finishTour = () => {
     setIsTourOpen(false);
+    if (viewBeforeTourRef.current !== null) {
+      setViewMode(viewBeforeTourRef.current);
+      viewBeforeTourRef.current = null;
+    }
     track('tour_closed');
     try {
       localStorage.setItem('hispanapp_tour_done', 'true');
@@ -1182,34 +1205,6 @@ export default function App() {
           </div>
         </section>
 
-        {/* Selector de Vista (Ambos / Reloj / Partitura) */}
-        <div className="flex segmented p-1 rounded-full text-sm">
-          <button
-            onClick={() => setViewMode('split')}
-            className={`flex-1 py-2.5 rounded-full font-sans transition cursor-pointer ${
-              viewMode === 'split' ? 'seg-active text-white font-semibold' : 'text-gray-200 hover:text-white'
-            }`}
-          >
-            {L('Ambos', 'Both')}
-          </button>
-          <button
-            onClick={() => setViewMode('clock')}
-            className={`flex-1 py-2.5 rounded-full font-sans transition cursor-pointer ${
-              viewMode === 'clock' ? 'seg-active text-white font-semibold' : 'text-gray-200 hover:text-white'
-            }`}
-          >
-            🕐 {L('Reloj', 'Clock')}
-          </button>
-          <button
-            onClick={() => setViewMode('staff')}
-            className={`flex-1 py-2.5 rounded-full font-sans transition cursor-pointer ${
-              viewMode === 'staff' ? 'seg-active text-white font-semibold' : 'text-gray-200 hover:text-white'
-            }`}
-          >
-            🎼 {L('Partitura', 'Score')}
-          </button>
-        </div>
-
         {/* 2. VISUALIZADOR: primero el RELOJ DE COMPÁS (más visual para quien no lee música) y debajo la PARTITURA */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
           {/* A. RELOJ DE COMPÁS (lleva el título del ritmo y el botón de Video) */}
@@ -1508,6 +1503,27 @@ export default function App() {
                     </button>
                   ))}
                   <div className="my-1 border-t border-white/[0.08]" />
+                  <div className="px-3 py-2 flex items-center justify-between gap-2" role="group" aria-label={L('Vista', 'View')}>
+                    <span className="text-[13px] font-sans font-medium text-gray-100">{L('Vista', 'View')}</span>
+                    <div className="flex segmented p-0.5 rounded-full text-[12px]">
+                      {([
+                        ['clock', `🕐 ${L('Reloj', 'Clock')}`],
+                        ['staff', `🎼 ${L('Partitura', 'Score')}`],
+                        ['split', L('Ambos', 'Both')],
+                      ] as [ViewMode, string][]).map(([v, label]) => (
+                        <button
+                          key={v}
+                          onClick={() => chooseView(v)}
+                          aria-pressed={viewMode === v}
+                          className={`px-2.5 py-1.5 rounded-full font-sans transition cursor-pointer ${
+                            viewMode === v ? 'seg-active text-white font-semibold' : 'text-gray-300 hover:text-white'
+                          }`}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                   <button
                     role="menuitemcheckbox"
                     aria-checked={guideOn}

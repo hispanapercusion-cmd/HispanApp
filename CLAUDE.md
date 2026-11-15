@@ -102,9 +102,11 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   Rol y nivel se guardan siempre en español en Firebase (`roleLabel`/`levelLabel` solo cambian lo que se ve).
   Páginas legales en inglés en `public/legal/en/` (`legalUrl()` en `config.ts` elige según el idioma).
   **Al añadir un texto nuevo, escribirlo siempre en los dos idiomas.** Los vídeos y el método (libros) están en español.
-- **Pantalla principal**: primero el **reloj de compás** (con el título del ritmo y el botón Video) y debajo la
-  **partitura**, los palos y el banner del método (pedido de los alumnos de la prueba: el reloj es más visual para
-  quien no lee música). En pantallas grandes, reloj a la izquierda y partitura a la derecha.
+- **Pantalla principal = solo el reloj** (15/11/2026): se quitó el selector Ambos/Reloj/Partitura. La partitura se ve desde
+  Menú → Vista (Reloj / Partitura / Ambos; se recuerda solo si el alumno la cambia, `hispanapp_view_set`). El recorrido
+  muestra temporalmente reloj y partitura y luego vuelve a la vista de antes. Antes (vista «Ambos»): el reloj arriba (con el título del ritmo y el botón Video) y debajo la
+  partitura, los palos y el banner del método; en pantallas grandes, reloj a la izquierda y partitura a la derecha.
+  El banner del método ya solo está en el menú y en Comunidad si se ve solo el reloj.
 - **Última sesión** (`src/services/session.ts`, `hispanapp_session`): al abrir la app se retoman el último ritmo,
   velocidad, tipo de palmas, cuenta, vista y cuenta previa. Un ritmo PRO solo se recupera si el PRO sigue activo.
 - **Racha de práctica** (`src/services/practice.ts` + `PracticeStreak`, `hispanapp_practice`): se suman los segundos que
