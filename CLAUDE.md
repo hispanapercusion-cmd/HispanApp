@@ -110,6 +110,11 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
 - **Racha de práctica** (`src/services/practice.ts` + `PracticeStreak`, `hispanapp_practice`): se suman los segundos que
   suena el ritmo; un día cuenta con 1 minuto. Muestra días seguidos, los últimos 7 días y los minutos de la semana.
   Solo se guarda en el dispositivo (mencionado en la política de privacidad).
+  **Pantalla minimalista** (15/11/2026): la tarjeta de la racha ya no está en la pantalla principal. Al abrir la app
+  (sin otra ventana, tras bienvenida/consentimiento/recorrido) sale una animación breve con la llama y «¡N días de racha!»
+  (solo si la racha es ≥ 1); el contador completo está en Menú → «Mi racha». Los controles de sonido (Cuenta previa,
+  Palmas, Metrónomo, Cuenta, tipo de palmas) están plegados en «⚙️ Ajustes de sonido» y se quitó el selector desplegable
+  de ritmos (repetía los botones I–VIII).
 - **Pantalla encendida** (`src/services/keepAwake.ts`): Wake Lock del navegador y, si no existe o el sistema lo
   niega, respaldo con un vídeo diminuto, negro y en silencio, en bucle. Se activa dentro del toque de Play (necesario
   para el respaldo) y en el Atril; solo se suelta al cerrar la app. Sin probar todavía en un iPhone real.

@@ -418,3 +418,27 @@ body::-webkit-scrollbar {
 .install-arrow { animation: install-bounce 1.1s ease-in-out infinite; filter: drop-shadow(0 0 12px rgba(232,74,39,.6)); }
 .install-arrow-up { animation: install-bounce-up 1.1s ease-in-out infinite; filter: drop-shadow(0 0 12px rgba(232,74,39,.6)); }
 @media (prefers-reduced-motion: reduce) { .install-arrow, .install-arrow-up { animation: none; } }
+
+/* Racha al abrir la app: entra desde arriba, la llama late y todo se desvanece */
+.animate-streak-in {
+  animation: streakIn 3.7s ease both;
+}
+@keyframes streakIn {
+  0% { opacity: 0; transform: translateY(-18px) scale(0.9); }
+  10% { opacity: 1; transform: translateY(0) scale(1.04); }
+  16% { transform: translateY(0) scale(1); }
+  85% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-10px) scale(0.96); }
+}
+.animate-flame {
+  display: inline-block;
+  animation: flame 0.7s ease-in-out infinite alternate;
+  transform-origin: 50% 90%;
+}
+@keyframes flame {
+  0% { transform: scale(1) rotate(-4deg); }
+  100% { transform: scale(1.18) rotate(4deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-flame { animation: none; }
+}

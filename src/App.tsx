@@ -196,6 +196,10 @@ export default function App() {
     }
   };
   const [menuOpen, setMenuOpen] = useState(false);
+  const [controlsOpen, setControlsOpen] = useState(false);
+  const [isStreakOpen, setIsStreakOpen] = useState(false);
+  const [streakToast, setStreakToast] = useState(false);
+  const streakShownRef = useRef(false);
   const [hoverRhythm, setHoverRhythm] = useState<number | null>(null);
   const [canRestart, setCanRestart] = useState(false);
   const [countInText, setCountInText] = useState<string | null>(null);
@@ -866,6 +870,29 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showSplash, isAtrilMode, consentOk, showInstallWelcome, windowOpen]);
 
+  // Racha: al abrir la app (cuando no hay otra cosa en pantalla) aparece una animación con los días seguidos
+  useEffect(() => {
+    if (streakShownRef.current) return;
+    if (showSplash || isAtrilMode || !consentOk || showInstallWelcome || windowOpen || isTourOpen) return;
+    // Espera a que el recorrido de la primera vez haya salido o no vaya a salir
+    let tourDone = true;
+    try {
+      tourDone = localStorage.getItem('hispanapp_tour_done') === 'true';
+    } catch {
+      // Ignorar
+    }
+    if (!tourDone) return;
+    streakShownRef.current = true;
+    if (practice.streak < 1) return;
+    const t1 = setTimeout(() => setStreakToast(true), 500);
+    const t2 = setTimeout(() => setStreakToast(false), 4200);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showSplash, isAtrilMode, consentOk, showInstallWelcome, windowOpen, isTourOpen]);
+
   // Si se abre el Atril (por ejemplo al girar el móvil), cerrar el recorrido sin marcarlo como visto
   useEffect(() => {
     if (isAtrilMode && isTourOpen) setIsTourOpen(false);
@@ -1031,23 +1058,18 @@ export default function App() {
             </div>
           </div>
 
-          {/* Selector Desplegable + Timbre, Cuenta y Cuenta Previa */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-2 border-t border-white/[0.06]">
-            <div className="flex-1">
-              <select
-                value={rhythmIndex}
-                onChange={(e) => handleRhythmSelect(parseInt(e.target.value, 10))}
-                className="w-full inset-field rounded-2xl px-3.5 py-2.5 text-sm font-semibold text-white focus:outline-none focus:border-[#E84A27]/60 cursor-pointer"
-              >
-                {PALMAS_METHOD.map((r, idx) => (
-                  <option key={r.id} value={idx} className="bg-[#141821] text-white">
-                    {!isRhythmUnlocked(idx) ? '🔒 ' : ''}{rhythmTitle(r, lang)}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center sm:justify-end gap-2 shrink-0">
+          {/* Ajustes de sonido: plegados por defecto para que la pantalla quede limpia */}
+          <div className="pt-2 border-t border-white/[0.06]">
+            <button
+              onClick={() => setControlsOpen((o) => !o)}
+              aria-expanded={controlsOpen}
+              className="w-full flex items-center justify-between gap-2 px-1 py-1 text-[13px] font-sans font-medium text-gray-300 hover:text-white cursor-pointer"
+            >
+              <span className="flex items-center gap-2"><span aria-hidden="true">⚙️</span>{L('Ajustes de sonido', 'Sound settings')}</span>
+              <span className={`text-xs transition-transform ${controlsOpen ? 'rotate-180' : ''}`} aria-hidden="true">▾</span>
+            </button>
+            {controlsOpen && (
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center sm:justify-start gap-2 pt-2.5">
               {/* Botón Toggle Cuenta Previa (Activo por defecto) */}
               <button
                 onClick={() => {
@@ -1156,11 +1178,9 @@ export default function App() {
                 </button>
               </div>
             </div>
+            )}
           </div>
         </section>
-
-        {/* Racha de práctica */}
-        <PracticeStreak stats={practice} />
 
         {/* Selector de Vista (Ambos / Reloj / Partitura) */}
         <div className="flex segmented p-1 rounded-full text-sm">
@@ -1471,6 +1491,7 @@ export default function App() {
                     },
                     { key: 'vocab', icon: '📖', label: L('Vocabulario', 'Vocabulary'), run: () => setIsTheoryModalOpen(true) },
                     { key: 'comunidad', icon: '🤝', label: L('Comunidad', 'Community'), run: () => setIsCommunityModalOpen(true) },
+                    { key: 'racha', icon: '🔥', label: L('Mi racha', 'My streak'), run: () => setIsStreakOpen(true) },
                     { key: 'tour', icon: '🧭', label: L('Ver el recorrido de la app', 'Take the app tour'), run: () => startTour() },
                   ].map((item) => (
                     <button
@@ -1517,6 +1538,38 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+      {/* ANIMACIÓN DE LA RACHA AL ABRIR LA APP */}
+      {streakToast && (
+        <div className="fixed top-16 inset-x-0 z-[45] flex justify-center pointer-events-none px-4" role="status" data-testid="streak-toast">
+          <div className="animate-streak-in flex items-center gap-3 rounded-full bg-[#141821]/95 border border-[#E84A27]/50 shadow-[0_8px_30px_rgba(232,74,39,0.35)] pl-3 pr-5 py-2.5">
+            <span className="text-3xl leading-none animate-flame" aria-hidden="true">🔥</span>
+            <div className="leading-tight">
+              <p className="text-[15px] font-bold text-white font-sans">
+                {practice.streak === 1 ? L('¡1 día de racha!', '1-day streak!') : L(`¡${practice.streak} días de racha!`, `${practice.streak}-day streak!`)}
+              </p>
+              <p className="text-[11.5px] text-gray-300 font-sans">
+                {practice.todaySeconds >= 60 ? L('Hoy ya practicaste ✓', 'You already practised today ✓') : L('Practica hoy para mantenerla', 'Practise today to keep it')}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MI RACHA (el contador completo, escondido en el menú) */}
+      {isStreakOpen && (
+        <div className="fixed inset-0 z-[55] flex items-end sm:items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => setIsStreakOpen(false)}>
+          <div className="w-full max-w-md space-y-3" onClick={(e) => e.stopPropagation()}>
+            <PracticeStreak stats={practice} />
+            <button
+              onClick={() => setIsStreakOpen(false)}
+              className="w-full py-2.5 rounded-xl btn-3d text-white text-xs font-brand tracking-[0.18em] uppercase font-bold cursor-pointer"
+            >
+              {L('Cerrar', 'Close')}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* MODALS */}
       <TrainerModal
