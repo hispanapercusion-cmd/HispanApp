@@ -1094,9 +1094,14 @@ export default function App() {
               className="w-full flex items-center justify-between gap-2 px-1 py-1 text-[13px] font-sans font-medium text-gray-300 hover:text-white cursor-pointer"
             >
               <span className="flex items-center gap-2"><span aria-hidden="true">⚙️</span>{L('Ajustes de sonido', 'Sound settings')}</span>
-              <span className={`text-xs transition-transform ${controlsOpen ? 'rotate-180' : ''}`} aria-hidden="true">▾</span>
+              <span className={`text-xs transition-transform duration-500 ease-in-out ${controlsOpen ? 'rotate-180' : ''}`} aria-hidden="true">▾</span>
             </button>
-            {controlsOpen && (
+            <div
+              className={`grid transition-[grid-template-rows,opacity] duration-[550ms] ease-in-out ${controlsOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
+              style={{ visibility: controlsOpen ? 'visible' : 'hidden', transition: `grid-template-rows 550ms ease-in-out, opacity 450ms ease-in-out, visibility 0s linear ${controlsOpen ? '0s' : '550ms'}` }}
+              aria-hidden={!controlsOpen}
+            >
+            <div className="min-h-0 overflow-hidden">
             <div className="grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center sm:justify-start gap-2 pt-2.5">
               {/* Botón Toggle Cuenta Previa (Activo por defecto) */}
               <button
@@ -1206,7 +1211,8 @@ export default function App() {
                 </button>
               </div>
             </div>
-            )}
+            </div>
+            </div>
           </div>
         </section>
 
@@ -1475,12 +1481,17 @@ export default function App() {
 
           {/* Fila 2: Menú desplegable (Método LRDF, Vocabulario, Comunidad y recorrido de la app) */}
           <div data-tour="comunidad" className="relative pt-1.5 border-t border-white/[0.06]">
-            {menuOpen && (
+            {menuOpen && <div className="fixed inset-0 z-30" onClick={() => setMenuOpen(false)} aria-hidden="true" />}
+            {(
               <>
-                <div className="fixed inset-0 z-30" onClick={() => setMenuOpen(false)} aria-hidden="true" />
                 <div
                   role="menu"
-                  className="absolute bottom-full mb-2 inset-x-0 z-40 rounded-2xl glass-card bg-[#141821] border border-white/[0.12] p-1.5 shadow-2xl flex flex-col"
+                  aria-hidden={!menuOpen}
+                  className={`absolute bottom-full mb-2 inset-x-0 z-40 rounded-2xl glass-card bg-[#141821] border border-white/[0.12] p-1.5 shadow-2xl flex flex-col origin-bottom ${menuOpen ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-[0.96] pointer-events-none'}`}
+                  style={{
+                    visibility: menuOpen ? 'visible' : 'hidden',
+                    transition: `opacity 480ms ease-out, transform 520ms cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear ${menuOpen ? '0s' : '520ms'}`,
+                  }}
                 >
                   {[
                     {
@@ -1493,13 +1504,18 @@ export default function App() {
                     { key: 'comunidad', icon: '🤝', label: L('Comunidad', 'Community'), run: () => setIsCommunityModalOpen(true) },
                     { key: 'racha', icon: '🔥', label: L('Mi racha', 'My streak'), run: () => setIsStreakOpen(true) },
                     { key: 'tour', icon: '🧭', label: L('Ver el recorrido de la app', 'Take the app tour'), run: () => startTour() },
-                  ].map((item) => (
+                  ].map((item, i) => (
                     <button
                       key={item.key}
                       role="menuitem"
                       onClick={() => {
                         setMenuOpen(false);
                         item.run();
+                      }}
+                      style={{
+                        transition: `opacity 450ms ease-out ${menuOpen ? 80 + i * 70 : 0}ms, transform 450ms ease-out ${menuOpen ? 80 + i * 70 : 0}ms, background-color 200ms`,
+                        opacity: menuOpen ? 1 : 0,
+                        transform: menuOpen ? 'translateY(0)' : 'translateY(8px)',
                       }}
                       className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-[13px] font-sans font-medium text-gray-100 hover:bg-white/[0.06] cursor-pointer"
                     >
