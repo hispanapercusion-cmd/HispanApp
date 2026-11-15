@@ -1480,14 +1480,14 @@ export default function App() {
           </div>
 
           {/* Fila 2: Menú desplegable (Método LRDF, Vocabulario, Comunidad y recorrido de la app) */}
-          <div data-tour="comunidad" className="relative pt-1.5 border-t border-white/[0.06]">
+          <div data-tour="comunidad" className="pt-1.5 border-t border-white/[0.06]">
             {menuOpen && <div className="fixed inset-0 z-30" onClick={() => setMenuOpen(false)} aria-hidden="true" />}
             {(
               <>
                 <div
                   role="menu"
                   aria-hidden={!menuOpen}
-                  className={`absolute bottom-full mb-2 inset-x-0 z-40 rounded-2xl glass-card bg-[#141821] border border-white/[0.12] p-1.5 shadow-2xl flex flex-col origin-bottom ${menuOpen ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-[0.96] pointer-events-none'}`}
+                  className={`absolute bottom-full mb-2 inset-x-3 sm:inset-x-auto sm:right-[max(1rem,calc((100vw-64rem)/2+1rem))] sm:w-96 z-40 rounded-2xl bg-[#141821] border border-white/[0.12] p-1.5 shadow-[0_-12px_40px_rgba(0,0,0,0.6)] flex flex-col origin-bottom ${menuOpen ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-[0.96] pointer-events-none'}`}
                   style={{
                     visibility: menuOpen ? 'visible' : 'hidden',
                     transition: `opacity 480ms ease-out, transform 520ms cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear ${menuOpen ? '0s' : '520ms'}`,
