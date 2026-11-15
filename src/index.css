@@ -442,3 +442,15 @@ body::-webkit-scrollbar {
 @media (prefers-reduced-motion: reduce) {
   .animate-flame { animation: none; }
 }
+
+/* Globito del palo: flota muy suave */
+.animate-bubble-float {
+  animation: bubbleFloat 3.6s ease-in-out infinite alternate;
+}
+@keyframes bubbleFloat {
+  0% { transform: translateY(1px); }
+  100% { transform: translateY(-4px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-bubble-float { animation: none; }
+}
