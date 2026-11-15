@@ -14,7 +14,6 @@ interface CommunityModalProps {
   onClose: () => void;
   isPro?: boolean;
   onActivateProCode?: (code: string) => Promise<ProCheckResult>;
-  onStartTour?: () => void;
   onOpenFeedback?: () => void;
 }
 
@@ -23,7 +22,6 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
   onClose,
   isPro = false,
   onActivateProCode,
-  onStartTour,
   onOpenFeedback,
 }) => {
   const { lang, L } = useLang();
@@ -235,17 +233,6 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
               {L('Opinar', 'Feedback')}
             </button>
           </div>
-        )}
-
-        {/* Repetir el recorrido de la app */}
-        {onStartTour && (
-          <button
-            onClick={onStartTour}
-            className="w-full py-2.5 rounded-2xl btn-3d text-gray-200 hover:text-white text-xs font-sans font-semibold flex items-center justify-center gap-2 cursor-pointer"
-          >
-            <span aria-hidden="true">🧭</span>
-            <span>{L('Ver el recorrido de la app', 'Take the app tour')}</span>
-          </button>
         )}
 
         <LegalLinks />

@@ -3,6 +3,7 @@ import { RhythmDefinition, CountMode } from '../types';
 import { MonogramScore } from './MonogramScore';
 import { useLang } from '../i18n';
 import { rhythmName } from '../data/rhythms';
+import { Hint } from './Hint';
 import { Play, Square, X, FlipHorizontal, ArrowLeft, ArrowRight, Pause } from 'lucide-react';
 
 interface AtrilLandscapeModeProps {
@@ -144,6 +145,11 @@ export const AtrilLandscapeMode: React.FC<AtrilLandscapeModeProps> = ({
             <FlipHorizontal className="w-3.5 h-3.5" />
             <span className="hidden md:inline">{L('Modo Espejo', 'Mirror mode')}</span>
           </button>
+          <Hint
+            placement="bottom"
+            align="right"
+            text={L('Invierte la pantalla como un espejo, para practicar frente a otra persona o al espejo.', 'Flips the screen like a mirror, to practise facing another person or a mirror.')}
+          />
 
           <button
             onClick={onExit}

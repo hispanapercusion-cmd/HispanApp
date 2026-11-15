@@ -113,6 +113,8 @@ export class FlamencoAudioEngine {
 
   // Count-in state (Cuenta previa con voz en español Web Speech API)
   private countInEnabled: boolean = true;
+  private palmasEnabled: boolean = true;
+  private atStart: boolean = true;
   private metronomeEnabled: boolean = true;
   private isCountingIn: boolean = false;
   private countInIndex: number = 0;
@@ -291,6 +293,7 @@ export class FlamencoAudioEngine {
   public setRhythm(rhythm: RhythmDefinition) {
     this.rhythm = rhythm;
     this.currentStep = 0;
+    this.atStart = true;
     // La cuenta de vueltas empieza de nuevo con el ritmo (la usa el entrenador progresivo)
     this.cycleCount = 1;
   }
@@ -310,6 +313,23 @@ export class FlamencoAudioEngine {
 
   public setCountInEnabled(enabled: boolean) {
     this.countInEnabled = enabled;
+  }
+
+  /** Capa de palmas: se pueden silenciar y dejar solo el metrónomo (o al revés) */
+  public setPalmasEnabled(enabled: boolean) {
+    this.palmasEnabled = enabled;
+  }
+
+  /** true si el ritmo está en su punto de partida (no hay nada a medias que reanudar) */
+  public isAtStart(): boolean {
+    return this.atStart;
+  }
+
+  /** Vuelve al principio: la próxima vez que suene empieza desde cero (con cuenta previa) */
+  public resetPosition() {
+    this.atStart = true;
+    this.currentStep = 0;
+    this.cycleCount = 1;
   }
 
   public setPalmaTone(tone: PalmaTone) {
@@ -355,13 +375,17 @@ export class FlamencoAudioEngine {
 
     this.runId++;
     this.isRunning = true;
-    this.cycleCount = 1;
-    this.currentStep = 0;
+    // Si estaba en pausa a medias, se reanuda donde quedó y SIN cuenta previa.
+    const fromZero = this.atStart;
+    if (fromZero) {
+      this.cycleCount = 1;
+      this.currentStep = 0;
+    }
     this.visualQueue = [];
     this.nextNoteTime = (this.ctx?.currentTime || 0) + 0.05;
 
-    // Check count-in
-    if (withCountIn && this.countInEnabled) {
+    // Cuenta previa: solo al arrancar desde cero
+    if (fromZero && withCountIn && this.countInEnabled) {
       this.isCountingIn = true;
       this.countInIndex = 0;
       this.countInBeats = this.getRhythmCountInBeats();
@@ -450,6 +474,7 @@ export class FlamencoAudioEngine {
         }
       } else {
         // Schedule pattern step
+        this.atStart = false;
         this.scheduleMetronome(this.currentStep, this.nextNoteTime);
         this.scheduleStepAudio(this.currentStep, this.nextNoteTime);
         this.visualQueue.push({ step: this.currentStep, time: this.nextNoteTime });
@@ -586,6 +611,7 @@ export class FlamencoAudioEngine {
     if (!this.ctx) return;
     const hit = this.rhythm.steps[stepIdx];
     if (hit === 'R') return;
+    if (!this.palmasEnabled) return;
 
     const isAccent = hit === 'A';
 
@@ -760,9 +786,13 @@ export class FlamencoAudioEngine {
     const now = this.ctx.currentTime;
     const stepDur = this.getStepDurationSeconds();
 
+    // La vista previa suena siempre, aunque la capa de palmas esté silenciada
+    const wasOn = this.palmasEnabled;
+    this.palmasEnabled = true;
     for (let i = 0; i < length; i++) {
       this.scheduleStepAudio(startStep + i, now + i * stepDur);
     }
+    this.palmasEnabled = wasOn;
   }
 
   // Single tap for Tap Tempo button

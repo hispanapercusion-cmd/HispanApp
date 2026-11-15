@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { PALMAS_METHOD, rhythmTitle, rhythmName, rhythmPalos } from './data/rhythms';
+import { PALMAS_METHOD, rhythmTitle, rhythmName, rhythmPalos, rhythmPaloShort } from './data/rhythms';
 import { useLang, LangSwitch } from './i18n';
 import { FlamencoAudioEngine } from './audio/engine';
 import { HispanaLogo } from './components/HispanaLogo';
@@ -24,7 +24,8 @@ import { hasValidConsent, onConsentChange, saveConsent, CONSENT_VERSION } from '
 import { CountMode, PalmaTone, TrainerConfig, ViewMode, UserProfile } from './types';
 import { APP_CONFIG, methodUrl } from './config';
 import { verifyProCode, ProCheckResult } from './services/pro';
-import { Play, Square, Lock, CheckCircle2, Maximize2, User } from 'lucide-react';
+import { Play, Pause, Lock, CheckCircle2, Maximize2, User, Menu, RotateCcw } from 'lucide-react';
+import { Hint } from './components/Hint';
 import { saveLeadToFirestore } from './services/firebase';
 import { enableKeepAwake, disableKeepAwake, onKeepAwakeChange } from './services/keepAwake';
 import { loadSession, saveSession } from './services/session';
@@ -150,12 +151,53 @@ export default function App() {
     const next = !metronomeOn;
     setMetronomeOn(next);
     engineRef.current?.setMetronomeEnabled(next);
+    // Siempre queda al menos una capa sonando: si se apaga el metrónomo, vuelven las palmas
+    if (!next && !palmasOn) {
+      setPalmasOn(true);
+      engineRef.current?.setPalmasEnabled(true);
+      savePalmas(true);
+    }
     try {
       localStorage.setItem('hispanapp_metronome', next ? 'on' : 'off');
     } catch {
       // Ignorar
     }
   };
+  // Capa de palmas (se puede silenciar y dejar solo el metrónomo)
+  const [palmasOn, setPalmasOn] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('hispanapp_palmas') !== 'off';
+    } catch {
+      return true;
+    }
+  });
+  const savePalmas = (on: boolean) => {
+    try {
+      localStorage.setItem('hispanapp_palmas', on ? 'on' : 'off');
+    } catch {
+      // Ignorar
+    }
+  };
+  // Marca roja de la partitura (opcional; activada por defecto)
+  const [guideOn, setGuideOn] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('hispanapp_guide') !== 'off';
+    } catch {
+      return true;
+    }
+  });
+  const toggleGuide = () => {
+    const next = !guideOn;
+    setGuideOn(next);
+    try {
+      localStorage.setItem('hispanapp_guide', next ? 'on' : 'off');
+    } catch {
+      // Ignorar
+    }
+  };
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [hoverRhythm, setHoverRhythm] = useState<number | null>(null);
+  const [canRestart, setCanRestart] = useState(false);
   const [countInText, setCountInText] = useState<string | null>(null);
 
   // Screen Wake Lock API state & ref
@@ -366,6 +408,7 @@ export default function App() {
     engine.setAudioSourceMode('jordan');
     engine.setCountInEnabled(countInEnabled);
     engine.setMetronomeEnabled(metronomeOn);
+    engine.setPalmasEnabled(palmasOn);
 
     engine.setCallbacks(
       (step, cycle) => {
@@ -542,6 +585,7 @@ export default function App() {
     setActiveStep(-1);
     setCountInText(null);
     setCycleCount(1);
+    setCanRestart(false);
 
     if (engineRef.current) {
       engineRef.current.setRhythm(nextRhythm);
@@ -577,18 +621,29 @@ export default function App() {
     if (!engineRef.current) return;
     engineRef.current.unlockAudio();
     if (isPlaying) {
+      // Pausa: el ritmo queda donde estaba y al reanudar sigue desde ahí, sin cuenta previa
       engineRef.current.stop();
       setIsPlaying(false);
       setActiveStep(-1);
       setCountInText(null);
+      setCanRestart(!engineRef.current.isAtStart());
     } else {
       // Dentro del toque de Play: así puede arrancar el respaldo que mantiene la pantalla encendida
       enableKeepAwake();
       engineRef.current.setCountInEnabled(countInEnabled);
       engineRef.current.start(countInEnabled);
       setIsPlaying(true);
+      setCanRestart(false);
       track('play', { rhythm: currentRhythm.id, bpm });
     }
+  };
+
+  // Volver al principio del ritmo (la próxima vez empieza desde cero, con cuenta previa)
+  const handleRestart = () => {
+    engineRef.current?.resetPosition();
+    setCycleCount(1);
+    setActiveStep(-1);
+    setCanRestart(false);
   };
 
   // Tap Tempo
@@ -769,8 +824,8 @@ export default function App() {
     {
       target: 'comunidad',
       icon: '🤝',
-      title: L('Comunidad y Vocabulario', 'Community and Vocabulary'),
-      text: L('En Comunidad: compartir la app con tus alumnos o compañeros, clases, el método completo y tu código PRO. En Vocabulario: los términos del flamenco explicados.', 'In Community: share the app with your students or bandmates, lessons, the full method and your PRO code. In Vocabulary: flamenco terms explained.'),
+      title: L('El menú', 'The menu'),
+      text: L('Aquí abajo está el menú: el método LRDF, el Vocabulario con los términos del flamenco explicados, la Comunidad (compartir la app, tu código PRO) y este recorrido para repetirlo cuando quieras.', 'The menu is down here: the LRDF method, the Vocabulary with flamenco terms explained, the Community (share the app, your PRO code) and this tour, to repeat whenever you like.'),
     },
   ];
 
@@ -924,6 +979,26 @@ export default function App() {
       <main className="max-w-5xl w-full mx-auto px-3.5 pt-3.5 space-y-3.5 flex-1">
         {/* 1. SELECTOR DE LOS 8 RITMOS EN EL ORDEN DEL LIBRO */}
         <section data-tour="ritmos" className="glass-card rounded-3xl p-3.5 sm:p-4 space-y-3">
+          {/* Globito con el nombre del palo, sobre los botones I al VIII */}
+          <div className="relative h-7 -mb-1" aria-live="polite">
+            {(() => {
+              const idx = hoverRhythm ?? rhythmIndex;
+              const n = PALMAS_METHOD.length;
+              // Posición aproximada del botón (están repartidos a lo ancho); el globito no se sale de la pantalla
+              const pct = n > 1 ? (idx / (n - 1)) * 100 : 50;
+              const edge = pct < 25 ? 'left-0' : pct > 75 ? 'right-0' : '';
+              return (
+                <div
+                  key={idx}
+                  className={`absolute bottom-0 ${edge} px-3 py-1 rounded-full bg-[#E84A27]/15 border border-[#E84A27]/40 text-[12px] font-sans font-semibold text-white whitespace-nowrap`}
+                  style={edge ? undefined : { left: `${pct}%`, transform: 'translateX(-50%)' }}
+                  data-testid="palo-bubble"
+                >
+                  {rhythmPaloShort(PALMAS_METHOD[idx])}
+                </div>
+              );
+            })()}
+          </div>
           {/* Botones rápidos I al VIII */}
           <div className="flex items-center justify-between gap-1 overflow-x-auto -mx-2.5 px-2.5 py-2.5 -my-2">
             <span className="font-sans text-[11px] tracking-wider uppercase text-gray-400 mr-1.5 shrink-0 hidden sm:inline font-semibold">
@@ -937,6 +1012,8 @@ export default function App() {
                   <button
                     key={r.id}
                     onClick={() => handleRhythmSelect(idx)}
+                    onMouseEnter={() => setHoverRhythm(idx)}
+                    onMouseLeave={() => setHoverRhythm(null)}
                     className={`relative min-w-[2rem] h-8 px-2 sm:px-2.5 rounded-full font-serif text-xs font-bold transition shrink-0 cursor-pointer flex items-center justify-center ${
                       active ? 'orb-active orb-tight scale-105' : 'btn-3d text-gray-400 hover:text-white'
                     }`}
@@ -988,11 +1065,35 @@ export default function App() {
                 <span>⏳ {L('Cuenta previa', 'Count-in')}</span>
               </button>
 
+              {/* Capa de palmas: se puede silenciar y dejar solo el metrónomo */}
+              <button
+                onClick={() => {
+                  const next = !palmasOn;
+                  setPalmasOn(next);
+                  engineRef.current?.setPalmasEnabled(next);
+                  savePalmas(next);
+                  // Siempre queda al menos una capa sonando
+                  if (!next && !metronomeOn) {
+                    setMetronomeOn(true);
+                    engineRef.current?.setMetronomeEnabled(true);
+                    try { localStorage.setItem('hispanapp_metronome', 'on'); } catch { /* Ignorar */ }
+                  }
+                }}
+                aria-pressed={palmasOn}
+                className={`px-3 py-2 rounded-full text-[13px] font-medium transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                  palmasOn ? 'btn-3d text-white' : 'segmented text-gray-400 hover:text-white'
+                }`}
+                title={L('Palmas: activa o silencia las palmas (puedes dejar solo el metrónomo)', 'Claps: turn the claps on or off (you can keep just the metronome)')}
+              >
+                <span className={`w-1.5 h-1.5 rounded-full ${palmasOn ? 'bg-[#FF5533] shadow-[0_0_6px_rgba(255,85,51,0.9)]' : 'bg-gray-500'}`} />
+                <span>👏 {L('Palmas', 'Claps')}</span>
+              </button>
+
               {/* Metrónomo de fondo: "tac" en cada tiempo y "tum" grave en el primero del ritmo */}
               <button
                 onClick={toggleMetronome}
                 aria-pressed={metronomeOn}
-                className={`px-3 py-2 rounded-full text-[13px] font-medium transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                className={`col-span-2 sm:col-span-1 px-3 py-2 rounded-full text-[13px] font-medium transition flex items-center justify-center gap-1.5 cursor-pointer ${
                   metronomeOn ? 'btn-3d text-white' : 'segmented text-gray-400 hover:text-white'
                 }`}
                 title={L('Metrónomo de fondo: marca cada tiempo y un golpe grave en el primero del ritmo para ubicarte', 'Background metronome: a click on every beat and a low click on the first beat of the rhythm, to help you find your place')}
@@ -1130,10 +1231,22 @@ export default function App() {
               </div>
               <div className="w-full flex items-center justify-between">
                 <span className="font-sans text-[11px] tracking-wider uppercase text-gray-400 font-semibold">
-                  {L('Ciclo de Compás', 'Compás cycle')}
+                  {L('Reloj de compás', 'Compás clock')}
                 </span>
-                <span className="text-xs font-sans text-gray-300 font-medium px-2 py-0.5 rounded-full bg-white/[0.05]">
-                  {L('Vuelta:', 'Cycle:')} <span className="text-white font-semibold tabular-nums">{cycleCount}</span>
+                <span className="flex items-center gap-1.5">
+                  {canRestart && !isPlaying && (
+                    <button
+                      onClick={handleRestart}
+                      className="flex items-center gap-1 text-[11px] font-sans font-semibold text-gray-300 hover:text-white px-2 py-0.5 rounded-full bg-white/[0.05] cursor-pointer"
+                      title={L('Volver al principio del ritmo', 'Go back to the start of the rhythm')}
+                    >
+                      <RotateCcw className="w-3 h-3" />
+                      {L('Reiniciar', 'Restart')}
+                    </button>
+                  )}
+                  <span className="text-xs font-sans text-gray-300 font-medium px-2 py-0.5 rounded-full bg-white/[0.05]">
+                    {L('Vuelta:', 'Cycle:')} <span className="text-white font-semibold tabular-nums">{cycleCount}</span>
+                  </span>
                 </span>
               </div>
 
@@ -1148,9 +1261,7 @@ export default function App() {
               <div className="w-full flex items-center justify-center gap-6 pt-2 border-t border-white/[0.04] text-[12px] text-gray-400 font-sans">
                 <span className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-[#E84A27] inline-block shadow-[0_0_6px_rgba(232,74,39,0.5)]" /> {L('Acento', 'Accent')} (&gt;)
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-white/30 inline-block" /> {L('Pulso', 'Pulse')}
+                  <Hint text={L('Los círculos naranjas son los acentos: las palmas que suenan más fuertes.', 'Orange circles are the accents: the claps that sound louder.')} />
                 </span>
               </div>
               {viewMode === 'clock' && <div className="w-full">
@@ -1218,6 +1329,7 @@ export default function App() {
                   rhythm={currentRhythm}
                   activeStep={activeStep}
                   countMode={countMode}
+                  guide={guideOn}
                   onPreviewBeat={handlePreviewBeatGroup}
                 />
               </div>
@@ -1244,9 +1356,7 @@ export default function App() {
                 <span className="flex items-center gap-1.5">
                   <strong className="text-[#FF5533] font-serif text-sm">&gt;</strong>
                   <span>{L('Acento de Palma', 'Clap accent')}</span>
-                </span>
-                <span className="text-[12px] text-gray-400">
-                  {L('Toca cualquier compás para escucharlo', 'Tap any bar to hear it')}
+                  <Hint text={L('El signo > marca la palma acentuada: la que suena más fuerte.', 'The > sign marks the accented clap: the one that sounds louder.')} />
                 </span>
               </div>
               {/* Sección limpia de palos que se acompañan con tipografía Inter moderna */}
@@ -1296,7 +1406,7 @@ export default function App() {
                 title={isPlaying ? L('Pausar (Espacio)', 'Pause (Space)') : L('Reproducir (Espacio)', 'Play (Space)')}
               >
                 {isPlaying ? (
-                  <Square className="w-4 h-4 fill-white" />
+                  <Pause className="w-5 h-5 fill-white" />
                 ) : (
                   <Play className="w-5 h-5 ml-0.5 fill-white" />
                 )}
@@ -1343,22 +1453,66 @@ export default function App() {
             </div>
           </div>
 
-          {/* Fila 2: Accesos directos inferiores (Comunidad y Vocabulario) */}
-          <div data-tour="comunidad" className="grid grid-cols-2 gap-2 pt-1.5 border-t border-white/[0.06]">
+          {/* Fila 2: Menú desplegable (Método LRDF, Vocabulario, Comunidad y recorrido de la app) */}
+          <div data-tour="comunidad" className="relative pt-1.5 border-t border-white/[0.06]">
+            {menuOpen && (
+              <>
+                <div className="fixed inset-0 z-30" onClick={() => setMenuOpen(false)} aria-hidden="true" />
+                <div
+                  role="menu"
+                  className="absolute bottom-full mb-2 inset-x-0 z-40 rounded-2xl glass-card bg-[#141821] border border-white/[0.12] p-1.5 shadow-2xl flex flex-col"
+                >
+                  {[
+                    {
+                      key: 'metodo',
+                      icon: '📘',
+                      label: L('Método LRDF', 'LRDF method'),
+                      run: () => window.open(methodUrl(lang), '_blank', 'noopener,noreferrer'),
+                    },
+                    { key: 'vocab', icon: '📖', label: L('Vocabulario', 'Vocabulary'), run: () => setIsTheoryModalOpen(true) },
+                    { key: 'comunidad', icon: '🤝', label: L('Comunidad', 'Community'), run: () => setIsCommunityModalOpen(true) },
+                    { key: 'tour', icon: '🧭', label: L('Ver el recorrido de la app', 'Take the app tour'), run: () => startTour() },
+                  ].map((item) => (
+                    <button
+                      key={item.key}
+                      role="menuitem"
+                      onClick={() => {
+                        setMenuOpen(false);
+                        item.run();
+                      }}
+                      className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-[13px] font-sans font-medium text-gray-100 hover:bg-white/[0.06] cursor-pointer"
+                    >
+                      <span className="text-base w-5 text-center" aria-hidden="true">{item.icon}</span>
+                      <span>{item.label}</span>
+                    </button>
+                  ))}
+                  <div className="my-1 border-t border-white/[0.08]" />
+                  <button
+                    role="menuitemcheckbox"
+                    aria-checked={guideOn}
+                    onClick={toggleGuide}
+                    className="flex items-center justify-between gap-2.5 px-3 py-2.5 rounded-xl text-left text-[13px] font-sans font-medium text-gray-100 hover:bg-white/[0.06] cursor-pointer"
+                    title={L('Resalta en rojo el golpe que suena en la partitura', 'Highlights in red the beat that is playing on the score')}
+                  >
+                    <span className="flex items-center gap-2.5">
+                      <span className="text-base w-5 text-center" aria-hidden="true">🔴</span>
+                      <span>{L('Marca roja en la partitura', 'Red marker on the score')}</span>
+                    </span>
+                    <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${guideOn ? 'bg-[#E84A27]/25 text-[#FF8A6B]' : 'bg-white/[0.08] text-gray-400'}`}>
+                      {guideOn ? L('Sí', 'On') : L('No', 'Off')}
+                    </span>
+                  </button>
+                </div>
+              </>
+            )}
             <button
-              onClick={() => setIsCommunityModalOpen(true)}
-              className="py-1.5 sm:py-2 px-3 rounded-2xl btn-3d text-gray-200 hover:text-white flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer text-xs font-sans font-medium"
+              onClick={() => setMenuOpen((o) => !o)}
+              aria-expanded={menuOpen}
+              aria-haspopup="menu"
+              className="relative z-40 w-full py-1.5 sm:py-2 px-3 rounded-2xl btn-3d text-gray-200 hover:text-white flex items-center justify-center gap-2 cursor-pointer text-xs font-sans font-medium"
             >
-              <span className="text-sm">🤝</span>
-              <span className="truncate">{L('Comunidad', 'Community')}</span>
-            </button>
-
-            <button
-              onClick={() => setIsTheoryModalOpen(true)}
-              className="py-1.5 sm:py-2 px-3 rounded-2xl btn-3d text-gray-200 hover:text-white flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer text-xs font-sans font-medium"
-            >
-              <span className="text-sm">📖</span>
-              <span className="truncate">{L('Vocabulario', 'Vocabulary')}</span>
+              <Menu className="w-4 h-4" />
+              <span>{L('Menú', 'Menu')}</span>
             </button>
           </div>
         </div>
@@ -1377,7 +1531,6 @@ export default function App() {
         onClose={() => setIsCommunityModalOpen(false)}
         isPro={isPro}
         onActivateProCode={handleActivateProCode}
-        onStartTour={startTour}
         onOpenFeedback={() => {
           setIsCommunityModalOpen(false);
           setIsFeedbackOpen(true);
