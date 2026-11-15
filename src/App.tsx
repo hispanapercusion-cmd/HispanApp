@@ -936,7 +936,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen app-backdrop text-white flex flex-col justify-between selection:bg-[#E84A27] selection:text-white pb-32 sm:pb-28">
+    <div className="min-h-screen app-backdrop text-white flex flex-col justify-between selection:bg-[#E84A27] selection:text-white pb-[calc(9rem+env(safe-area-inset-bottom,0px))] sm:pb-28">
       {/* Toast flotante de bienvenida PRO */}
       {showWelcomeProToast && (
         <div className="fixed top-14 left-1/2 -translate-x-1/2 z-50 bg-[#1C1E2C] border border-emerald-500/60 shadow-[0_8px_30px_rgba(16,185,129,0.35)] rounded-2xl px-4 py-2.5 flex items-center gap-2.5 text-white text-xs animate-fadeIn">
@@ -946,7 +946,7 @@ export default function App() {
       )}
 
       {/* HEADER COMPACTO Y MINIMALISTA */}
-      <header className="border-b border-white/[0.06] bg-[#0B0D12]/85 backdrop-blur-2xl sticky top-0 z-30 shadow-[0_4px_24px_rgba(0,0,0,0.5)] transition-all">
+      <header className="border-b border-white/[0.06] bg-[#0B0D12]/85 backdrop-blur-2xl sticky top-0 z-30 pt-[env(safe-area-inset-top,0px)] shadow-[0_4px_24px_rgba(0,0,0,0.5)] transition-all">
         <div className="max-w-5xl mx-auto px-3.5 sm:px-4 py-2 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
             <a
@@ -1030,7 +1030,7 @@ export default function App() {
         {/* 1. SELECTOR DE LOS 8 RITMOS EN EL ORDEN DEL LIBRO */}
         <section data-tour="ritmos" className="glass-card rounded-3xl p-3.5 sm:p-4 space-y-3">
           {/* Globito con el nombre del palo, sobre los botones I al VIII */}
-          <div className="relative h-7 -mb-1" aria-live="polite">
+          <div className="relative h-10 mb-1.5" aria-live="polite">
             {(() => {
               const idx = hoverRhythm ?? rhythmIndex;
               const n = PALMAS_METHOD.length;
@@ -1040,11 +1040,15 @@ export default function App() {
               return (
                 <div
                   key={idx}
-                  className={`absolute bottom-0 ${edge} px-3 py-1 rounded-full bg-[#E84A27]/15 border border-[#E84A27]/40 text-[12px] font-sans font-semibold text-white whitespace-nowrap`}
+                  className={`absolute bottom-0 ${edge}`}
                   style={edge ? undefined : { left: `${pct}%`, transform: 'translateX(-50%)' }}
-                  data-testid="palo-bubble"
                 >
-                  {rhythmPaloShort(PALMAS_METHOD[idx])}
+                  <div
+                    className="animate-bubble-float px-3.5 py-1.5 rounded-full bg-[#E84A27]/15 border border-[#E84A27]/40 text-[12.5px] font-sans font-semibold text-white whitespace-nowrap shadow-[0_6px_16px_rgba(232,74,39,0.18)]"
+                    data-testid="palo-bubble"
+                  >
+                    {rhythmPaloShort(PALMAS_METHOD[idx])}
+                  </div>
                 </div>
               );
             })()}
@@ -1391,7 +1395,7 @@ export default function App() {
 
       {/* 3. DOCK INFERIOR: METRÓNOMO Y ACCESOS A COMUNIDAD / EXPLICACIONES DE FLAMENCO */}
       <footer className="fixed bottom-0 inset-x-0 dock-glass z-30">
-        <div className="max-w-5xl mx-auto px-3 sm:px-4 py-2 sm:py-2.5 flex flex-col gap-2">
+        <div className="max-w-5xl mx-auto px-3 sm:px-4 pt-2 sm:pt-2.5 pb-[calc(0.9rem+env(safe-area-inset-bottom,0px))] sm:pb-2.5 flex flex-col gap-2">
           {/* Fila 1: Metrónomo Centrado (Menos - a la izquierda, Play y BPM al centro, Más + a la derecha) */}
           <div data-tour="metronomo" className="flex items-center justify-between sm:justify-center sm:gap-6 w-full max-w-lg mx-auto">
             {/* Botones de disminución (Menos -) a la izquierda */}
