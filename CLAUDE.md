@@ -113,7 +113,7 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   suena el ritmo; un día cuenta con 1 minuto. Muestra días seguidos, los últimos 7 días y los minutos de la semana.
   Solo se guarda en el dispositivo (mencionado en la política de privacidad).
   **Pantalla minimalista** (15/11/2026): la tarjeta de la racha ya no está en la pantalla principal. Al abrir la app
-  (sin otra ventana, tras bienvenida/consentimiento/recorrido) sale una animación breve con la llama y «¡N días de racha!»
+  (sin otra ventana, tras bienvenida/consentimiento/recorrido) sale una **celebración a pantalla completa estilo juego** (`StreakCelebration.tsx`: hoguera animada con llamas que se mueven, chispas, el número que sube contando y «DÍAS DE RACHA»; dura ~5 s o se cierra tocando)
   (solo si la racha es ≥ 1); el contador completo está en Menú → «Mi racha». Los controles de sonido (Cuenta previa,
   Palmas, Metrónomo, Cuenta, tipo de palmas) están plegados en «⚙️ Ajustes de sonido» y se quitó el selector desplegable
   de ritmos (repetía los botones I–VIII).

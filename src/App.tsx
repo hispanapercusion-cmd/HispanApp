@@ -26,6 +26,7 @@ import { APP_CONFIG, methodUrl } from './config';
 import { verifyProCode, ProCheckResult } from './services/pro';
 import { Play, Pause, Lock, CheckCircle2, Maximize2, User, Menu, RotateCcw } from 'lucide-react';
 import { Hint } from './components/Hint';
+import { StreakCelebration } from './components/StreakCelebration';
 import { saveLeadToFirestore } from './services/firebase';
 import { enableKeepAwake, disableKeepAwake, onKeepAwakeChange } from './services/keepAwake';
 import { loadSession, saveSession } from './services/session';
@@ -908,7 +909,7 @@ export default function App() {
     streakShownRef.current = true;
     if (practice.streak < 1) return;
     const t1 = setTimeout(() => setStreakToast(true), 500);
-    const t2 = setTimeout(() => setStreakToast(false), 4200);
+    const t2 = setTimeout(() => setStreakToast(false), 5600);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
@@ -1559,21 +1560,9 @@ export default function App() {
         </div>
       </footer>
 
-      {/* ANIMACIÓN DE LA RACHA AL ABRIR LA APP */}
+      {/* ANIMACIÓN DE LA RACHA AL ABRIR LA APP (fuego, chispas y el número de días en grande) */}
       {streakToast && (
-        <div className="fixed top-16 inset-x-0 z-[45] flex justify-center pointer-events-none px-4" role="status" data-testid="streak-toast">
-          <div className="animate-streak-in flex items-center gap-3 rounded-full bg-[#141821]/95 border border-[#E84A27]/50 shadow-[0_8px_30px_rgba(232,74,39,0.35)] pl-3 pr-5 py-2.5">
-            <span className="text-3xl leading-none animate-flame" aria-hidden="true">🔥</span>
-            <div className="leading-tight">
-              <p className="text-[15px] font-bold text-white font-sans">
-                {practice.streak === 1 ? L('¡1 día de racha!', '1-day streak!') : L(`¡${practice.streak} días de racha!`, `${practice.streak}-day streak!`)}
-              </p>
-              <p className="text-[11.5px] text-gray-300 font-sans">
-                {practice.todaySeconds >= 60 ? L('Hoy ya practicaste ✓', 'You already practised today ✓') : L('Practica hoy para mantenerla', 'Practise today to keep it')}
-              </p>
-            </div>
-          </div>
-        </div>
+        <StreakCelebration streak={practice.streak} todayDone={practice.todaySeconds >= 60} onClose={() => setStreakToast(false)} />
       )}
 
       {/* MI RACHA (el contador completo, escondido en el menú) */}
