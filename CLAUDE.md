@@ -115,7 +115,7 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   **Pantalla minimalista** (15/11/2026): la tarjeta de la racha ya no está en la pantalla principal. Al abrir la app
   (sin otra ventana, tras bienvenida/consentimiento/recorrido) sale una **celebración a pantalla completa estilo juego** (`StreakCelebration.tsx`: hoguera animada con llamas que se mueven, chispas, el número que sube contando y «DÍAS DE RACHA»; dura ~5 s o se cierra tocando)
   (solo si la racha es ≥ 1); el contador completo está en Menú → «Mi racha». Los controles de sonido (Cuenta previa,
-  Palmas, Metrónomo, Cuenta, tipo de palmas) están plegados en «⚙️ Ajustes de sonido» y se quitó el selector desplegable
+  Palmas, Metrónomo, Cuenta, tipo de palmas) están plegados en «⚙️ Ajustes de sonido» (se despliegan despacio, ~0,55 s, con alto animado `grid-rows 0fr→1fr`; el menú ☰ también entra suave y sus opciones aparecen escalonadas) y se quitó el selector desplegable
   de ritmos (repetía los botones I–VIII).
 - **Pantalla encendida** (`src/services/keepAwake.ts`): Wake Lock del navegador y, si no existe o el sistema lo
   niega, respaldo con un vídeo diminuto, negro y en silencio, en bucle. Se activa dentro del toque de Play (necesario
