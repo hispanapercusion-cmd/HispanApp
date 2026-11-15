@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, ExternalLink, Sparkles, AlertCircle, MessageCircle } from 'lucide-react';
 import { HispanaLogo } from './HispanaLogo';
-import { APP_CONFIG } from '../config';
+import { APP_CONFIG, whatsappLink } from '../config';
 import { ProCheckResult, proErrorMessage } from '../services/pro';
 import { RecoverAccessInfo } from './RecoverAccessInfo';
 import { LegalLinks } from './LegalLinks';
@@ -27,7 +27,7 @@ export const ProUnlockModal: React.FC<ProUnlockModalProps> = ({
   onActivate,
   onSuccess,
 }) => {
-  const { L } = useLang();
+  const { lang, L } = useLang();
   const [code, setCode] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [checking, setChecking] = useState(false);
@@ -194,7 +194,7 @@ export const ProUnlockModal: React.FC<ProUnlockModalProps> = ({
         {/* Enlace discreto a WhatsApp para asistencia */}
         <div className="pt-2 text-center border-t border-white/[0.06]">
           <a
-            href={APP_CONFIG.whatsappUrl}
+            href={whatsappLink(lang, 'access')}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 text-[11.5px] text-gray-400 hover:text-emerald-400 transition"

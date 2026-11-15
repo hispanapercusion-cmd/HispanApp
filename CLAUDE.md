@@ -89,6 +89,11 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   3. **Alumno con enlace de acceso** (`?acceso=CODIGO`) en un móvil nuevo: el PRO se activa, pero **no cuenta como
      registro**: pide nombre y email y luego saluda por el nombre. Antes marcaba «registrado» y saludaba «¡Hola,
      amigo!» sin guardar al alumno. Un móvil «registrado» sin nombre también pide nombre y email.
+- **Contacto por WhatsApp** (15/11/2026): en Comunidad la tarjeta ahora es «Ayuda y soporte» (sin verde) y todos los
+  enlaces usan `whatsappLink(lang, 'support' | 'access')` de `config.ts`, que abre WhatsApp con el **mensaje ya escrito**
+  (en el idioma de la app; el de acceso pide el email de compra). El número está en `APP_CONFIG.whatsappUrl`.
+  Pendiente de Jordan: pasar ese número a **WhatsApp Business** (nombre, logo, horario, mensajes automáticos). Se descartó
+  por ahora un email propio `soporte@hispanapercusion.com`.
 - **Compartir la app** (`src/services/share.ts` + `ShareCard`, primera tarjeta de Comunidad): menú nativo del
   móvil o WhatsApp + copiar. El enlace es siempre la app limpia (sin `?acceso=` ni claves) con
   `utm_source=compartir`. Para dar PRO a un alumno se usa a mano `?acceso=CODIGO`, un código por alumno.

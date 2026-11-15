@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { ChevronDown, LifeBuoy } from 'lucide-react';
-import { APP_CONFIG } from '../config';
+import { whatsappLink } from '../config';
 import { useLang } from '../i18n';
 
 const LEMON_ORDERS_URL = 'https://app.lemonsqueezy.com/my-orders';
 
 /** Explicación desplegable: cómo recuperar el acceso PRO en otro móvil o navegador */
 export const RecoverAccessInfo: React.FC<{ defaultOpen?: boolean }> = ({ defaultOpen = false }) => {
-  const { L } = useLang();
+  const { lang, L } = useLang();
   const [open, setOpen] = useState(defaultOpen);
   return (
     <div className="sub-card rounded-2xl text-left">
@@ -51,7 +51,7 @@ export const RecoverAccessInfo: React.FC<{ defaultOpen?: boolean }> = ({ default
           </ul>
           <p>
             {L('¿No la encuentras?', 'Can’t find it?')}{' '}
-            <a href={APP_CONFIG.whatsappUrl} target="_blank" rel="noopener noreferrer" className="text-emerald-400 underline underline-offset-2">
+            <a href={whatsappLink(lang, 'access')} target="_blank" rel="noopener noreferrer" className="text-emerald-400 underline underline-offset-2">
               {L('Escríbenos por WhatsApp', 'Message us on WhatsApp')}
             </a>{' '}
             {L('con tu email de compra y te ayudamos.', 'with your purchase email and we will help you.')}
