@@ -13,6 +13,8 @@ interface MonogramScoreProps {
   rhythm: RhythmDefinition;
   activeStep: number;
   countMode: 'phonetic' | 'traditional';
+  /** Marca roja suave bajo el golpe que suena (opcional) */
+  guide?: boolean;
   onPreviewBeat?: (startStep: number, length: number) => void;
 }
 
@@ -20,6 +22,7 @@ const MonogramScoreComponent: React.FC<MonogramScoreProps> = ({
   rhythm,
   activeStep,
   countMode,
+  guide = true,
   onPreviewBeat,
 }) => {
   const { L } = useLang();
@@ -124,9 +127,10 @@ const MonogramScoreComponent: React.FC<MonogramScoreProps> = ({
         y="17"
         textAnchor="middle"
         fontFamily="Lora, serif"
-        fontSize="13.5"
-        fontWeight="600"
-        fill={active ? ACTIVE : 'rgba(243,244,246,0.92)'}
+        fontSize={active ? '17' : '13.5'}
+        fontWeight={active ? '800' : '600'}
+        fill={active ? '#FFFFFF' : 'rgba(243,244,246,0.92)'}
+        style={active ? { filter: 'drop-shadow(0 0 5px rgba(255, 85, 51, 0.95))' } : undefined}
       >
         {text}
       </text>
@@ -186,7 +190,9 @@ const MonogramScoreComponent: React.FC<MonogramScoreProps> = ({
       id={id}
       onClick={onClick}
       className={`beat-group cursor-pointer rounded-lg transition-colors ${
-        active ? 'active-beat bg-[#E84A27]/[0.16]' : 'hover:bg-white/[0.04]'
+        active
+          ? `active-beat ${guide ? 'bg-[#E84A27]/[0.07] shadow-[inset_0_-2px_0_rgba(255,85,51,0.55)]' : ''}`
+          : 'hover:bg-white/[0.04]'
       }`}
       title={title}
     >

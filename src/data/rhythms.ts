@@ -209,3 +209,16 @@ export const rhythmName = (r: RhythmDefinition): string => r.shortTitle.replace(
 /** Palos que se acompañan con este ritmo */
 export const rhythmPalos = (r: RhythmDefinition, lang: Lang): string =>
   lang === 'en' && r.palosEn ? r.palosEn : r.palos;
+
+// Nombre corto del palo (para el globito sobre los botones I, II, III…). Los nombres se dejan en español.
+const PALO_SHORT: Record<string, string> = {
+  r1: 'Alegrías · Soleá',
+  r2: 'Seguiriyas',
+  r3: 'Bulerías',
+  r4: 'Jaleos',
+  r5: 'Fandangos · Sevillanas',
+  r6: 'Tangos',
+  r7: 'Tientos',
+  r8: 'Tanguillos',
+};
+export const rhythmPaloShort = (r: RhythmDefinition): string => PALO_SHORT[r.id] || rhythmName(r);

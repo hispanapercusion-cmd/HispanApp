@@ -116,6 +116,19 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
 - **Controles** (cambios pedidos por un alumno, 11/11/2026): botón "⏳ Cuenta previa" (antes "Cuenta"), controles a
   todo el ancho en el móvil, textos más grandes, selector "Ambos / 🕐 Reloj / 🎼 Partitura" más visible y el logo de la
   cabecera enlaza a hispanapercusion.com.
+- **Cambios de la lista de usabilidad** (15/11/2026, tras probar con alumnos): (1) la **cuenta previa 3-2-1 solo sale al
+  arrancar desde cero**; el botón Play/Pausa ahora **pausa y reanuda donde quedó** sin cuenta previa (`atStart` /
+  `resetPosition()` en `engine.ts`; botón «↺ Reiniciar» junto a «Vuelta» cuando hay pausa a medias; cambiar de ritmo
+  también vuelve a cero). El botón «⏳ Cuenta previa» sigue siendo la opción para desactivarla. (2) **Menú desplegable**
+  abajo (☰ Menú): Método LRDF (abre la tienda), Vocabulario, Comunidad, Ver el recorrido y la opción «Marca roja en la
+  partitura» (`hispanapp_guide`); el recorrido ya no está dentro de Comunidad. (3) Quitado «Toca cualquier compás…».
+  (4) **Globito con el nombre del palo** sobre los botones I–VIII (`rhythmPaloShort` en `rhythms.ts`). (5) Un solo
+  término: «Reloj de compás» / «Compás clock». (6) **Ayudas «i»** (`Hint.tsx`, se tocan) en Acento, Acento de palma y
+  Modo Espejo; se quitó «Pulso» de la leyenda del reloj. (7) La marca roja de la partitura es más suave (opcional) y el
+  **número del golpe** se agranda y se ilumina. (8) **Palmas y metrónomo son capas independientes**: botón «👏 Palmas»
+  (`hispanapp_palmas`); siempre queda al menos una capa activa. Para más adelante: vídeos en bucle con más ciclos, cajón
+  como capa combinable, abrir la app a cantaores/bailaoras/guitarristas. A confirmar con 2-3 alumnos más: el Modo Espejo y
+  los términos confusos, y que Vocabulario/Comunidad no pierdan uso al esconderse en el menú.
 - **Metrónomo de fondo** (botón "⏱️ Metrónomo", activo por defecto, se recuerda en `hispanapp_metronome`):
   `scheduleMetronome` en `engine.ts` da un "tac" en cada tiempo con número en la cuenta y un "tum" grave en los
   tiempos de `metroDownbeats` del ritmo, definidos por Jordan (6/11/2026): compás de 12 (I) y Seguiriyas (II) solo en el
