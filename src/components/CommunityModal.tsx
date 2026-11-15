@@ -145,7 +145,7 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
               <span>{L('Ayuda y soporte', 'Help and support')}</span>
             </div>
             <p className="text-xs text-gray-300 font-sans leading-relaxed">
-              {L('Dudas sobre la app, tu acceso PRO, clases o cajones. Normalmente respondemos en 24 horas.', 'Questions about the app, your PRO access, lessons or cajones. We usually reply within 24 hours.')}
+              {L('Dudas sobre la app o tu acceso PRO. Normalmente respondemos en 24 horas.', 'Questions about the app or your PRO access. We usually reply within 24 hours.')}
             </p>
           </div>
           <a
