@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { X, ExternalLink, Sparkles, Heart, MessageCircle, KeyRound, CheckCircle2 } from 'lucide-react';
+import { X, ExternalLink, Sparkles, Heart, MessageCircle, KeyRound, CheckCircle2, LifeBuoy } from 'lucide-react';
 import { HispanaLogo } from './HispanaLogo';
-import { APP_CONFIG, methodUrl } from '../config';
+import { APP_CONFIG, methodUrl, whatsappLink } from '../config';
 import { ProCheckResult, proErrorMessage } from '../services/pro';
 import { RecoverAccessInfo, SavedProCode } from './RecoverAccessInfo';
 import { InstallCard } from './InstallCard';
@@ -137,25 +137,25 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
           </a>
         </div>
 
-        {/* 3. TARJETA WHATSAPP DIRECTO */}
+        {/* 3. AYUDA Y SOPORTE (WhatsApp con el mensaje ya escrito) */}
         <div className="sub-card p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
           <div className="space-y-0.5">
-            <div className="flex items-center gap-1.5 text-emerald-400 font-semibold text-xs">
-              <MessageCircle className="w-4 h-4 shrink-0" />
-              <span>{L('Contacto Directo WhatsApp', 'Direct WhatsApp contact')}</span>
+            <div className="flex items-center gap-1.5 text-white font-semibold text-xs">
+              <LifeBuoy className="w-4 h-4 shrink-0 text-[#E84A27]" />
+              <span>{L('Ayuda y soporte', 'Help and support')}</span>
             </div>
             <p className="text-xs text-gray-300 font-sans leading-relaxed">
-              {L('Consultas sobre cajones artesanales, clases particulares o soporte.', 'Questions about handmade cajones, private lessons or support.')}
+              {L('Dudas sobre la app, tu acceso PRO, clases o cajones. Normalmente respondemos en 24 horas.', 'Questions about the app, your PRO access, lessons or cajones. We usually reply within 24 hours.')}
             </p>
           </div>
           <a
-            href={APP_CONFIG.whatsappUrl}
+            href={whatsappLink(lang, 'support')}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl btn-3d border-emerald-500/40 text-emerald-300 font-sans text-xs font-bold uppercase tracking-wider transition active:scale-95 shrink-0 cursor-pointer"
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl btn-3d text-white font-sans text-xs font-bold tracking-wide transition active:scale-95 shrink-0 cursor-pointer"
           >
             <MessageCircle className="w-3.5 h-3.5" />
-            <span>{L('Abrir WhatsApp', 'Open WhatsApp')}</span>
+            <span>{L('Escribir por WhatsApp', 'Message us on WhatsApp')}</span>
           </a>
         </div>
 
