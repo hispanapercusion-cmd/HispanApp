@@ -33,8 +33,9 @@ import { loadSession, saveSession } from './services/session';
 import { addPracticeSeconds, getPracticeStats, PracticeStats } from './services/practice';
 import { PracticeStreak } from './components/PracticeStreak';
 
-// Llegada desde el botón de Lemon Squeezy tras una compra:
-//   /?compra&license_key=[license_key]&email=[email]&name=[name]
+// Llegada tras una compra:
+//  - Polar (actual): vuelve a /?compra, SIN la clave (la clave llega por email y se pega en la app).
+//  - Lemon Squeezy (antiguo, cierra el 31/3/2027): /?compra&license_key=[license_key]&email=[email]&name=[name]
 // Se guardan el nombre y el email del comprador como su perfil (así la app lo saluda y no hay que registrarse
 // otra vez) y se quitan de la dirección. La clave la valida el efecto de activación más abajo.
 // Se ejecuta una sola vez, antes de dibujar la app, para que la bienvenida ya conozca al comprador.
@@ -264,7 +265,7 @@ export default function App() {
     if (ARRIVAL.hasKey) return;
     if (localStorage.getItem('hispanapp_pro') === 'true') return;
     // (si el código del enlace falló, se conserva ese aviso, más concreto)
-    setProModalNotice((prev) => prev ?? L('¡Gracias por tu compra! Pega aquí la clave de licencia que te llegó por email.', 'Thank you for your purchase! Paste here the license key you received by email.'));
+    setProModalNotice((prev) => prev ?? L('¡Gracias por tu compra! Pega tu clave de licencia: te llegó por email y empieza con HISPANAPP-. Cópiala y toca «Pegar la clave copiada y activar».', 'Thank you for your purchase! Paste your license key: it was sent by email and starts with HISPANAPP-. Copy it and tap “Paste the copied key and activate”.'));
     setProModalPurchased(true);
     setIsProModalOpen(true);
     purchaseArrivalRef.current = false;
@@ -397,7 +398,7 @@ export default function App() {
         }
       });
     } else if (!localStorage.getItem('hispanapp_pro')) {
-      setProModalNotice(L('¡Gracias por tu compra! Pega aquí la clave de licencia que te llegó por email.', 'Thank you for your purchase! Paste here the license key you received by email.'));
+      setProModalNotice(L('¡Gracias por tu compra! Pega tu clave de licencia: te llegó por email y empieza con HISPANAPP-. Cópiala y toca «Pegar la clave copiada y activar».', 'Thank you for your purchase! Paste your license key: it was sent by email and starts with HISPANAPP-. Copy it and tap “Paste the copied key and activate”.'));
       setProModalPurchased(true);
       setIsProModalOpen(true);
     }

@@ -3,8 +3,6 @@ import { ChevronDown, LifeBuoy } from 'lucide-react';
 import { whatsappLink } from '../config';
 import { useLang } from '../i18n';
 
-const LEMON_ORDERS_URL = 'https://app.lemonsqueezy.com/my-orders';
-
 /** Explicación desplegable: cómo recuperar el acceso PRO en otro móvil o navegador */
 export const RecoverAccessInfo: React.FC<{ defaultOpen?: boolean }> = ({ defaultOpen = false }) => {
   const { lang, L } = useLang();
@@ -36,13 +34,9 @@ export const RecoverAccessInfo: React.FC<{ defaultOpen?: boolean }> = ({ default
             <li>
               <strong className="text-white">{L('Si compraste en la tienda:', 'If you bought it in the store:')}</strong>{' '}
               {L(
-                'tu clave de licencia está en el email de Lemon Squeezy (busca «HispanApp» en tu correo) o en',
-                'your license key is in the Lemon Squeezy email (search your inbox for “HispanApp”) or in'
-              )}{' '}
-              <a href={LEMON_ORDERS_URL} target="_blank" rel="noopener noreferrer" className="text-[#FF6B4A] underline underline-offset-2">
-                {L('tus pedidos de Lemon Squeezy', 'your Lemon Squeezy orders')}
-              </a>
-              .
+                'tu clave de licencia está en el email de compra: busca «HispanApp» en tu correo (mira también en Spam). Empieza con HISPANAPP-.',
+                'your license key is in the purchase email: search your inbox for “HispanApp” (check Spam too). It starts with HISPANAPP-.'
+              )}
             </li>
             <li>
               <strong className="text-white">{L('Si eres alumno:', 'If you are a student:')}</strong>{' '}

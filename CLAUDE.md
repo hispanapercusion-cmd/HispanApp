@@ -39,9 +39,22 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   - Reglas en `firestore.rules` (publicadas a mano en la consola de Firebase): `leads` y `opiniones` solo
     `create` con campos y tamaños validados, `codigos_pro` solo `get` (nunca `list`). Si se añade un campo
     nuevo a un lead u opinión, añadirlo también a la lista `hasOnly` de las reglas y volver a publicarlas.
+- **⚠️ Cambio de plataforma de cobro (17/11/2026): Lemon Squeezy cierra el 31/3/2027 → HispanApp PRO se vende en
+  Polar (polar.sh).** Datos públicos en `src/config.ts` (`polarCheckoutUrl`, `polarOrganizationId`, `polarLicenseApiUrl`,
+  `polarKeyPrefix`): producto 3b90e47d-31b5-4d2a-9b6c-b8e182f94b51, organización c37ce4bd-247b-4a69-89ae-4993bac1a594,
+  pago único 24,99 USD, claves con prefijo `HISPANAPP-`, sin vencimiento ni límite de activaciones. **La clave NO viaja en
+  el enlace**: Polar vuelve a `https://hispanapp.hispanapercusion.com/?compra` y el comprador la recibe por email; la app
+  (con `?compra`) abre la ventana «Activa tu PRO» con el botón «Pegar la clave copiada y activar». La validación llama a
+  `POST https://api.polar.sh/v1/customer-portal/license-keys/validate` con `{key, organization_id}` (sin token secreto;
+  comprobado el 17/11: CORS abierto, clave falsa → 404). Se acepta solo `status: "granted"`, sin vencer y de nuestra
+  organización; 404/422 = no válida; 5xx, límite o sin red = «no se pudo comprobar». **Nunca poner tokens de Polar en el
+  código.** Las claves viejas de Lemon (UUID) y los códigos de alumno siguen funcionando. **Cupón FLAMENCO (40 %)**: lo
+  añade solo `proCheckoutUrl()` al enlace de compra del 1 al 31/12/2026 (hora de Argentina), no hay que quitarlo en enero.
+  Método LRDF y legales **siguen apuntando a Lemon** (ver Pendientes).
 - **Acceso PRO** (`src/services/pro.ts`): se guarda en `localStorage` (`hispanapp_pro`), ligado a la
   dirección web. Se activa con:
-  - una **license key de Lemon Squeezy** (formato UUID), validada con la License API de Lemon;
+  - una **license key de Polar** (`HISPANAPP-…`), validada con la API pública de licencias de Polar;
+  - una clave antigua de **Lemon Squeezy** (formato UUID), validada con la License API de Lemon (solo hasta que cierre);
   - un **código de alumno** de Firestore.
   También desde enlaces/QR `?acceso=CODIGO` o `?license_key=CLAVE`. Volver del checkout
   (`?checkout=success`) NO activa PRO: pide la clave del email.
@@ -180,7 +193,14 @@ una compra real con Lemon), 23/11 (congelar cambios y preparar campaña), 30/11 
   Se quitó el dominio del Worker `hispanapp` de Cloudflare (copia vieja de la app, sigue conectado al repo y comenta
   en los PR: se puede desconectar en Workers → hispanapp → Settings → Builds).
 - [x] Botón "Abrir HispanApp" del email de recibo de Lemon apunta a la dirección nueva (3/11/2026).
-- [ ] **La tienda de Lemon está en revisión** ("Your application has been received"): sin aprobación solo funciona en
+- [ ] **Polar: cuenta en revisión/apelación** (respuesta en 1–2 días hábiles desde el 17/11). Cuando la aprueben: hacer una
+  compra de prueba con un código de descuento del 100 %, comprobar el email con la clave, activar el PRO pegándola y
+  reembolsar/borrar. Sin compra se puede probar la validación pegando una clave inventada `HISPANAPP-PRUEBA-0000`
+  (tiene que decir «Código no válido»: eso confirma la conexión con Polar).
+- [ ] **Falta pasar a Polar**: el producto del método (`METHOD_URL_ES`/`METHOD_URL_EN` aún son de Lemon), las páginas legales
+  (`privacidad`, `terminos` en ES/EN nombran a Lemon Squeezy y su enlace de pedidos; cambiarlo a Polar sube
+  `CONSENT_VERSION`) y quitar el código `lemon*` de `pro.ts`/`config.ts` después del 31/3/2027.
+- [ ] (antiguo, ya no aplica si se migra a Polar) **La tienda de Lemon está en revisión** ("Your application has been received"): sin aprobación solo funciona en
   modo prueba. Tiene que estar aprobada antes del 1/12.
 - [x] Verificación en 2 pasos de la cuenta de Google activada (3/11/2026).
 - [x] Compra de **prueba** (modo test) de punta a punta funcionando (14/11/2026): clave, email y nombre llegan en el

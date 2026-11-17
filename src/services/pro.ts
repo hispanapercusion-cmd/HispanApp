@@ -5,21 +5,74 @@ import { L } from '../i18n';
 
 /**
  * Comprueba un código PRO de verdad, sin listas guardadas dentro de la app:
- * - Las claves de licencia de Lemon Squeezy (formato XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX)
- *   se validan con la License API de Lemon.
+ * - Las claves de licencia de Polar (empiezan por HISPANAPP-, p. ej. HISPANAPP-XXXXXXXX-XXXX-…) se validan con la
+ *   API pública de licencias de Polar (no lleva ningún token secreto: solo la clave y el ID de la organización).
+ * - Las claves antiguas de Lemon Squeezy (formato UUID XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX) se siguen aceptando
+ *   mientras Lemon exista (cierra el 31/3/2027).
  * - El resto se busca en Firestore, en la colección "codigos_pro" (un documento por código,
  *   con el código en MAYÚSCULAS como ID). Las reglas de Firestore solo permiten leer un
  *   código concreto, nunca la lista entera.
  */
 
 export type ProCheckResult =
-  | { ok: true; source: 'lemon' | 'alumno' }
+  | { ok: true; source: 'polar' | 'lemon' | 'alumno' }
   | { ok: false; reason: 'invalid' | 'unavailable' };
 
 const LEMON_KEY_PATTERN = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i;
 
 export function isLemonLicenseKey(code: string): boolean {
   return LEMON_KEY_PATTERN.test(code.trim());
+}
+
+/** Clave de Polar: el prefijo de HispanApp PRO seguido de un guion y el resto (letras, números y guiones) */
+export function isPolarLicenseKey(code: string): boolean {
+  const prefix = APP_CONFIG.polarKeyPrefix.toUpperCase();
+  return new RegExp(`^${prefix}-[A-Z0-9][A-Z0-9-]{5,80}$`, 'i').test(code.trim());
+}
+
+/** Saca la clave de un texto pegado (por si se copió de más): primero la de Polar, luego la UUID de Lemon */
+export function extractLicenseKey(text: string): string | null {
+  const prefix = APP_CONFIG.polarKeyPrefix.toUpperCase();
+  const polar = text.match(new RegExp(`${prefix}-[A-Z0-9][A-Z0-9-]{5,80}`, 'i'));
+  if (polar) return polar[0];
+  const lemon = text.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+  return lemon ? lemon[0] : null;
+}
+
+async function verifyPolarLicense(key: string): Promise<ProCheckResult> {
+  let res: Response;
+  const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+  const timer = ctrl ? setTimeout(() => ctrl.abort(), 12000) : null;
+  try {
+    res = await fetch(APP_CONFIG.polarLicenseApiUrl, {
+      method: 'POST',
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key, organization_id: APP_CONFIG.polarOrganizationId }),
+      signal: ctrl?.signal,
+    });
+  } catch (err) {
+    console.warn('[PRO] No se pudo contactar con Polar:', err);
+    return { ok: false, reason: 'unavailable' };
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+
+  // Polar responde 404 cuando la clave no existe (o no es de esta organización) y 422 si el formato es raro
+  if (res.status === 404 || res.status === 422) return { ok: false, reason: 'invalid' };
+  // Cualquier otro fallo (límite de uso, caída del servicio…) no es culpa de la clave: pedir reintentar
+  if (!res.ok) return { ok: false, reason: 'unavailable' };
+
+  let data: any;
+  try {
+    data = await res.json();
+  } catch {
+    return { ok: false, reason: 'unavailable' };
+  }
+
+  const granted = data?.status === 'granted';
+  const notExpired = !data?.expires_at || new Date(data.expires_at).getTime() > Date.now();
+  const sameOrg = !data?.organization_id || data.organization_id === APP_CONFIG.polarOrganizationId;
+  return granted && notExpired && sameOrg ? { ok: true, source: 'polar' } : { ok: false, reason: 'invalid' };
 }
 
 async function verifyLemonLicense(key: string): Promise<ProCheckResult> {
@@ -71,7 +124,9 @@ async function verifyStudentCode(code: string): Promise<ProCheckResult> {
 export async function verifyProCode(raw: string): Promise<ProCheckResult> {
   const code = raw.trim();
   if (!code) return { ok: false, reason: 'invalid' };
-  return isLemonLicenseKey(code) ? verifyLemonLicense(code) : verifyStudentCode(code);
+  if (isPolarLicenseKey(code)) return verifyPolarLicense(code);
+  if (isLemonLicenseKey(code)) return verifyLemonLicense(code);
+  return verifyStudentCode(code);
 }
 
 export function proErrorMessage(result: ProCheckResult): string {
