@@ -170,8 +170,8 @@ export const InstallWelcome: React.FC<{ onClose: () => void; purchase?: boolean;
         {purchase && activated && (browser === 'ios-safari' || browser === 'ios-otro') && (
           <p className="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-[12.5px] text-gray-300 leading-snug">
             {L(
-              'Ya puedes usar HispanApp PRO aquí mismo. Si la guardas en tu pantalla, al abrirla desde el ícono te pedirá la clave de tu email. Si prefieres no complicarte, sigue en el navegador: si algún día se desactiva, toca otra vez el botón de tu email.',
-              'You can use HispanApp PRO right here. If you save it on your screen, opening it from the icon will ask for the key from your email. If you’d rather keep it simple, stay in the browser: if it ever turns off, tap the button in your email again.'
+              'Ya puedes usar HispanApp PRO aquí mismo. Si la guardas en tu pantalla, al abrirla desde el ícono te pedirá la clave de tu email. Si prefieres no complicarte, sigue en el navegador: si algún día se desactiva, vuelve a pegar tu clave.',
+              'You can use HispanApp PRO right here. If you save it on your screen, opening it from the icon will ask for the key from your email. If you’d rather keep it simple, stay in the browser: if it ever turns off, paste your key again.'
             )}
           </p>
         )}

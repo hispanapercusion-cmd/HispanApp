@@ -42,9 +42,17 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
 - **⚠️ Cambio de plataforma de cobro (17/11/2026): Lemon Squeezy cierra el 31/3/2027 → HispanApp PRO se vende en
   Polar (polar.sh).** Datos públicos en `src/config.ts` (`polarCheckoutUrl`, `polarOrganizationId`, `polarLicenseApiUrl`,
   `polarKeyPrefix`): producto 3b90e47d-31b5-4d2a-9b6c-b8e182f94b51, organización c37ce4bd-247b-4a69-89ae-4993bac1a594,
-  pago único 24,99 USD, claves con prefijo `HISPANAPP-`, sin vencimiento ni límite de activaciones. **La clave NO viaja en
-  el enlace**: Polar vuelve a `https://hispanapp.hispanapercusion.com/?compra` y el comprador la recibe por email; la app
-  (con `?compra`) abre la ventana «Activa tu PRO» con el botón «Pegar la clave copiada y activar». La validación llama a
+  pago único 24,99 USD, claves con prefijo `HISPANAPP-`, sin vencimiento ni límite de activaciones. **Vuelta tras
+  pagar (como con Lemon, sin copiar nada)**: Polar devuelve al comprador a `https://hispanapp.hispanapercusion.com/?compra…`
+  y, según el código fuente de Polar (**sin confirmar con una compra real**), añade `customer_session_token`, un pase
+  temporal del comprador. `src/services/polarPurchase.ts` lo usa (`GET /customer-portal/customers/me` y
+  `/customer-portal/license-keys/`, con reintentos porque la clave tarda unos segundos) para leer el nombre, el email y la
+  clave; la app muestra «Confirmando tu compra…» (`PurchaseCheck.tsx`), guarda el perfil, activa el PRO y sigue como con
+  Lemon (saludo por nombre, guía «¡PRO activado!», recorrido). **Respaldo**: si no llega el pase, es inválido, falla la red
+  o la clave no aparece (a los 9 s sale «pegar mi clave a mano»), se abre «Activa tu PRO» con el botón «Pegar la clave
+  copiada y activar» (la clave también llega por email). Quien ya era cliente de Polar puede no recibir el pase (usa el
+  respaldo). Conviene poner la URL de éxito `…/?compra&checkout_id={CHECKOUT_ID}` (la app lo ignora; sirve para diagnosticar).
+  La validación llama a
   `POST https://api.polar.sh/v1/customer-portal/license-keys/validate` con `{key, organization_id}` (sin token secreto;
   comprobado el 17/11: CORS abierto, clave falsa → 404). Se acepta solo `status: "granted"`, sin vencer y de nuestra
   organización; 404/422 = no válida; 5xx, límite o sin red = «no se pudo comprobar». **Nunca poner tokens de Polar en el

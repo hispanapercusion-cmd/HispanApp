@@ -3,6 +3,8 @@ export interface AppConfig {
   hotmartPackUrl: string;
   /** Enlace de compra de HispanApp PRO en Polar (pago único) */
   polarCheckoutUrl: string;
+  /** Polar: dirección base de la API pública */
+  polarApiUrl: string;
   /** Polar: dirección pública (sin token secreto) para validar claves de licencia */
   polarLicenseApiUrl: string;
   /** Polar: ID de la organización (público). Solo se aceptan claves de esta organización */
@@ -69,6 +71,7 @@ export const APP_CONFIG: AppConfig = {
   hotmartPackUrl: "https://pay.hotmart.com/R82880037W",
   // HispanApp PRO en Polar (pago único 24,99 USD). El cupón de lanzamiento se añade solo en diciembre: ver proCheckoutUrl().
   polarCheckoutUrl: "https://buy.polar.sh/polar_cl_3r6SACAjkFbKaOOz2VOxPNQr4Dsc5hQMWeoKF3JEOkd",
+  polarApiUrl: "https://api.polar.sh/v1",
   polarLicenseApiUrl: "https://api.polar.sh/v1/customer-portal/license-keys/validate",
   polarOrganizationId: "c37ce4bd-247b-4a69-89ae-4993bac1a594",
   polarKeyPrefix: "HISPANAPP",
