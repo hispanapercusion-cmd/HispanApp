@@ -11,6 +11,10 @@ export interface AppConfig {
   polarOrganizationId: string;
   /** Polar: las claves de HispanApp PRO empiezan con este prefijo (HISPANAPP-xxxxxxxx-…) */
   polarKeyPrefix: string;
+  /** Polar: beneficio «clave de licencia» de HispanApp PRO (público). Solo se aceptan claves de este beneficio */
+  polarProBenefitId: string;
+  /** Polar: portal del cliente (ahí ve sus compras y su clave; entra con su email) */
+  polarPortalUrl: string;
   whatsappUrl: string;
   /** Lemon Squeezy (cierra el 31/3/2027): solo para seguir aceptando claves viejas. Dirección para validarlas */
   lemonLicenseApiUrl: string;
@@ -27,9 +31,9 @@ export interface AppConfig {
 
 import type { Lang } from './i18n';
 
-/** Método «Los Ritmos del Flamenco» en Lemon Squeezy, en el idioma de la app */
-export const METHOD_URL_ES = 'https://hispanapercusion.lemonsqueezy.com/checkout/buy/b631cc57-af72-4282-96b8-9967cb562df1';
-export const METHOD_URL_EN = 'https://hispanapercusion.lemonsqueezy.com/checkout/buy/9deded9a-4641-48af-9c28-a60586d2d536';
+/** Método «Los Ritmos del Flamenco» en Polar (antes Lemon Squeezy, que cierra), en el idioma de la app */
+export const METHOD_URL_ES = 'https://buy.polar.sh/polar_cl_07edvA7aQWmvePFyX5snNynGdxrVyfQclEplo3QB2Cp';
+export const METHOD_URL_EN = 'https://buy.polar.sh/polar_cl_lQaF5zQalYUW89kdwtzgyIG9P52RZcwUcc6Te2bisvP';
 // Cupón de lanzamiento (40 %: 24,99 → 14,99 USD): del 1 al 31 de diciembre de 2026, hora de Argentina (UTC-3).
 // Dentro de esas fechas el enlace de compra lo lleva escrito; fuera de ellas no se añade (así no hace falta
 // tocar el código en enero).
@@ -75,6 +79,8 @@ export const APP_CONFIG: AppConfig = {
   polarLicenseApiUrl: "https://api.polar.sh/v1/customer-portal/license-keys/validate",
   polarOrganizationId: "c37ce4bd-247b-4a69-89ae-4993bac1a594",
   polarKeyPrefix: "HISPANAPP",
+  polarProBenefitId: "8cdd5159-b54a-41d4-bb4f-3152d6955fe6",
+  polarPortalUrl: "https://polar.sh/hispana-percusion/portal",
   whatsappUrl: "https://wa.me/541132025842",
   lemonLicenseApiUrl: "https://api.lemonsqueezy.com/v1/licenses/validate",
   lemonStoreId: null,

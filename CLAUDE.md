@@ -58,7 +58,19 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   organización; 404/422 = no válida; 5xx, límite o sin red = «no se pudo comprobar». **Nunca poner tokens de Polar en el
   código.** Las claves viejas de Lemon (UUID) y los códigos de alumno siguen funcionando. **Cupón FLAMENCO (40 %)**: lo
   añade solo `proCheckoutUrl()` al enlace de compra del 1 al 31/12/2026 (hora de Argentina), no hay que quitarlo en enero.
-  Método LRDF y legales **siguen apuntando a Lemon** (ver Pendientes).
+  Método LRDF: desde el 20/11/2026 `METHOD_URL_ES`/`METHOD_URL_EN` apuntan a Polar. Legales **siguen nombrando a Lemon**
+  (ver Pendientes). Solo se aceptan claves del beneficio de HispanApp PRO (`polarProBenefitId`); la validación devuelve
+  también nombre y email del comprador. Portal del cliente (sus compras y su clave): `polarPortalUrl`.
+- **iPhone: la app guardada tiene su propia memoria** (20/11/2026, visto en la primera compra de prueba con Polar): lo que
+  se activa o registra en Safari NO pasa a la app guardada en la pantalla de inicio (regla de Apple). Por eso:
+  1. Tras una compra en iPhone, `InstallWelcome` sale **primero, encima del registro**. Si el PRO ya se activó en Safari,
+     muestra «📋 Copiar mi clave» → guardar la app → abrirla desde el ícono → pegar. Si no, explica que la clave llega por
+     email («Access purchase» en el email de Polar).
+  2. La primera pantalla (`SplashScreen`) tiene `BuyerActivateCard` «¿Ya compraste HispanApp PRO?»: **abierta y encima
+     del formulario** si la app se abrió desde el ícono (`isStandalone`) o tras una compra; plegada debajo en el resto.
+     Con una clave de Polar rellena nombre y email; solo queda aceptar la privacidad y continuar.
+  3. Si llega de la compra sin activar, la ventana «Activa tu PRO» se abre al terminar el registro (no por debajo).
+  Android y ordenador comparten memoria entre navegador y app instalada: ahí no hace falta.
 - **Acceso PRO** (`src/services/pro.ts`): se guarda en `localStorage` (`hispanapp_pro`), ligado a la
   dirección web. Se activa con:
   - una **license key de Polar** (`HISPANAPP-…`), validada con la API pública de licencias de Polar;
@@ -201,11 +213,11 @@ una compra real con Lemon), 23/11 (congelar cambios y preparar campaña), 30/11 
   Se quitó el dominio del Worker `hispanapp` de Cloudflare (copia vieja de la app, sigue conectado al repo y comenta
   en los PR: se puede desconectar en Workers → hispanapp → Settings → Builds).
 - [x] Botón "Abrir HispanApp" del email de recibo de Lemon apunta a la dirección nueva (3/11/2026).
-- [ ] **Polar: cuenta en revisión/apelación** (respuesta en 1–2 días hábiles desde el 17/11). Cuando la aprueben: hacer una
-  compra de prueba con un código de descuento del 100 %, comprobar el email con la clave, activar el PRO pegándola y
-  reembolsar/borrar. Sin compra se puede probar la validación pegando una clave inventada `HISPANAPP-PRUEBA-0000`
-  (tiene que decir «Código no válido»: eso confirma la conexión con Polar).
-- [ ] **Falta pasar a Polar**: el producto del método (`METHOD_URL_ES`/`METHOD_URL_EN` aún son de Lemon), las páginas legales
+- [x] Cuenta de Polar aprobada (20/11/2026). Primera compra de prueba de HispanApp PRO (código 100 %): pago y email OK,
+  pero la app publicada aún no tenía Polar y en iPhone la app guardada empezó vacía → arreglado en el PR de Polar.
+- [ ] **Repetir la compra de prueba en iPhone con este PR publicado**: ¿llega `customer_session_token` y se activa solo?
+  Guardar la app → abrir desde el ícono → «Pegar mi clave y activar PRO». Y en Android.
+- [ ] **Falta pasar a Polar**: las páginas legales
   (`privacidad`, `terminos` en ES/EN nombran a Lemon Squeezy y su enlace de pedidos; cambiarlo a Polar sube
   `CONSENT_VERSION`) y quitar el código `lemon*` de `pro.ts`/`config.ts` después del 31/3/2027.
 - [ ] (antiguo, ya no aplica si se migra a Polar) **La tienda de Lemon está en revisión** ("Your application has been received"): sin aprobación solo funciona en

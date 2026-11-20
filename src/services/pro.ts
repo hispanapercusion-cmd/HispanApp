@@ -15,7 +15,7 @@ import { L } from '../i18n';
  */
 
 export type ProCheckResult =
-  | { ok: true; source: 'polar' | 'lemon' | 'alumno' }
+  | { ok: true; source: 'polar' | 'lemon' | 'alumno'; buyer?: { name: string; email: string } | null }
   | { ok: false; reason: 'invalid' | 'unavailable' };
 
 const LEMON_KEY_PATTERN = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i;
@@ -72,7 +72,13 @@ async function verifyPolarLicense(key: string): Promise<ProCheckResult> {
   const granted = data?.status === 'granted';
   const notExpired = !data?.expires_at || new Date(data.expires_at).getTime() > Date.now();
   const sameOrg = !data?.organization_id || data.organization_id === APP_CONFIG.polarOrganizationId;
-  return granted && notExpired && sameOrg ? { ok: true, source: 'polar' } : { ok: false, reason: 'invalid' };
+  // Solo claves del beneficio de HispanApp PRO (no las de otro producto de la tienda, si algún día las hay)
+  const sameBenefit = !APP_CONFIG.polarProBenefitId || !data?.benefit_id || data.benefit_id === APP_CONFIG.polarProBenefitId;
+  if (!(granted && notExpired && sameOrg && sameBenefit)) return { ok: false, reason: 'invalid' };
+  // Polar devuelve también el nombre y el email del comprador: sirven para rellenar el registro (app recién guardada)
+  const name = typeof data?.customer?.name === 'string' ? data.customer.name.trim() : '';
+  const email = typeof data?.customer?.email === 'string' ? data.customer.email.trim() : '';
+  return { ok: true, source: 'polar', buyer: name || email ? { name, email } : null };
 }
 
 async function verifyLemonLicense(key: string): Promise<ProCheckResult> {

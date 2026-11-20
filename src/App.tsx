@@ -19,7 +19,7 @@ import { ConsentGateModal } from './components/ConsentGateModal';
 import { InstallWelcome } from './components/InstallWelcome';
 import { PurchaseCheck } from './components/PurchaseCheck';
 import { fetchPolarPurchase } from './services/polarPurchase';
-import { isStandalone } from './services/install';
+import { isStandalone, detectPlatform } from './services/install';
 import { FeedbackModal } from './components/FeedbackModal';
 import { track } from './services/analytics';
 import { hasValidConsent, onConsentChange, saveConsent, CONSENT_VERSION } from './services/consent';
@@ -71,6 +71,14 @@ const ARRIVAL = (() => {
     // Sin almacenamiento o sin dirección: seguir con el arranque normal
   }
   return out;
+})();
+
+const IS_IOS = (() => {
+  try {
+    return detectPlatform() === 'ios';
+  } catch {
+    return false;
+  }
 })();
 
 // Última sesión guardada en este dispositivo (ritmo, velocidad, palmas…): se retoma al abrir la app.
@@ -269,7 +277,8 @@ export default function App() {
 
   // Llegada tras la compra: si ya está instalada (o no hay que instalar), ir directo a pegar la clave
   useEffect(() => {
-    if (!purchaseArrivalRef.current || showInstallWelcome || purchaseChecking) return;
+    // Esperar también a que termine la primera pantalla (registro): ahí ya se puede pegar la clave
+    if (!purchaseArrivalRef.current || showInstallWelcome || purchaseChecking || showSplash) return;
     // Si el enlace trae la clave, la activación lo resuelve sola (y avisa si falla): no mostrar la ventana de pegar
     if (ARRIVAL.hasKey) return;
     if (localStorage.getItem('hispanapp_pro') === 'true') return;
@@ -281,7 +290,7 @@ export default function App() {
     setIsProModalOpen(true);
     purchaseArrivalRef.current = false;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showInstallWelcome, purchaseChecking]);
+  }, [showInstallWelcome, purchaseChecking, showSplash]);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(() => {
     if (typeof window === 'undefined') return null;
     try {
@@ -1703,7 +1712,9 @@ export default function App() {
         onSave={handleProfileEdit}
       />
 
-      {showInstallWelcome && (!ARRIVAL.fromPurchase || (!showSplash && consentOk)) && <InstallWelcome purchase={purchaseArrivalRef.current} activated={isPro} onClose={() => setShowInstallWelcome(false)} />}
+      {/* Tras una compra en iPhone, guardar la app va PRIMERO (encima del registro): la app guardada tiene su propia
+          memoria, así que registrarse en Safari no sirve de nada allí. En el resto, después del registro y la privacidad. */}
+      {showInstallWelcome && !purchaseChecking && (!ARRIVAL.fromPurchase || IS_IOS || (!showSplash && consentOk)) && <InstallWelcome purchase={purchaseArrivalRef.current} activated={isPro} onClose={() => setShowInstallWelcome(false)} />}
 
       {/* AVISO DE PRIVACIDAD (una vez, para quien se registró antes de existir las casillas) */}
       {!showSplash && isRegistered && !consentOk && <ConsentGateModal onAccept={handleConsentGateAccept} />}
@@ -1734,6 +1745,9 @@ export default function App() {
           onUserEnter={handleUserEnterFromSplash}
           audioReady={audioReady}
           onProfileSave={handleProfileSave}
+          onActivatePro={handleActivateProCode}
+          isPro={isPro}
+          fromPurchase={ARRIVAL.fromPurchase}
         />
       )}
 

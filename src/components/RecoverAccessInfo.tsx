@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronDown, LifeBuoy } from 'lucide-react';
-import { whatsappLink } from '../config';
+import { APP_CONFIG, whatsappLink } from '../config';
 import { useLang } from '../i18n';
 
 /** Explicación desplegable: cómo recuperar el acceso PRO en otro móvil o navegador */
@@ -36,7 +36,12 @@ export const RecoverAccessInfo: React.FC<{ defaultOpen?: boolean }> = ({ default
               {L(
                 'tu clave de licencia está en el email de compra: busca «HispanApp» en tu correo (mira también en Spam). Empieza con HISPANAPP-.',
                 'your license key is in the purchase email: search your inbox for “HispanApp” (check Spam too). It starts with HISPANAPP-.'
-              )}
+              )}{' '}
+              {L('También la ves en', 'You can also see it in')}{' '}
+              <a href={APP_CONFIG.polarPortalUrl} target="_blank" rel="noopener noreferrer" className="text-[#FF6B4A] underline underline-offset-2">
+                {L('tus compras', 'your purchases')}
+              </a>{' '}
+              {L('(entra con el email con el que pagaste).', '(sign in with the email you paid with).')}
             </li>
             <li>
               <strong className="text-white">{L('Si eres alumno:', 'If you are a student:')}</strong>{' '}
