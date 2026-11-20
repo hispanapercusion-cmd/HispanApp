@@ -17,7 +17,9 @@ import { EditNameModal } from './components/EditNameModal';
 import { AppTour, TourStep } from './components/AppTour';
 import { ConsentGateModal } from './components/ConsentGateModal';
 import { InstallWelcome } from './components/InstallWelcome';
-import { isStandalone } from './services/install';
+import { PurchaseCheck } from './components/PurchaseCheck';
+import { fetchPolarPurchase } from './services/polarPurchase';
+import { isStandalone, detectPlatform } from './services/install';
 import { FeedbackModal } from './components/FeedbackModal';
 import { track } from './services/analytics';
 import { hasValidConsent, onConsentChange, saveConsent, CONSENT_VERSION } from './services/consent';
@@ -33,17 +35,20 @@ import { loadSession, saveSession } from './services/session';
 import { addPracticeSeconds, getPracticeStats, PracticeStats } from './services/practice';
 import { PracticeStreak } from './components/PracticeStreak';
 
-// Llegada desde el botón de Lemon Squeezy tras una compra:
-//   /?compra&license_key=[license_key]&email=[email]&name=[name]
+// Llegada tras una compra:
+//  - Polar (actual): vuelve a /?compra, SIN la clave (la clave llega por email y se pega en la app).
+//  - Lemon Squeezy (antiguo, cierra el 31/3/2027): /?compra&license_key=[license_key]&email=[email]&name=[name]
 // Se guardan el nombre y el email del comprador como su perfil (así la app lo saluda y no hay que registrarse
 // otra vez) y se quitan de la dirección. La clave la valida el efecto de activación más abajo.
 // Se ejecuta una sola vez, antes de dibujar la app, para que la bienvenida ya conozca al comprador.
 const ARRIVAL = (() => {
-  const out = { fromPurchase: false, hasKey: false };
+  const out = { fromPurchase: false, hasKey: false, sessionToken: '' };
   try {
     const params = new URLSearchParams(window.location.search);
     out.hasKey = !!params.get('license_key');
-    out.fromPurchase = params.has('compra') || out.hasKey;
+    // Polar añade a la dirección un pase temporal del comprador: con él se lee su clave y su nombre (ver polarPurchase.ts)
+    out.sessionToken = (params.get('customer_session_token') || '').trim();
+    out.fromPurchase = params.has('compra') || out.hasKey || !!out.sessionToken;
     const rawName = (params.get('name') || '').trim();
     const rawEmail = (params.get('email') || '').trim().replace(/ /g, '+'); // un «+» sin codificar llega como espacio
     if (out.hasKey && rawName && !localStorage.getItem('hispanapp_user_profile')) {
@@ -54,9 +59,11 @@ const ARRIVAL = (() => {
       localStorage.setItem('hispanapp_username', firstName);
       localStorage.setItem('hispanapp_registered', 'true');
     }
-    if (params.has('name') || params.has('email')) {
+    if (params.has('name') || params.has('email') || params.has('customer_session_token') || params.has('checkout_id')) {
       params.delete('name');
       params.delete('email');
+      params.delete('customer_session_token');
+      params.delete('checkout_id');
       const q = params.toString() ? `?${params.toString()}` : '';
       window.history.replaceState(null, '', `${window.location.pathname}${q}${window.location.hash}`);
     }
@@ -64,6 +71,14 @@ const ARRIVAL = (() => {
     // Sin almacenamiento o sin dirección: seguir con el arranque normal
   }
   return out;
+})();
+
+const IS_IOS = (() => {
+  try {
+    return detectPlatform() === 'ios';
+  } catch {
+    return false;
+  }
 })();
 
 // Última sesión guardada en este dispositivo (ritmo, velocidad, palmas…): se retoma al abrir la app.
@@ -231,6 +246,9 @@ export default function App() {
   // Llegada desde la web con ?instalar: abrir la ventana para guardar la app en el móvil
   // Con ?instalar&compra (botón de Lemon Squeezy tras pagar) el texto habla de la compra y, al cerrar, se abre la
   // ventana para pegar la clave del email.
+  // Vuelta de Polar con el pase del comprador: se confirma la compra y se activa el PRO sola (si algo falla, se pega la clave)
+  const [purchaseChecking, setPurchaseChecking] = useState<boolean>(!!ARRIVAL.sessionToken);
+  const purchaseAbortRef = useRef<AbortController | null>(null);
   const purchaseArrivalRef = useRef<boolean>(false);
   const [showInstallWelcome, setShowInstallWelcome] = useState<boolean>(() => {
     try {
@@ -259,17 +277,20 @@ export default function App() {
 
   // Llegada tras la compra: si ya está instalada (o no hay que instalar), ir directo a pegar la clave
   useEffect(() => {
-    if (!purchaseArrivalRef.current || showInstallWelcome) return;
+    // Esperar también a que termine la primera pantalla (registro): ahí ya se puede pegar la clave
+    if (!purchaseArrivalRef.current || showInstallWelcome || purchaseChecking || showSplash) return;
     // Si el enlace trae la clave, la activación lo resuelve sola (y avisa si falla): no mostrar la ventana de pegar
     if (ARRIVAL.hasKey) return;
     if (localStorage.getItem('hispanapp_pro') === 'true') return;
     // (si el código del enlace falló, se conserva ese aviso, más concreto)
-    setProModalNotice((prev) => prev ?? L('¡Gracias por tu compra! Pega aquí la clave de licencia que te llegó por email.', 'Thank you for your purchase! Paste here the license key you received by email.'));
+    setProModalNotice((prev) => prev ?? (ARRIVAL.sessionToken
+      ? L('No pudimos activarlo solos (tu pago puede tardar un momento en confirmarse). Cuando llegue el email, copia la clave —empieza con HISPANAPP-— y toca «Pegar la clave copiada y activar».', 'We could not activate it automatically (your payment may take a moment to confirm). When the email arrives, copy the key —it starts with HISPANAPP-— and tap “Paste the copied key and activate”.')
+      : L('¡Gracias por tu compra! Pega tu clave de licencia: te llegó por email y empieza con HISPANAPP-. Cópiala y toca «Pegar la clave copiada y activar».', 'Thank you for your purchase! Paste your license key: it was sent by email and starts with HISPANAPP-. Copy it and tap “Paste the copied key and activate”.')));
     setProModalPurchased(true);
     setIsProModalOpen(true);
     purchaseArrivalRef.current = false;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showInstallWelcome]);
+  }, [showInstallWelcome, purchaseChecking, showSplash]);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(() => {
     if (typeof window === 'undefined') return null;
     try {
@@ -397,7 +418,7 @@ export default function App() {
         }
       });
     } else if (!localStorage.getItem('hispanapp_pro')) {
-      setProModalNotice(L('¡Gracias por tu compra! Pega aquí la clave de licencia que te llegó por email.', 'Thank you for your purchase! Paste here the license key you received by email.'));
+      setProModalNotice(L('¡Gracias por tu compra! Pega tu clave de licencia: te llegó por email y empieza con HISPANAPP-. Cópiala y toca «Pegar la clave copiada y activar».', 'Thank you for your purchase! Paste your license key: it was sent by email and starts with HISPANAPP-. Copy it and tap “Paste the copied key and activate”.'));
       setProModalPurchased(true);
       setIsProModalOpen(true);
     }
@@ -763,6 +784,37 @@ export default function App() {
     }
     return result;
   };
+
+  useEffect(() => {
+    if (!ARRIVAL.sessionToken) return;
+    const ctrl = new AbortController();
+    purchaseAbortRef.current = ctrl;
+    (async () => {
+      try {
+        const res = await fetchPolarPurchase(ARRIVAL.sessionToken, { signal: ctrl.signal });
+        if (ctrl.signal.aborted) return;
+        // El comprador queda como perfil (así la app lo saluda por su nombre y no pide registrarse otra vez)
+        if (res.name && res.email && !localStorage.getItem('hispanapp_user_profile')) {
+          const firstName = res.name.split(/\s+/)[0].slice(0, 60);
+          const now = new Date().toISOString();
+          const profile: UserProfile = { name: firstName, contact: res.email.slice(0, 200), createdAt: now, updatedAt: now };
+          localStorage.setItem('hispanapp_user_profile', JSON.stringify(profile));
+          localStorage.setItem('hispanapp_username', firstName);
+          localStorage.setItem('hispanapp_registered', 'true');
+          setUserProfile(profile);
+          setUsername(firstName);
+          setIsRegistered(true);
+        }
+        if (res.key) await handleActivateProCode(res.key);
+      } catch (err) {
+        console.warn('[Compra] No se pudo confirmar la compra:', err);
+      } finally {
+        if (!ctrl.signal.aborted) setPurchaseChecking(false);
+      }
+    })();
+    return () => ctrl.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Registro exitoso desde el lead magnet
   const handleRegistrationSuccess = (regName?: string, regEmail?: string) => {
@@ -1660,7 +1712,9 @@ export default function App() {
         onSave={handleProfileEdit}
       />
 
-      {showInstallWelcome && (!ARRIVAL.fromPurchase || (!showSplash && consentOk)) && <InstallWelcome purchase={purchaseArrivalRef.current} activated={isPro} onClose={() => setShowInstallWelcome(false)} />}
+      {/* Tras una compra en iPhone, guardar la app va PRIMERO (encima del registro): la app guardada tiene su propia
+          memoria, así que registrarse en Safari no sirve de nada allí. En el resto, después del registro y la privacidad. */}
+      {showInstallWelcome && !purchaseChecking && (!ARRIVAL.fromPurchase || IS_IOS || (!showSplash && consentOk)) && <InstallWelcome purchase={purchaseArrivalRef.current} activated={isPro} onClose={() => setShowInstallWelcome(false)} />}
 
       {/* AVISO DE PRIVACIDAD (una vez, para quien se registró antes de existir las casillas) */}
       {!showSplash && isRegistered && !consentOk && <ConsentGateModal onAccept={handleConsentGateAccept} />}
@@ -1677,12 +1731,23 @@ export default function App() {
       {isTourOpen && !showSplash && !isAtrilMode && <AppTour steps={tourSteps} onFinish={finishTour} />}
 
       {/* PANTALLA DE INICIO Y CARGA (SPLASH SCREEN) */}
-      {showSplash && (
+      {purchaseChecking && (
+        <PurchaseCheck
+          onSkip={() => {
+            purchaseAbortRef.current?.abort();
+            setPurchaseChecking(false);
+          }}
+        />
+      )}
+      {showSplash && !purchaseChecking && (
         <SplashScreen
           onFinish={() => setShowSplash(false)}
           onUserEnter={handleUserEnterFromSplash}
           audioReady={audioReady}
           onProfileSave={handleProfileSave}
+          onActivatePro={handleActivateProCode}
+          isPro={isPro}
+          fromPurchase={ARRIVAL.fromPurchase}
         />
       )}
 

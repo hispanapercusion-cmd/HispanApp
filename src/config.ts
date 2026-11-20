@@ -1,9 +1,22 @@
 export interface AppConfig {
   patreonUrl: string;
   hotmartPackUrl: string;
-  lemonSqueezyUrl: string;
+  /** Enlace de compra de HispanApp PRO en Polar (pago único) */
+  polarCheckoutUrl: string;
+  /** Polar: dirección base de la API pública */
+  polarApiUrl: string;
+  /** Polar: dirección pública (sin token secreto) para validar claves de licencia */
+  polarLicenseApiUrl: string;
+  /** Polar: ID de la organización (público). Solo se aceptan claves de esta organización */
+  polarOrganizationId: string;
+  /** Polar: las claves de HispanApp PRO empiezan con este prefijo (HISPANAPP-xxxxxxxx-…) */
+  polarKeyPrefix: string;
+  /** Polar: beneficio «clave de licencia» de HispanApp PRO (público). Solo se aceptan claves de este beneficio */
+  polarProBenefitId: string;
+  /** Polar: portal del cliente (ahí ve sus compras y su clave; entra con su email) */
+  polarPortalUrl: string;
   whatsappUrl: string;
-  /** Dirección para validar claves de licencia de Lemon Squeezy */
+  /** Lemon Squeezy (cierra el 31/3/2027): solo para seguir aceptando claves viejas. Dirección para validarlas */
   lemonLicenseApiUrl: string;
   /** ID de tu tienda en Lemon Squeezy: solo se aceptan licencias de esta tienda (null = sin comprobar) */
   lemonStoreId: number | null;
@@ -18,9 +31,23 @@ export interface AppConfig {
 
 import type { Lang } from './i18n';
 
-/** Método «Los Ritmos del Flamenco» en Lemon Squeezy, en el idioma de la app */
-export const METHOD_URL_ES = 'https://hispanapercusion.lemonsqueezy.com/checkout/buy/b631cc57-af72-4282-96b8-9967cb562df1';
-export const METHOD_URL_EN = 'https://hispanapercusion.lemonsqueezy.com/checkout/buy/9deded9a-4641-48af-9c28-a60586d2d536';
+/** Método «Los Ritmos del Flamenco» en Polar (antes Lemon Squeezy, que cierra), en el idioma de la app */
+export const METHOD_URL_ES = 'https://buy.polar.sh/polar_cl_07edvA7aQWmvePFyX5snNynGdxrVyfQclEplo3QB2Cp';
+export const METHOD_URL_EN = 'https://buy.polar.sh/polar_cl_lQaF5zQalYUW89kdwtzgyIG9P52RZcwUcc6Te2bisvP';
+// Cupón de lanzamiento (40 %: 24,99 → 14,99 USD): del 1 al 31 de diciembre de 2026, hora de Argentina (UTC-3).
+// Dentro de esas fechas el enlace de compra lo lleva escrito; fuera de ellas no se añade (así no hace falta
+// tocar el código en enero).
+const LAUNCH_CODE = 'FLAMENCO';
+const LAUNCH_FROM = Date.UTC(2026, 11, 1, 3, 0, 0);
+const LAUNCH_TO = Date.UTC(2027, 0, 1, 3, 0, 0);
+
+/** Enlace de compra de HispanApp PRO (con el cupón de lanzamiento solo mientras dura la campaña) */
+export const proCheckoutUrl = (now: number = Date.now()): string => {
+  if (now < LAUNCH_FROM || now >= LAUNCH_TO) return APP_CONFIG.polarCheckoutUrl;
+  const sep = APP_CONFIG.polarCheckoutUrl.includes('?') ? '&' : '?';
+  return `${APP_CONFIG.polarCheckoutUrl}${sep}discount_code=${LAUNCH_CODE}`;
+};
+
 /** Enlace de WhatsApp con el mensaje ya escrito (así sabemos de qué trata y suena más profesional) */
 export const whatsappLink = (lang: Lang, topic: 'support' | 'access' = 'support'): string => {
   const es = {
@@ -46,9 +73,14 @@ export const legalUrl = (doc: 'privacy' | 'terms' | 'withdrawal', lang: Lang): s
 export const APP_CONFIG: AppConfig = {
   patreonUrl: "https://www.patreon.com/HispanaPercusion?utm_campaign=creatorshare_creator",
   hotmartPackUrl: "https://pay.hotmart.com/R82880037W",
-  // Campaña de lanzamiento: el cupón FLAMENCO se aplica solo (24,99 → 14,99 USD).
-  // Cuando termine la campaña, borrar desde "?checkout" para volver al precio normal.
-  lemonSqueezyUrl: "https://hispanapercusion.lemonsqueezy.com/checkout/buy/f3479c51-4a7d-46cf-9326-66280e31926e?checkout%5Bdiscount_code%5D=FLAMENCO",
+  // HispanApp PRO en Polar (pago único 24,99 USD). El cupón de lanzamiento se añade solo en diciembre: ver proCheckoutUrl().
+  polarCheckoutUrl: "https://buy.polar.sh/polar_cl_3r6SACAjkFbKaOOz2VOxPNQr4Dsc5hQMWeoKF3JEOkd",
+  polarApiUrl: "https://api.polar.sh/v1",
+  polarLicenseApiUrl: "https://api.polar.sh/v1/customer-portal/license-keys/validate",
+  polarOrganizationId: "c37ce4bd-247b-4a69-89ae-4993bac1a594",
+  polarKeyPrefix: "HISPANAPP",
+  polarProBenefitId: "8cdd5159-b54a-41d4-bb4f-3152d6955fe6",
+  polarPortalUrl: "https://polar.sh/hispana-percusion/portal",
   whatsappUrl: "https://wa.me/541132025842",
   lemonLicenseApiUrl: "https://api.lemonsqueezy.com/v1/licenses/validate",
   lemonStoreId: null,

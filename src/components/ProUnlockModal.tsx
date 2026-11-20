@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { X, ExternalLink, Sparkles, AlertCircle, MessageCircle } from 'lucide-react';
 import { HispanaLogo } from './HispanaLogo';
-import { APP_CONFIG, whatsappLink } from '../config';
-import { ProCheckResult, proErrorMessage } from '../services/pro';
+import { proCheckoutUrl, whatsappLink } from '../config';
+import { ProCheckResult, proErrorMessage, extractLicenseKey } from '../services/pro';
 import { RecoverAccessInfo } from './RecoverAccessInfo';
 import { LegalLinks } from './LegalLinks';
 import { track } from '../services/analytics';
@@ -59,8 +59,8 @@ export const ProUnlockModal: React.FC<ProUnlockModalProps> = ({
   const pasteAndActivate = async () => {
     try {
       const text = (await navigator.clipboard.readText()).trim();
-      const uuid = text.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
-      const value = (uuid ? uuid[0] : text).slice(0, 64);
+      const found = extractLicenseKey(text);
+      const value = (found ?? text).slice(0, 64);
       if (!value) {
         setError(L('No hay nada copiado. Copia la clave de tu email y vuelve a tocar el botón.', 'Nothing copied yet. Copy the key from your email and tap the button again.'));
         return;
@@ -114,7 +114,7 @@ export const ProUnlockModal: React.FC<ProUnlockModalProps> = ({
         {/* Opción 1: Unirse adquiriendo la versión PRO */}
           <div className="space-y-2">
             <a
-              href={APP_CONFIG.lemonSqueezyUrl}
+              href={proCheckoutUrl()}
               onClick={() => track('click_checkout')}
               target="_blank"
               rel="noopener noreferrer"
@@ -178,7 +178,7 @@ export const ProUnlockModal: React.FC<ProUnlockModalProps> = ({
           </button>
           <p className="text-[10.5px] text-gray-500 text-center leading-relaxed">
             {purchased
-              ? L('Tu clave está en el email de compra que te mandó Lemon Squeezy. Ábrelo, copia la clave (mantén pulsada → Copiar), vuelve aquí y toca el botón de arriba.', 'Your key is in the purchase email Lemon Squeezy sent you. Open it, copy the key (press and hold → Copy), come back here and tap the button above.')
+              ? L('Tu clave está en el email de compra (empieza con HISPANAPP-). Búscalo en tu correo, copia la clave (mantén pulsada → Copiar), vuelve aquí y toca el botón de arriba.', 'Your key is in the purchase email (it starts with HISPANAPP-). Find it in your inbox, copy the key (press and hold → Copy), come back here and tap the button above.')
               : L('Si compraste en la tienda: copia la clave de licencia de tu email (mantén pulsada → Copiar) y toca el botón de arriba.', 'If you bought in the store: copy the license key from your email (press and hold → Copy) and tap the button above.')}
           </p>
         </form>

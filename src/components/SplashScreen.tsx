@@ -7,12 +7,21 @@ import { ConsentChecks, ConsentValues } from './ConsentChecks';
 import { saveConsent, CONSENT_VERSION } from '../services/consent';
 import { track } from '../services/analytics';
 import { useLang, LangSwitch, roleLabel, levelLabel } from '../i18n';
+import { BuyerActivateCard } from './BuyerActivateCard';
+import { ProCheckResult } from '../services/pro';
+import { isStandalone } from '../services/install';
 
 interface SplashScreenProps {
   onFinish: () => void;
   onUserEnter: () => void;
   audioReady: boolean;
   onProfileSave: (profile: UserProfile) => void;
+  /** Activar PRO desde la primera pantalla (comprador que abre la app guardada por primera vez) */
+  onActivatePro?: (code: string) => Promise<ProCheckResult>;
+  /** El PRO ya está activo en este dispositivo: no hace falta ofrecer la activación */
+  isPro?: boolean;
+  /** Llegó desde la compra (?compra): mostrar la activación destacada */
+  fromPurchase?: boolean;
 }
 
 const ROLES: UserFlamencoRole[] = [
@@ -29,8 +38,31 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
   onUserEnter,
   audioReady: _audioReady,
   onProfileSave,
+  onActivatePro,
+  isPro = false,
+  fromPurchase = false,
 }) => {
   const { lang, L } = useLang();
+  // Abierta desde el ícono de la pantalla de inicio (sobre todo iPhone, donde empieza vacía): casi seguro
+  // es alguien que acaba de comprar o de guardar la app, así que la activación PRO se muestra destacada.
+  const [standalone] = useState<boolean>(() => {
+    try {
+      return isStandalone();
+    } catch {
+      return false;
+    }
+  });
+  const fillFromBuyer = (name: string, email: string) => {
+    const first = name.trim().split(/\s+/)[0]?.slice(0, 60) || '';
+    if (first) setFormName((prev) => prev.trim() || first);
+    if (email.trim()) setFormEmail((prev) => prev.trim() || email.trim().slice(0, 200));
+  };
+  // Solo se oculta si el PRO ya estaba activo al abrir; si se activa aquí, la tarjeta queda para confirmar «¡PRO activado!»
+  const [proAtStart] = useState<boolean>(isPro);
+  const buyerCard =
+    onActivatePro && !proAtStart ? (
+      <BuyerActivateCard highlight={standalone || fromPurchase} onActivate={onActivatePro} onBuyer={fillFromBuyer} />
+    ) : null;
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [mode, setMode] = useState<
     'initial_check' | 'welcome_cinematic' | 'step1_name_email' | 'step2_role_level'
@@ -296,6 +328,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
 
             {/* Formulario */}
             <div id="firstTimeForm" className="w-full space-y-4 animate-fadeIn mt-5">
+              {(standalone || fromPurchase) && buyerCard}
               <form onSubmit={handleNextToStep2} className="space-y-4">
                 {errorMsg && (
                   <div className="p-2.5 rounded-xl bg-[#E84A27]/12 border border-[#E84A27]/35 text-[#FF6B4A] text-xs font-sans text-center">
@@ -345,6 +378,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
                   <span>→</span>
                 </button>
               </form>
+              {!(standalone || fromPurchase) && buyerCard}
             </div>
           </div>
         )}

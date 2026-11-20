@@ -39,9 +39,42 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   - Reglas en `firestore.rules` (publicadas a mano en la consola de Firebase): `leads` y `opiniones` solo
     `create` con campos y tamaños validados, `codigos_pro` solo `get` (nunca `list`). Si se añade un campo
     nuevo a un lead u opinión, añadirlo también a la lista `hasOnly` de las reglas y volver a publicarlas.
+- **⚠️ Cambio de plataforma de cobro (17/11/2026): Lemon Squeezy cierra el 31/3/2027 → HispanApp PRO se vende en
+  Polar (polar.sh).** Datos públicos en `src/config.ts` (`polarCheckoutUrl`, `polarOrganizationId`, `polarLicenseApiUrl`,
+  `polarKeyPrefix`): producto 3b90e47d-31b5-4d2a-9b6c-b8e182f94b51, organización c37ce4bd-247b-4a69-89ae-4993bac1a594,
+  pago único 24,99 USD, claves con prefijo `HISPANAPP-`, sin vencimiento ni límite de activaciones. **Vuelta tras
+  pagar (como con Lemon, sin copiar nada)**: Polar devuelve al comprador a `https://hispanapp.hispanapercusion.com/?compra…`
+  y, según el código fuente de Polar (**sin confirmar con una compra real**), añade `customer_session_token`, un pase
+  temporal del comprador. `src/services/polarPurchase.ts` lo usa (`GET /customer-portal/customers/me` y
+  `/customer-portal/license-keys/`, con reintentos porque la clave tarda unos segundos) para leer el nombre, el email y la
+  clave; la app muestra «Confirmando tu compra…» (`PurchaseCheck.tsx`), guarda el perfil, activa el PRO y sigue como con
+  Lemon (saludo por nombre, guía «¡PRO activado!», recorrido). **Respaldo**: si no llega el pase, es inválido, falla la red
+  o la clave no aparece (a los 9 s sale «pegar mi clave a mano»), se abre «Activa tu PRO» con el botón «Pegar la clave
+  copiada y activar» (la clave también llega por email). Quien ya era cliente de Polar puede no recibir el pase (usa el
+  respaldo). Conviene poner la URL de éxito `…/?compra&checkout_id={CHECKOUT_ID}` (la app lo ignora; sirve para diagnosticar).
+  La validación llama a
+  `POST https://api.polar.sh/v1/customer-portal/license-keys/validate` con `{key, organization_id}` (sin token secreto;
+  comprobado el 17/11: CORS abierto, clave falsa → 404). Se acepta solo `status: "granted"`, sin vencer y de nuestra
+  organización; 404/422 = no válida; 5xx, límite o sin red = «no se pudo comprobar». **Nunca poner tokens de Polar en el
+  código.** Las claves viejas de Lemon (UUID) y los códigos de alumno siguen funcionando. **Cupón FLAMENCO (40 %)**: lo
+  añade solo `proCheckoutUrl()` al enlace de compra del 1 al 31/12/2026 (hora de Argentina), no hay que quitarlo en enero.
+  Método LRDF: desde el 20/11/2026 `METHOD_URL_ES`/`METHOD_URL_EN` apuntan a Polar. Legales **siguen nombrando a Lemon**
+  (ver Pendientes). Solo se aceptan claves del beneficio de HispanApp PRO (`polarProBenefitId`); la validación devuelve
+  también nombre y email del comprador. Portal del cliente (sus compras y su clave): `polarPortalUrl`.
+- **iPhone: la app guardada tiene su propia memoria** (20/11/2026, visto en la primera compra de prueba con Polar): lo que
+  se activa o registra en Safari NO pasa a la app guardada en la pantalla de inicio (regla de Apple). Por eso:
+  1. Tras una compra en iPhone, `InstallWelcome` sale **primero, encima del registro**. Si el PRO ya se activó en Safari,
+     muestra «📋 Copiar mi clave» → guardar la app → abrirla desde el ícono → pegar. Si no, explica que la clave llega por
+     email («Access purchase» en el email de Polar).
+  2. La primera pantalla (`SplashScreen`) tiene `BuyerActivateCard` «¿Ya compraste HispanApp PRO?»: **abierta y encima
+     del formulario** si la app se abrió desde el ícono (`isStandalone`) o tras una compra; plegada debajo en el resto.
+     Con una clave de Polar rellena nombre y email; solo queda aceptar la privacidad y continuar.
+  3. Si llega de la compra sin activar, la ventana «Activa tu PRO» se abre al terminar el registro (no por debajo).
+  Android y ordenador comparten memoria entre navegador y app instalada: ahí no hace falta.
 - **Acceso PRO** (`src/services/pro.ts`): se guarda en `localStorage` (`hispanapp_pro`), ligado a la
   dirección web. Se activa con:
-  - una **license key de Lemon Squeezy** (formato UUID), validada con la License API de Lemon;
+  - una **license key de Polar** (`HISPANAPP-…`), validada con la API pública de licencias de Polar;
+  - una clave antigua de **Lemon Squeezy** (formato UUID), validada con la License API de Lemon (solo hasta que cierre);
   - un **código de alumno** de Firestore.
   También desde enlaces/QR `?acceso=CODIGO` o `?license_key=CLAVE`. Volver del checkout
   (`?checkout=success`) NO activa PRO: pide la clave del email.
@@ -180,7 +213,14 @@ una compra real con Lemon), 23/11 (congelar cambios y preparar campaña), 30/11 
   Se quitó el dominio del Worker `hispanapp` de Cloudflare (copia vieja de la app, sigue conectado al repo y comenta
   en los PR: se puede desconectar en Workers → hispanapp → Settings → Builds).
 - [x] Botón "Abrir HispanApp" del email de recibo de Lemon apunta a la dirección nueva (3/11/2026).
-- [ ] **La tienda de Lemon está en revisión** ("Your application has been received"): sin aprobación solo funciona en
+- [x] Cuenta de Polar aprobada (20/11/2026). Primera compra de prueba de HispanApp PRO (código 100 %): pago y email OK,
+  pero la app publicada aún no tenía Polar y en iPhone la app guardada empezó vacía → arreglado en el PR de Polar.
+- [ ] **Repetir la compra de prueba en iPhone con este PR publicado**: ¿llega `customer_session_token` y se activa solo?
+  Guardar la app → abrir desde el ícono → «Pegar mi clave y activar PRO». Y en Android.
+- [ ] **Falta pasar a Polar**: las páginas legales
+  (`privacidad`, `terminos` en ES/EN nombran a Lemon Squeezy y su enlace de pedidos; cambiarlo a Polar sube
+  `CONSENT_VERSION`) y quitar el código `lemon*` de `pro.ts`/`config.ts` después del 31/3/2027.
+- [ ] (antiguo, ya no aplica si se migra a Polar) **La tienda de Lemon está en revisión** ("Your application has been received"): sin aprobación solo funciona en
   modo prueba. Tiene que estar aprobada antes del 1/12.
 - [x] Verificación en 2 pasos de la cuenta de Google activada (3/11/2026).
 - [x] Compra de **prueba** (modo test) de punta a punta funcionando (14/11/2026): clave, email y nombre llegan en el

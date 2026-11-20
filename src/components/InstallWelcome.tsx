@@ -44,6 +44,24 @@ export const InstallWelcome: React.FC<{ onClose: () => void; purchase?: boolean;
     if (accepted) onClose();
   };
 
+  const isIos = browser === 'ios-safari' || browser === 'ios-otro';
+  // Clave ya activada en este navegador (la usa el botón «Copiar mi clave» tras una compra en iPhone)
+  const [copied, setCopied] = useState(false);
+  let savedKey = '';
+  try {
+    savedKey = localStorage.getItem('hispanapp_pro_code') || '';
+  } catch {
+    savedKey = '';
+  }
+  const copyKey = async () => {
+    try {
+      await navigator.clipboard.writeText(savedKey);
+      setCopied(true);
+    } catch {
+      // Si el teléfono no deja copiar, la clave sigue en el email de compra
+    }
+  };
+
   const isAndroidLike = browser === 'android' || browser === 'desktop';
   const showIosArrow = browser === 'ios-safari';
   const showTopArrow = browser === 'ios-otro';
@@ -146,7 +164,8 @@ export const InstallWelcome: React.FC<{ onClose: () => void; purchase?: boolean;
           </div>
         )}
 
-        {/* Tras una compra: qué hacer después de guardar la app (en iPhone la clave se pega dentro de la app guardada) */}
+        {/* Tras una compra: qué hacer después de guardar la app. En iPhone la app guardada tiene su propia memoria
+            (empieza vacía), así que la clave se pega dentro de la app guardada, en su primera pantalla. */}
         {purchase && !activated && (
           <div className="mt-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-3.5 text-[13px] text-gray-200 leading-snug">
             <p className="font-bold text-white mb-1.5">{L('Después de guardarla:', 'After saving it:')}</p>
@@ -158,26 +177,67 @@ export const InstallWelcome: React.FC<{ onClose: () => void; purchase?: boolean;
               <li className="flex items-start gap-2">
                 <span className="step-num">2</span>
                 <span>
-                  {L('Toca un ritmo con candado 🔒 y pega la clave que te llegó por email. ', 'Tap a rhythm with a lock 🔒 and paste the key you received by email. ')}
-                  <strong className="text-white">{L('Tip: cópiala antes en tu correo (mantén pulsada la clave → Copiar).', 'Tip: copy it first in your email (press and hold the key → Copy).')}</strong>
+                  {isIos ? (
+                    <>
+                      {L('En la primera pantalla toca', 'On the first screen tap')}{' '}
+                      <strong className="text-white">{L('«Pegar mi clave y activar PRO»', '“Paste my key and activate PRO”')}</strong>.{' '}
+                    </>
+                  ) : (
+                    <>{L('Toca un ritmo con candado 🔒 y pega tu clave.', 'Tap a rhythm with a lock 🔒 and paste your key.')} </>
+                  )}
+                  {L(
+                    'Tu clave te llega por email: toca «Access purchase» y cópiala (empieza por HISPANAPP-).',
+                    'Your key arrives by email: tap “Access purchase” and copy it (it starts with HISPANAPP-).'
+                  )}
                 </span>
               </li>
             </ol>
           </div>
         )}
 
-        {/* Ya activado con el botón del email: guardar la app es opcional. En iPhone la app guardada empieza vacía. */}
-        {purchase && activated && (browser === 'ios-safari' || browser === 'ios-otro') && (
-          <p className="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-[12.5px] text-gray-300 leading-snug">
-            {L(
-              'Ya puedes usar HispanApp PRO aquí mismo. Si la guardas en tu pantalla, al abrirla desde el ícono te pedirá la clave de tu email. Si prefieres no complicarte, sigue en el navegador: si algún día se desactiva, toca otra vez el botón de tu email.',
-              'You can use HispanApp PRO right here. If you save it on your screen, opening it from the icon will ask for the key from your email. If you’d rather keep it simple, stay in the browser: if it ever turns off, tap the button in your email again.'
-            )}
-          </p>
+        {/* Ya activado en Safari: la app guardada empieza vacía. Copiar la clave ANTES de guardarla y pegarla al abrirla. */}
+        {purchase && activated && isIos && (
+          <div className="mt-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-3.5 text-[13px] text-gray-200 leading-snug space-y-2">
+            <p>
+              {L(
+                'Ya puedes usar HispanApp PRO aquí mismo. Para tenerla en tu pantalla con el PRO activado:',
+                'You can use HispanApp PRO right here. To have it on your screen with PRO activated:'
+              )}
+            </p>
+            <ol className="space-y-1.5">
+              <li className="flex items-start gap-2">
+                <span className="step-num">1</span>
+                <span className="flex-1">
+                  {savedKey ? (
+                    <button
+                      type="button"
+                      onClick={copyKey}
+                      className="w-full py-2 rounded-xl btn-primary text-white text-[13px] font-bold cursor-pointer"
+                    >
+                      {copied ? L('Clave copiada ✓', 'Key copied ✓') : L('📋 Copiar mi clave', '📋 Copy my key')}
+                    </button>
+                  ) : (
+                    L('Ten a mano tu clave (está en el email de compra).', 'Have your key at hand (it is in the purchase email).')
+                  )}
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="step-num">2</span>
+                <span>{L('Guárdala con los pasos de arriba y ábrela desde el ícono.', 'Save it with the steps above and open it from the icon.')}</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="step-num">3</span>
+                <span>
+                  {L('En la primera pantalla toca', 'On the first screen tap')}{' '}
+                  <strong className="text-white">{L('«Pegar mi clave y activar PRO»', '“Paste my key and activate PRO”')}</strong>.
+                </span>
+              </li>
+            </ol>
+          </div>
         )}
 
         <button onClick={onClose} className="mt-4 w-full py-2.5 text-[13px] font-semibold text-gray-400 cursor-pointer">
-          {purchase && !activated ? L('Ahora no, pegar mi clave aquí', 'Not now, paste my key here') : purchase ? L('Ahora no, seguir en el navegador', 'Not now, keep using the browser') : L('Ahora no, usar en el navegador', 'Not now, use it in the browser')}
+          {purchase ? L('Ahora no, seguir en el navegador', 'Not now, keep using the browser') : L('Ahora no, usar en el navegador', 'Not now, use it in the browser')}
         </button>
       </div>
 
