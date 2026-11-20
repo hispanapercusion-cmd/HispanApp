@@ -56,8 +56,11 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   `POST https://api.polar.sh/v1/customer-portal/license-keys/validate` con `{key, organization_id}` (sin token secreto;
   comprobado el 17/11: CORS abierto, clave falsa → 404). Se acepta solo `status: "granted"`, sin vencer y de nuestra
   organización; 404/422 = no válida; 5xx, límite o sin red = «no se pudo comprobar». **Nunca poner tokens de Polar en el
-  código.** Las claves viejas de Lemon (UUID) y los códigos de alumno siguen funcionando. **Cupón FLAMENCO (40 %)**: lo
-  añade solo `proCheckoutUrl()` al enlace de compra del 1 al 31/12/2026 (hora de Argentina), no hay que quitarlo en enero.
+  código.** Las claves viejas de Lemon (UUID) y los códigos de alumno siguen funcionando. **Cupón FLAMENCO** (Navidad,
+  −10 USD fijos → 14,99 USD; en Polar, solo HispanApp PRO, del 1/12 00:00 al 31/12 23:59 hora de Argentina): lo
+  añade solo `proCheckoutUrl()` al enlace de compra en diciembre, no hay que quitarlo en enero. Para el método hay otro
+  descuento, `NAVIDAD` (−39,91 USD → 59,99 USD). Links con el descuento ya aplicado (ManyChat, redes): «Navidad 40% – …»
+  en Polar → Checkout Links.
   Método LRDF: desde el 20/11/2026 `METHOD_URL_ES`/`METHOD_URL_EN` apuntan a Polar. Legales actualizados a Polar el 21/11/2026
   (`CONSENT_VERSION` = 2026-11-21). Solo se aceptan claves del beneficio de HispanApp PRO (`polarProBenefitId`); la validación devuelve
   también nombre y email del comprador. Portal del cliente (sus compras y su clave): `polarPortalUrl`.
