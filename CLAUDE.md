@@ -58,8 +58,8 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   organización; 404/422 = no válida; 5xx, límite o sin red = «no se pudo comprobar». **Nunca poner tokens de Polar en el
   código.** Las claves viejas de Lemon (UUID) y los códigos de alumno siguen funcionando. **Cupón FLAMENCO (40 %)**: lo
   añade solo `proCheckoutUrl()` al enlace de compra del 1 al 31/12/2026 (hora de Argentina), no hay que quitarlo en enero.
-  Método LRDF: desde el 20/11/2026 `METHOD_URL_ES`/`METHOD_URL_EN` apuntan a Polar. Legales **siguen nombrando a Lemon**
-  (ver Pendientes). Solo se aceptan claves del beneficio de HispanApp PRO (`polarProBenefitId`); la validación devuelve
+  Método LRDF: desde el 20/11/2026 `METHOD_URL_ES`/`METHOD_URL_EN` apuntan a Polar. Legales actualizados a Polar el 21/11/2026
+  (`CONSENT_VERSION` = 2026-11-21). Solo se aceptan claves del beneficio de HispanApp PRO (`polarProBenefitId`); la validación devuelve
   también nombre y email del comprador. Portal del cliente (sus compras y su clave): `polarPortalUrl`.
 - **iPhone: la app guardada tiene su propia memoria** (20/11/2026, visto en la primera compra de prueba con Polar): lo que
   se activa o registra en Safari NO pasa a la app guardada en la pantalla de inicio (regla de Apple). Por eso:
@@ -217,9 +217,8 @@ una compra real con Lemon), 23/11 (congelar cambios y preparar campaña), 30/11 
   pero la app publicada aún no tenía Polar y en iPhone la app guardada empezó vacía → arreglado en el PR de Polar.
 - [ ] **Repetir la compra de prueba en iPhone con este PR publicado**: ¿llega `customer_session_token` y se activa solo?
   Guardar la app → abrir desde el ícono → «Pegar mi clave y activar PRO». Y en Android.
-- [ ] **Falta pasar a Polar**: las páginas legales
-  (`privacidad`, `terminos` en ES/EN nombran a Lemon Squeezy y su enlace de pedidos; cambiarlo a Polar sube
-  `CONSENT_VERSION`) y quitar el código `lemon*` de `pro.ts`/`config.ts` después del 31/3/2027.
+- [x] Páginas legales (ES/EN) pasadas de Lemon Squeezy a Polar y `CONSENT_VERSION` subida (21/11/2026): la app pide aceptar de nuevo.
+- [ ] Quitar el código `lemon*` de `pro.ts`/`config.ts` después del 31/3/2027.
 - [ ] (antiguo, ya no aplica si se migra a Polar) **La tienda de Lemon está en revisión** ("Your application has been received"): sin aprobación solo funciona en
   modo prueba. Tiene que estar aprobada antes del 1/12.
 - [x] Verificación en 2 pasos de la cuenta de Google activada (3/11/2026).
