@@ -190,6 +190,15 @@ export const PALMAS_METHOD: RhythmDefinition[] = [
       'A', 'P', 'P',
       'A', 'A', 'R',
     ],
+    // Cajón del ritmo V (base de Fandangos / Sevillanas, partitura de Jordan, sin video): 4 compases de 3/4 en corcheas,
+    // D-I-D-I… (2 golpes de cajón por cada paso de las palmas). B = bajo · A = agudo · G = fantasma
+    cajon: [
+      'B', 'G', 'G', 'A', 'G', 'G',
+      'B', 'G', 'G', 'A', 'G', 'G',
+      'B', 'G', 'G', 'A', 'G', 'G',
+      'B', 'G', 'G', 'A', 'G', 'G',
+    ],
+    cajonBars: [3, 3, 3, 3],
     videoUrl: 'https://youtu.be/475btji9NK0?si=7a1A29jM8botFRuv',
     videoEmbedUrl: 'https://www.youtube.com/embed/475btji9NK0',
   },
