@@ -1,6 +1,13 @@
 export type PalmaHit = 'P' | 'A' | 'R'; // P = Palma regular, A = Acento (>), R = Silencio / Rest
 export type CajonHit = 'B' | 'A' | 'G' | 'R'; // B = Bajo, A = Agudo, G = Fantasma (cabeza de cruz), R = Silencio
 
+/** Variante de cajón de un ritmo (mismos compases, otro dibujo de bajos, agudos y fantasmas) */
+export interface CajonPattern {
+  note: string;
+  noteEn: string;
+  cajon: CajonHit[];
+}
+
 /** Variante de palmas de un ritmo (misma cuenta, otro dibujo de golpes y silencios) */
 export interface RhythmPattern {
   /** Qué tiene de distinto, para explicarlo en pocas palabras */
@@ -35,6 +42,13 @@ export interface RhythmDefinition {
   cajon?: CajonHit[];
   /** Tiempos (negras) de cada compás de la partitura del cajón, p. ej. [3,3,3,3] o [2,2,3,3,2]. Por defecto, compases de 3. */
   cajonBars?: number[];
+  /** Otros patrones de cajón del mismo ritmo (el patrón 1 es siempre `cajon`, el oficial con video) */
+  cajonPatterns?: CajonPattern[];
+  /** Qué tiene el patrón de cajón oficial (para mostrarlo junto al selector de patrones) */
+  cajonNote?: string;
+  cajonNoteEn?: string;
+  /** Patrón de cajón en uso: 0 = el oficial (`cajon`); 1, 2… = `cajonPatterns[n-1]`. Lo rellena rhythmWithCajonPattern */
+  cajonPatternIndex?: number;
   /** Otros patrones de palmas sobre el mismo ritmo (el patrón 1 es siempre `steps`, el oficial con video) */
   patterns?: RhythmPattern[];
   /** Patrón en uso: 0 = el oficial (`steps`); 1, 2… = `patterns[n-1]`. Lo rellena rhythmWithPattern */

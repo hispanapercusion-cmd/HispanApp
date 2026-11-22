@@ -123,6 +123,19 @@ export const PALMAS_METHOD: RhythmDefinition[] = [
       'B', 'G', 'G', 'A', 'G', 'G', 'A', 'G', 'G', 'A', 'G', 'G',
     ],
     cajonBars: [3, 3],
+    cajonNote: 'Patrón oficial, el del video: bajos en el 12 y el 6',
+    cajonNoteEn: 'Official pattern, the one in the video: bass on 12 and 6',
+    // Segundo patrón de cajón de las bulerías (partitura de Jordan, sin video): bajos en el 12, 3, 7 y 8
+    cajonPatterns: [
+      {
+        note: 'Bajos en el 12, el 3, el 7 y el 8',
+        noteEn: 'Bass notes on 12, 3, 7 and 8',
+        cajon: [
+          'B', 'G', 'G', 'A', 'G', 'G', 'B', 'G', 'G', 'A', 'G', 'G',
+          'G', 'A', 'B', 'A', 'B', 'G', 'G', 'A', 'G', 'G', 'G', 'A',
+        ],
+      },
+    ],
     videoUrl: 'https://youtu.be/CxFXWZDFj5s?si=yMOrdph4YnijL6Ph',
     videoEmbedUrl: 'https://www.youtube.com/embed/CxFXWZDFj5s',
   },
@@ -282,3 +295,16 @@ export const rhythmWithPattern = (r: RhythmDefinition, patternIndex: number): Rh
   const alt = patternIndex > 0 ? r.patterns?.[patternIndex - 1] : undefined;
   return alt ? { ...r, steps: alt.steps, patternIndex } : r;
 };
+
+/** Cuántos patrones de cajón tiene un ritmo (el oficial más las variantes) */
+export const cajonPatternCount = (r: RhythmDefinition): number => (r.cajon ? 1 + (r.cajonPatterns?.length ?? 0) : 0);
+
+/** El ritmo con el patrón de cajón elegido (0 = el oficial). */
+export const rhythmWithCajonPattern = (r: RhythmDefinition, cajonPatternIndex: number): RhythmDefinition => {
+  const alt = cajonPatternIndex > 0 ? r.cajonPatterns?.[cajonPatternIndex - 1] : undefined;
+  return alt ? { ...r, cajon: alt.cajon, cajonPatternIndex } : r;
+};
+
+/** El ritmo con el patrón de palmas y el de cajón elegidos */
+export const rhythmWithPatterns = (r: RhythmDefinition, patternIndex: number, cajonPatternIndex: number): RhythmDefinition =>
+  rhythmWithCajonPattern(rhythmWithPattern(r, patternIndex), cajonPatternIndex);

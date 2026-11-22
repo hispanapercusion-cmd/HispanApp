@@ -207,6 +207,12 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   video): cada ritmo con banco toca sus golpes exactos; los demás (el II) eligen al azar golpes del mismo tipo de cualquier banco. Se
   descargan todos al activar la capa (~1,1 MB). El motor admite un cajón más fino que las palmas (`cajon.length / steps.length` golpes por
   paso: 2 en el III) y `CajonScore` dibuja corcheas (1 barra) o semicorcheas (2 barras); con semicorcheas se iluminan 2 golpes por paso.
+  **Segundo patrón de cajón de las bulerías (III)** (22/11/2026, solo partitura, sin video): `cajonPatterns` del ritmo (`rhythms.ts`; helpers
+  `cajonPatternCount` / `rhythmWithCajonPattern` / `rhythmWithPatterns`): B G G A G G B G G A G G | G A B A B G G A G G G A (bajos en
+  el 12, 3, 7 y 8; el patrón 1 tiene bajos en el 12 y el 6). Selector «🪘 Patrón de cajón 1·2» bajo el de palmas, solo con el cajón
+  activo y en ritmos con más de un patrón; se recuerda (`cajonPattern` en la sesión) y vuelve al 1 al cambiar de ritmo. **Suena con golpes
+  grabados al azar según su tipo** (los golpes exactos del video valen solo para el patrón 1). Si Jordan manda el video, se cortan sus
+  golpes como en el patrón 1 (otro banco).
 - **Metrónomo de fondo** (botón "⏱️ Metrónomo", activo por defecto, se recuerda en `hispanapp_metronome`):
   `scheduleMetronome` en `engine.ts` da un "tac" en cada tiempo con número en la cuenta y un "tum" grave en los
   tiempos de `metroDownbeats` del ritmo, definidos por Jordan (6/11/2026): compás de 12 (I) y Seguiriyas (II) solo en el
