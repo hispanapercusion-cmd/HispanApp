@@ -1,5 +1,6 @@
 import { AudioSourceMode, PalmaTone, RhythmDefinition } from '../types';
 import { AGUDA_LENGTHS, PALMAS_URL, SAMPLE_RATE, SORDA_LENGTHS } from './palmasIndex';
+import { CAJON_LENGTHS, CAJON_SAMPLE_RATE, CAJON_TYPES, CAJON_URL } from './cajonIndex';
 
 // Convierte un tramo de PCM 16 bits (little-endian) en un AudioBuffer
 function createAudioBufferFromPcm16(ctx: AudioContext, pcm: Int16Array, sampleRate = 44100): AudioBuffer {
@@ -24,6 +25,21 @@ function downloadPalmas(): Promise<ArrayBuffer> {
     });
   }
   return palmasDownload;
+}
+
+// Las muestras del cajón se descargan solo cuando se activa la capa «Cajón» (y el service worker las guarda)
+let cajonDownload: Promise<ArrayBuffer> | null = null;
+function downloadCajon(): Promise<ArrayBuffer> {
+  if (!cajonDownload) {
+    cajonDownload = fetch(CAJON_URL).then((res) => {
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.arrayBuffer();
+    });
+    cajonDownload.catch(() => {
+      cajonDownload = null; // permitir reintentar más tarde
+    });
+  }
+  return cajonDownload;
 }
 
 interface ScheduledEvent {
@@ -114,6 +130,10 @@ export class FlamencoAudioEngine {
   // Count-in state (Cuenta previa con voz en español Web Speech API)
   private countInEnabled: boolean = true;
   private palmasEnabled: boolean = true;
+  // Capa de cajón: los 24 golpes grabados por Jordan (bajo, agudo y fantasmas), en el orden de la partitura
+  private cajonEnabled: boolean = false;
+  private cajonBuffers: AudioBuffer[] = [];
+  private cajonLoading: Promise<boolean> | null = null;
   private atStart: boolean = true;
   private metronomeEnabled: boolean = true;
   private isCountingIn: boolean = false;
@@ -320,6 +340,39 @@ export class FlamencoAudioEngine {
     this.palmasEnabled = enabled;
   }
 
+  /** Capa de cajón: se activa o se silencia (al activarla por primera vez se descargan las muestras) */
+  public setCajonEnabled(enabled: boolean) {
+    this.cajonEnabled = enabled;
+    if (enabled) void this.loadCajonSamples();
+  }
+
+  /** Descarga y prepara las muestras del cajón. Devuelve true si quedaron listas. */
+  public loadCajonSamples(): Promise<boolean> {
+    if (this.cajonBuffers.length > 0) return Promise.resolve(true);
+    if (this.cajonLoading) return this.cajonLoading;
+    this.init();
+    this.cajonLoading = downloadCajon()
+      .then((data) => {
+        if (!this.ctx) return false;
+        const ctx = this.ctx;
+        let offset = 0; // en muestras
+        this.cajonBuffers = CAJON_LENGTHS.map((len) => {
+          const view = new Int16Array(data, offset * 2, len);
+          offset += len;
+          return createAudioBufferFromPcm16(ctx, view, CAJON_SAMPLE_RATE);
+        });
+        return true;
+      })
+      .catch((err) => {
+        console.warn('No se pudo cargar el cajón:', err);
+        return false;
+      })
+      .finally(() => {
+        this.cajonLoading = null;
+      });
+    return this.cajonLoading;
+  }
+
   /** true si el ritmo está en su punto de partida (no hay nada a medias que reanudar) */
   public isAtStart(): boolean {
     return this.atStart;
@@ -477,6 +530,7 @@ export class FlamencoAudioEngine {
         this.atStart = false;
         this.scheduleMetronome(this.currentStep, this.nextNoteTime);
         this.scheduleStepAudio(this.currentStep, this.nextNoteTime);
+        this.scheduleCajonAudio(this.currentStep, this.nextNoteTime);
         this.visualQueue.push({ step: this.currentStep, time: this.nextNoteTime });
 
         this.nextNoteTime += this.getStepDurationSeconds();
@@ -605,6 +659,33 @@ export class FlamencoAudioEngine {
     source.connect(gainNode);
     gainNode.connect(this.ctx.destination);
     source.start(scheduleTime);
+  }
+
+  // Cajón: cada paso del patrón suena con el golpe grabado en ese mismo lugar de la partitura
+  // (si algún día hay otro patrón, se elige al azar un golpe del mismo tipo: bajo, agudo o fantasma)
+  private scheduleCajonAudio(stepIdx: number, time: number) {
+    if (!this.ctx || !this.cajonEnabled || this.cajonBuffers.length === 0) return;
+    const hit = this.rhythm.cajon?.[stepIdx];
+    if (!hit || hit === 'R') return;
+    let buffer: AudioBuffer | undefined;
+    if (CAJON_TYPES[stepIdx] === hit) {
+      buffer = this.cajonBuffers[stepIdx];
+    } else {
+      const same = this.cajonBuffers.filter((_, i) => CAJON_TYPES[i] === hit);
+      buffer = same[Math.floor(Math.random() * same.length)];
+    }
+    if (!buffer) return;
+    if (this.ctx.state !== 'running') {
+      this.ctx.resume().catch(() => {});
+    }
+    const source = this.ctx.createBufferSource();
+    source.buffer = buffer;
+    const gainNode = this.ctx.createGain();
+    const when = Math.max(time, this.ctx.currentTime);
+    gainNode.gain.setValueAtTime(0.95, when);
+    source.connect(gainNode);
+    gainNode.connect(this.ctx.destination);
+    source.start(when);
   }
 
   private scheduleStepAudio(stepIdx: number, time: number) {
@@ -792,6 +873,7 @@ export class FlamencoAudioEngine {
     this.palmasEnabled = true;
     for (let i = 0; i < length; i++) {
       this.scheduleStepAudio(startStep + i, now + i * stepDur);
+      this.scheduleCajonAudio(startStep + i, now + i * stepDur);
     }
     this.palmasEnabled = wasOn;
   }

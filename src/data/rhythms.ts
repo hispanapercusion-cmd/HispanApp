@@ -24,6 +24,14 @@ export const PALMAS_METHOD: RhythmDefinition[] = [
       'A', 'R', 'P', 'P', 'A', 'R',
       'P', 'P', 'A', 'R', 'P', 'R',
     ],
+    // Cajón del ritmo I (partitura y video de Jordan): 24 corcheas, siempre D-I-D-I…
+    // B = bajo · A = agudo · G = fantasma
+    cajon: [
+      'B', 'G', 'G', 'A', 'G', 'G',
+      'B', 'G', 'G', 'A', 'G', 'G',
+      'G', 'A', 'B', 'G', 'B', 'G',
+      'G', 'A', 'B', 'G', 'A', 'G',
+    ],
     // Otros patrones de palmas del ritmo I (mismos acentos en 12, 3, 6, 8 y 10; el patrón 1 es el de arriba, con video)
     patterns: [
       {
