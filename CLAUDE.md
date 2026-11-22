@@ -197,6 +197,10 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   que se ve en las vistas con partitura (Menú → Vista) cuando la capa está activa. `CAJON_REQUIRES_PRO` (en `App.tsx`) está en
   `false`: el cajón es gratis en el ritmo I; ponerlo en `true` lo deja solo para PRO. Para ampliar: más patrones o ritmos de
   cajón necesitan sus propias grabaciones (el motor ya elige un golpe del mismo tipo si falta la grabación exacta).
+  **Cajón del ritmo II (Seguiriyas)** (22/11/2026, solo con la partitura de Jordan, sin video): compases 2/4, 2/4, 3/4, 3/4, 2/4
+  (`cajonBars: [2,2,3,3,2]`), B G A G | B G A G | B G G A G G | B G G A G G | B G A G. **Suena con golpes grabados del ritmo I
+  elegidos al azar según su tipo** (bajo, agudo, fantasma; sin repetir el anterior): no es una grabación exacta. Si Jordan
+  manda el video, se cortan sus 24 golpes como en el I. `CajonScore` ya dibuja compases de 2 y 3 tiempos y los cambios de compás.
 - **Metrónomo de fondo** (botón "⏱️ Metrónomo", activo por defecto, se recuerda en `hispanapp_metronome`):
   `scheduleMetronome` en `engine.ts` da un "tac" en cada tiempo con número en la cuenta y un "tum" grave en los
   tiempos de `metroDownbeats` del ritmo, definidos por Jordan (6/11/2026): compás de 12 (I) y Seguiriyas (II) solo en el

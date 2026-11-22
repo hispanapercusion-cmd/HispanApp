@@ -32,6 +32,7 @@ export const PALMAS_METHOD: RhythmDefinition[] = [
       'G', 'A', 'B', 'G', 'B', 'G',
       'G', 'A', 'B', 'G', 'A', 'G',
     ],
+    cajonBars: [3, 3, 3, 3],
     // Otros patrones de palmas del ritmo I (mismos acentos en 12, 3, 6, 8 y 10; el patrón 1 es el de arriba, con video)
     patterns: [
       {
@@ -82,6 +83,16 @@ export const PALMAS_METHOD: RhythmDefinition[] = [
       'A', 'R', 'R', 'P', 'P', 'R',
       'A', 'R', 'P', 'P',
     ],
+    // Cajón del ritmo II (partitura de Jordan): compases de 2/4, 2/4, 3/4, 3/4 y 2/4; siempre D-I-D-I…
+    // B = bajo · A = agudo · G = fantasma
+    cajon: [
+      'B', 'G', 'A', 'G',
+      'B', 'G', 'A', 'G',
+      'B', 'G', 'G', 'A', 'G', 'G',
+      'B', 'G', 'G', 'A', 'G', 'G',
+      'B', 'G', 'A', 'G',
+    ],
+    cajonBars: [2, 2, 3, 3, 2],
     videoUrl: 'https://youtu.be/UXdjVTvbJGE?si=WH6MR8lCup6KDtzq',
     videoEmbedUrl: 'https://www.youtube.com/embed/UXdjVTvbJGE',
   },

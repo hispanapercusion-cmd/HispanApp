@@ -33,6 +33,8 @@ export interface RhythmDefinition {
   steps: PalmaHit[];
   /** Patrón de cajón (mismos pasos que las palmas: uno por corchea). Alterna mano derecha (D) e izquierda (I). */
   cajon?: CajonHit[];
+  /** Tiempos (negras) de cada compás de la partitura del cajón, p. ej. [3,3,3,3] o [2,2,3,3,2]. Por defecto, compases de 3. */
+  cajonBars?: number[];
   /** Otros patrones de palmas sobre el mismo ritmo (el patrón 1 es siempre `steps`, el oficial con video) */
   patterns?: RhythmPattern[];
   /** Patrón en uso: 0 = el oficial (`steps`); 1, 2… = `patterns[n-1]`. Lo rellena rhythmWithPattern */

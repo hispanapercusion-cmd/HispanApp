@@ -134,6 +134,7 @@ export class FlamencoAudioEngine {
   private cajonEnabled: boolean = false;
   private cajonBuffers: AudioBuffer[] = [];
   private cajonLoading: Promise<boolean> | null = null;
+  private lastCajonPick: Record<string, number> = {};
   private atStart: boolean = true;
   private metronomeEnabled: boolean = true;
   private isCountingIn: boolean = false;
@@ -668,11 +669,20 @@ export class FlamencoAudioEngine {
     const hit = this.rhythm.cajon?.[stepIdx];
     if (!hit || hit === 'R') return;
     let buffer: AudioBuffer | undefined;
-    if (CAJON_TYPES[stepIdx] === hit) {
+    if (this.rhythm.id === 'r1' && CAJON_TYPES[stepIdx] === hit) {
+      // Ritmo I: el golpe grabado en ese mismo lugar de la partitura
       buffer = this.cajonBuffers[stepIdx];
     } else {
-      const same = this.cajonBuffers.filter((_, i) => CAJON_TYPES[i] === hit);
-      buffer = same[Math.floor(Math.random() * same.length)];
+      // Otros ritmos: un golpe grabado del mismo tipo (bajo, agudo o fantasma), sin repetir el anterior
+      const pool: number[] = [];
+      CAJON_TYPES.split('').forEach((t, i) => {
+        if (t === hit && this.cajonBuffers[i]) pool.push(i);
+      });
+      if (pool.length === 0) return;
+      let pick = pool[Math.floor(Math.random() * pool.length)];
+      if (pool.length > 1 && pick === this.lastCajonPick[hit]) pick = pool[(pool.indexOf(pick) + 1) % pool.length];
+      this.lastCajonPick[hit] = pick;
+      buffer = this.cajonBuffers[pick];
     }
     if (!buffer) return;
     if (this.ctx.state !== 'running') {
