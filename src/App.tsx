@@ -18,6 +18,7 @@ import { AppTour, TourStep } from './components/AppTour';
 import { ConsentGateModal } from './components/ConsentGateModal';
 import { InstallWelcome } from './components/InstallWelcome';
 import { PurchaseCheck } from './components/PurchaseCheck';
+import { CajonScore } from './components/CajonScore';
 import { fetchPolarPurchase } from './services/polarPurchase';
 import { isStandalone, detectPlatform } from './services/install';
 import { FeedbackModal } from './components/FeedbackModal';
@@ -190,7 +191,7 @@ export default function App() {
     setMetronomeOn(next);
     engineRef.current?.setMetronomeEnabled(next);
     // Siempre queda al menos una capa sonando: si se apaga el metrónomo, vuelven las palmas
-    if (!next && !palmasOn) {
+    if (!next && !palmasOn && !cajonActive) {
       setPalmasOn(true);
       engineRef.current?.setPalmasEnabled(true);
       savePalmas(true);
@@ -201,6 +202,17 @@ export default function App() {
       // Ignorar
     }
   };
+  // Capa de cajón (los golpes grabados por Jordan; solo hay para el ritmo I). Apagada por defecto, se recuerda.
+  const CAJON_REQUIRES_PRO = false; // pasar a true para que el cajón sea solo de la versión PRO
+  const [cajonOn, setCajonOn] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('hispanapp_cajon') === 'on';
+    } catch {
+      return false;
+    }
+  });
+  const [cajonLoading, setCajonLoading] = useState(false);
+  const [cajonError, setCajonError] = useState(false);
   // Capa de palmas (se puede silenciar y dejar solo el metrónomo)
   const [palmasOn, setPalmasOn] = useState<boolean>(() => {
     try {
@@ -214,6 +226,34 @@ export default function App() {
       localStorage.setItem('hispanapp_palmas', on ? 'on' : 'off');
     } catch {
       // Ignorar
+    }
+  };
+  const toggleCajon = async () => {
+    if (CAJON_REQUIRES_PRO && !isPro) {
+      setIsProModalOpen(true);
+      return;
+    }
+    const next = !cajonOn;
+    setCajonOn(next);
+    engineRef.current?.setCajonEnabled(next);
+    track('toggle_cajon', { on: next });
+    try {
+      localStorage.setItem('hispanapp_cajon', next ? 'on' : 'off');
+    } catch {
+      // Ignorar
+    }
+    // Siempre queda al menos una capa sonando
+    if (!next && !palmasOn && !metronomeOn) {
+      setPalmasOn(true);
+      engineRef.current?.setPalmasEnabled(true);
+      savePalmas(true);
+    }
+    if (next) {
+      setCajonError(false);
+      setCajonLoading(true);
+      const ok = (await engineRef.current?.loadCajonSamples()) ?? false;
+      setCajonLoading(false);
+      if (!ok) setCajonError(true);
     }
   };
   // Marca roja de la partitura (opcional; activada por defecto)
@@ -378,6 +418,8 @@ export default function App() {
 
   // Current Rhythm
   const currentRhythm = useMemo(() => rhythmWithPattern(PALMAS_METHOD[rhythmIndex], patternIndex), [rhythmIndex, patternIndex]);
+  // La capa de cajón solo suena en los ritmos que tienen cajón grabado (por ahora el I)
+  const cajonActive = cajonOn && !!currentRhythm.cajon;
 
   // Audio Engine reference
   const engineRef = useRef<FlamencoAudioEngine | null>(null);
@@ -457,6 +499,7 @@ export default function App() {
     engine.setCountInEnabled(countInEnabled);
     engine.setMetronomeEnabled(metronomeOn);
     engine.setPalmasEnabled(palmasOn);
+    engine.setCajonEnabled(cajonOn);
 
     engine.setCallbacks(
       (step, cycle) => {
@@ -628,6 +671,12 @@ export default function App() {
     setRhythmIndex(newRhythmIdx);
     setPatternIndex(0); // al cambiar de ritmo se vuelve al patrón oficial
     const nextRhythm = PALMAS_METHOD[newRhythmIdx];
+    // Si solo estaba sonando el cajón y el nuevo ritmo no tiene, vuelven las palmas (para que no quede en silencio)
+    if (!nextRhythm.cajon && cajonOn && !palmasOn && !metronomeOn) {
+      setPalmasOn(true);
+      engineRef.current?.setPalmasEnabled(true);
+      savePalmas(true);
+    }
     track('select_rhythm', { rhythm: nextRhythm.id });
     const defaultBpm = nextRhythm.bpmRange.default;
     setBpmState(defaultBpm);
@@ -1230,7 +1279,7 @@ export default function App() {
                   engineRef.current?.setPalmasEnabled(next);
                   savePalmas(next);
                   // Siempre queda al menos una capa sonando
-                  if (!next && !metronomeOn) {
+                  if (!next && !metronomeOn && !cajonActive) {
                     setMetronomeOn(true);
                     engineRef.current?.setMetronomeEnabled(true);
                     try { localStorage.setItem('hispanapp_metronome', 'on'); } catch { /* Ignorar */ }
@@ -1246,11 +1295,33 @@ export default function App() {
                 <span>👏 {L('Palmas', 'Claps')}</span>
               </button>
 
+              {/* Capa de cajón: los golpes grabados por Jordan (bajo, agudo y fantasmas); solo en los ritmos que lo tienen */}
+              {currentRhythm.cajon && (
+                <button
+                  onClick={toggleCajon}
+                  aria-pressed={cajonOn}
+                  data-testid="cajon-toggle"
+                  className={`px-3 py-2 rounded-full text-[13px] font-medium transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                    cajonOn ? 'btn-3d text-white' : 'segmented text-gray-400 hover:text-white'
+                  }`}
+                  title={L('Cajón: suma el cajón grabado por Jordan (bajo, agudo y golpes fantasma)', 'Cajón: adds the cajón recorded by Jordan (bass, high and ghost notes)')}
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full ${cajonOn ? 'bg-[#FF5533] shadow-[0_0_6px_rgba(255,85,51,0.9)]' : 'bg-gray-500'}`} />
+                  <span>🪘 {L('Cajón', 'Cajón')}{cajonLoading ? '…' : ''}</span>
+                  {CAJON_REQUIRES_PRO && !isPro && <Lock className="w-3 h-3 text-gray-400" />}
+                </button>
+              )}
+              {cajonError && (
+                <p className="col-span-2 text-[11.5px] text-amber-300 font-sans" role="alert">
+                  {L('No se pudo cargar el cajón. Revisa tu conexión y vuelve a tocar el botón.', 'The cajón could not be loaded. Check your connection and tap the button again.')}
+                </p>
+              )}
+
               {/* Metrónomo de fondo: "tac" en cada tiempo y "tum" grave en el primero del ritmo */}
               <button
                 onClick={toggleMetronome}
                 aria-pressed={metronomeOn}
-                className={`col-span-2 sm:col-span-1 px-3 py-2 rounded-full text-[13px] font-medium transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                className={`${currentRhythm.cajon ? '' : 'col-span-2'} sm:col-span-1 px-3 py-2 rounded-full text-[13px] font-medium transition flex items-center justify-center gap-1.5 cursor-pointer ${
                   metronomeOn ? 'btn-3d text-white' : 'segmented text-gray-400 hover:text-white'
                 }`}
                 title={L('Metrónomo de fondo: marca cada tiempo y un golpe grave en el primero del ritmo para ubicarte', 'Background metronome: a click on every beat and a low click on the first beat of the rhythm, to help you find your place')}
@@ -1461,6 +1532,16 @@ export default function App() {
                   onPreviewBeat={handlePreviewBeatGroup}
                 />
               </div>
+
+              {/* Partitura del cajón (cuando la capa está activa) */}
+              {cajonActive && (
+                <div className="space-y-1.5">
+                  <span className="font-sans text-[11px] tracking-wider uppercase text-gray-400 font-semibold block">
+                    🪘 {L('Cajón', 'Cajón')}
+                  </span>
+                  <CajonScore rhythm={currentRhythm} activeStep={activeStep} countMode={countMode} />
+                </div>
+              )}
 
               {/* Banner hacia el método LRDF (Lemon Squeezy, en el idioma de la app) */}
               <a

@@ -185,6 +185,18 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   La partitura del ritmo I se dibuja desde los pasos (`MonogramScore.tsx`). **Los patrones 2 y 3 suenan con palmas sueltas de las
   muestras de Jordan** (no hay grabación propia de esos patrones; solo el patrón 1 usa el mapeo exacto). El video sigue siendo el
   del patrón 1. Las imágenes de Jordan no traían acentos: se pusieron los mismos del ritmo I.
+- **Cajón del ritmo I** (22/11/2026): capa de sonido nueva «🪘 Cajón» (en «Ajustes de sonido», solo en ritmos con cajón; por ahora el I;
+  apagada por defecto y se recuerda en `hispanapp_cajon`), independiente de Palmas y Metrónomo (siempre queda al menos una
+  capa activa; si se pasa a un ritmo sin cajón y solo sonaba el cajón, vuelven las palmas). Partitura y video de Jordan
+  (`ritmo_I_base_2.mov`): 4 compases de 3/4, 24 corcheas D-I-D-I… con **bajo** (nota de abajo), **agudo** (nota de arriba) y
+  **fantasma** (✕). Patrón en `cajon` del ritmo (`rhythms.ts`, `CajonHit` B/A/G/R): B G G A G G | B G G A G G | G A B G B G | G A B G A G.
+  Sonido: los **24 golpes cortados del video** (a ~74 BPM de negra, tempo algo irregular: se siguió cada golpe) en
+  `public/audio/cajon.bin` (577 KB, PCM 16 bits mono 44,1 kHz; índice en `src/audio/cajonIndex.ts`). Cada paso suena con SU golpe
+  grabado; los volúmenes por clase se igualaron (bajo ≈0,65 · agudo ≈0,50 · fantasma ≈0,18, los fantasmas subidos para que se
+  oigan en el celular). Se descarga solo al activar la capa y el service worker lo guarda. Partitura propia (`CajonScore.tsx`)
+  que se ve en las vistas con partitura (Menú → Vista) cuando la capa está activa. `CAJON_REQUIRES_PRO` (en `App.tsx`) está en
+  `false`: el cajón es gratis en el ritmo I; ponerlo en `true` lo deja solo para PRO. Para ampliar: más patrones o ritmos de
+  cajón necesitan sus propias grabaciones (el motor ya elige un golpe del mismo tipo si falta la grabación exacta).
 - **Metrónomo de fondo** (botón "⏱️ Metrónomo", activo por defecto, se recuerda en `hispanapp_metronome`):
   `scheduleMetronome` en `engine.ts` da un "tac" en cada tiempo con número en la cuenta y un "tum" grave en los
   tiempos de `metroDownbeats` del ritmo, definidos por Jordan (6/11/2026): compás de 12 (I) y Seguiriyas (II) solo en el

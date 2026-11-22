@@ -1,4 +1,5 @@
 export type PalmaHit = 'P' | 'A' | 'R'; // P = Palma regular, A = Acento (>), R = Silencio / Rest
+export type CajonHit = 'B' | 'A' | 'G' | 'R'; // B = Bajo, A = Agudo, G = Fantasma (cabeza de cruz), R = Silencio
 
 /** Variante de palmas de un ritmo (misma cuenta, otro dibujo de golpes y silencios) */
 export interface RhythmPattern {
@@ -30,6 +31,8 @@ export interface RhythmDefinition {
   metroDownbeats?: number[];
   stepsPerBeat: number;
   steps: PalmaHit[];
+  /** Patrón de cajón (mismos pasos que las palmas: uno por corchea). Alterna mano derecha (D) e izquierda (I). */
+  cajon?: CajonHit[];
   /** Otros patrones de palmas sobre el mismo ritmo (el patrón 1 es siempre `steps`, el oficial con video) */
   patterns?: RhythmPattern[];
   /** Patrón en uso: 0 = el oficial (`steps`); 1, 2… = `patterns[n-1]`. Lo rellena rhythmWithPattern */
