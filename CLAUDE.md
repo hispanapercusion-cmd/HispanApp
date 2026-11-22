@@ -201,6 +201,12 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   (`cajonBars: [2,2,3,3,2]`), B G A G | B G A G | B G G A G G | B G G A G G | B G A G. **Suena con golpes grabados del ritmo I
   elegidos al azar según su tipo** (bajo, agudo, fantasma; sin repetir el anterior): no es una grabación exacta. Si Jordan
   manda el video, se cortan sus 24 golpes como en el I. `CajonScore` ya dibuja compases de 2 y 3 tiempos y los cambios de compás.
+  **Cajón del ritmo III (Bulerías)** (22/11/2026, partitura + video `ritmo_III_pt._1.mov`): 2 compases de 3/4 en **semicorcheas** (24 golpes,
+  D-I-D-I…, `cajonBars: [3,3]`): B G G A G G A G G A G G, dos veces. Los 24 golpes se cortaron del video (una vuelta, ~0,28 s por
+  semicorchea) y están en `public/audio/cajon-r3.bin` (500 KB). **Bancos de muestras** (`CAJON_BANKS` en `cajonIndex.ts`, uno por ritmo con
+  video): cada ritmo con banco toca sus golpes exactos; los demás (el II) eligen al azar golpes del mismo tipo de cualquier banco. Se
+  descargan todos al activar la capa (~1,1 MB). El motor admite un cajón más fino que las palmas (`cajon.length / steps.length` golpes por
+  paso: 2 en el III) y `CajonScore` dibuja corcheas (1 barra) o semicorcheas (2 barras); con semicorcheas se iluminan 2 golpes por paso.
 - **Metrónomo de fondo** (botón "⏱️ Metrónomo", activo por defecto, se recuerda en `hispanapp_metronome`):
   `scheduleMetronome` en `engine.ts` da un "tac" en cada tiempo con número en la cuenta y un "tum" grave en los
   tiempos de `metroDownbeats` del ritmo, definidos por Jordan (6/11/2026): compás de 12 (I) y Seguiriyas (II) solo en el
