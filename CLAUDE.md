@@ -177,6 +177,14 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   (`hispanapp_palmas`); siempre queda al menos una capa activa. Para más adelante: vídeos en bucle con más ciclos, cajón
   como capa combinable, abrir la app a cantaores/bailaoras/guitarristas. A confirmar con 2-3 alumnos más: el Modo Espejo y
   los términos confusos, y que Vocabulario/Comunidad no pierdan uso al esconderse en el menú.
+- **Patrones de palmas del ritmo I** (22/11/2026): el ritmo I tiene 3 patrones de palmas sobre la misma cuenta y los mismos acentos
+  (12, 3, 6, 8 y 10). Patrón 1 = el oficial (el del video y el de las muestras grabadas por Jordan); Patrón 2 = silencio +
+  corchea (contratiempo) en los tiempos 1, 4, 7, 9 y 1 final; Patrón 3 = dos corcheas en los tiempos 1, 4, 7 y 9. Están en
+  `patterns` del ritmo (`rhythms.ts`; `rhythmWithPattern` / `patternCount`). Selector «Patrón de palmas 1·2·3» bajo los botones
+  de ritmos (solo aparece en ritmos con más de un patrón), se recuerda en la sesión (`pattern`) y vuelve al 1 al cambiar de ritmo.
+  La partitura del ritmo I se dibuja desde los pasos (`MonogramScore.tsx`). **Los patrones 2 y 3 suenan con palmas sueltas de las
+  muestras de Jordan** (no hay grabación propia de esos patrones; solo el patrón 1 usa el mapeo exacto). El video sigue siendo el
+  del patrón 1. Las imágenes de Jordan no traían acentos: se pusieron los mismos del ritmo I.
 - **Metrónomo de fondo** (botón "⏱️ Metrónomo", activo por defecto, se recuerda en `hispanapp_metronome`):
   `scheduleMetronome` en `engine.ts` da un "tac" en cada tiempo con número en la cuenta y un "tum" grave en los
   tiempos de `metroDownbeats` del ritmo, definidos por Jordan (6/11/2026): compás de 12 (I) y Seguiriyas (II) solo en el

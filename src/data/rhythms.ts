@@ -24,6 +24,31 @@ export const PALMAS_METHOD: RhythmDefinition[] = [
       'A', 'R', 'P', 'P', 'A', 'R',
       'P', 'P', 'A', 'R', 'P', 'R',
     ],
+    // Otros patrones de palmas del ritmo I (mismos acentos en 12, 3, 6, 8 y 10; el patrón 1 es el de arriba, con video)
+    patterns: [
+      {
+        // Patrón 2: en los tiempos 1, 4, 7, 9 y 1 final, silencio de corchea + corchea (a contratiempo)
+        note: 'Contratiempos: silencio + corchea',
+        noteEn: 'Off-beats: rest + eighth note',
+        steps: [
+          'A', 'R', 'R', 'P', 'P', 'R',
+          'A', 'R', 'R', 'P', 'P', 'R',
+          'A', 'R', 'R', 'P', 'A', 'R',
+          'R', 'P', 'A', 'R', 'R', 'P',
+        ],
+      },
+      {
+        // Patrón 3: en los tiempos 1, 4, 7 y 9, dos corcheas seguidas
+        note: 'Dos corcheas en los tiempos 1, 4, 7 y 9',
+        noteEn: 'Two eighth notes on beats 1, 4, 7 and 9',
+        steps: [
+          'A', 'R', 'P', 'P', 'P', 'R',
+          'A', 'R', 'P', 'P', 'P', 'R',
+          'A', 'R', 'P', 'P', 'A', 'R',
+          'P', 'P', 'A', 'R', 'P', 'R',
+        ],
+      },
+    ],
     videoUrl: 'https://youtu.be/V4eKkZvdvCw?si=UrHBMB2lleHJAlT5',
     videoEmbedUrl: 'https://www.youtube.com/embed/V4eKkZvdvCw',
   },
@@ -222,3 +247,12 @@ const PALO_SHORT: Record<string, string> = {
   r8: 'Tanguillos',
 };
 export const rhythmPaloShort = (r: RhythmDefinition): string => PALO_SHORT[r.id] || rhythmName(r);
+
+/** Cuántos patrones de palmas tiene un ritmo (el oficial más las variantes) */
+export const patternCount = (r: RhythmDefinition): number => 1 + (r.patterns?.length ?? 0);
+
+/** El ritmo con el patrón elegido (0 = el oficial). El resto de datos (cuenta, acentos del reloj, video…) es el mismo. */
+export const rhythmWithPattern = (r: RhythmDefinition, patternIndex: number): RhythmDefinition => {
+  const alt = patternIndex > 0 ? r.patterns?.[patternIndex - 1] : undefined;
+  return alt ? { ...r, steps: alt.steps, patternIndex } : r;
+};

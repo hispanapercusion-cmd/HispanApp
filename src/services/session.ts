@@ -8,6 +8,8 @@ export interface SavedSession {
   countMode?: CountMode;
   viewMode?: ViewMode;
   countIn?: boolean;
+  /** Patrón de palmas del ritmo (0 = el oficial) */
+  pattern?: number;
 }
 
 const KEY = 'hispanapp_session';
@@ -22,6 +24,7 @@ export function loadSession(): SavedSession {
     if (raw.countMode === 'phonetic' || raw.countMode === 'traditional') s.countMode = raw.countMode;
     if (raw.viewMode === 'split' || raw.viewMode === 'staff' || raw.viewMode === 'clock') s.viewMode = raw.viewMode;
     if (typeof raw.countIn === 'boolean') s.countIn = raw.countIn;
+    if (Number.isInteger(raw.pattern) && raw.pattern >= 0 && raw.pattern <= 9) s.pattern = raw.pattern;
     return s;
   } catch {
     return {};
