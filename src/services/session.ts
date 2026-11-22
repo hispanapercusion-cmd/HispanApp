@@ -10,6 +10,8 @@ export interface SavedSession {
   countIn?: boolean;
   /** Patrón de palmas del ritmo (0 = el oficial) */
   pattern?: number;
+  /** Patrón de cajón del ritmo (0 = el oficial) */
+  cajonPattern?: number;
 }
 
 const KEY = 'hispanapp_session';
@@ -25,6 +27,7 @@ export function loadSession(): SavedSession {
     if (raw.viewMode === 'split' || raw.viewMode === 'staff' || raw.viewMode === 'clock') s.viewMode = raw.viewMode;
     if (typeof raw.countIn === 'boolean') s.countIn = raw.countIn;
     if (Number.isInteger(raw.pattern) && raw.pattern >= 0 && raw.pattern <= 9) s.pattern = raw.pattern;
+    if (Number.isInteger(raw.cajonPattern) && raw.cajonPattern >= 0 && raw.cajonPattern <= 9) s.cajonPattern = raw.cajonPattern;
     return s;
   } catch {
     return {};
