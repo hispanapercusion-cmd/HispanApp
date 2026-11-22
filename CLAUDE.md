@@ -213,6 +213,9 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   activo y en ritmos con más de un patrón; se recuerda (`cajonPattern` en la sesión) y vuelve al 1 al cambiar de ritmo. **Suena con golpes
   grabados al azar según su tipo** (los golpes exactos del video valen solo para el patrón 1). Si Jordan manda el video, se cortan sus
   golpes como en el patrón 1 (otro banco).
+  **Cajón del ritmo IV (Jaleos / Abandolaos)** (22/11/2026, base de Jordan, solo partitura, sin video): 2 compases de 3/4 en semicorcheas
+  (`cajonBars: [3,3]`; los pasos de este ritmo ya son semicorcheas): B G G A G G G A G G B G, dos veces. Suena con golpes grabados al
+  azar según su tipo (no hay banco propio). Si Jordan manda el video, se corta como los bancos del I y el III.
 - **Metrónomo de fondo** (botón "⏱️ Metrónomo", activo por defecto, se recuerda en `hispanapp_metronome`):
   `scheduleMetronome` en `engine.ts` da un "tac" en cada tiempo con número en la cuenta y un "tum" grave en los
   tiempos de `metroDownbeats` del ritmo, definidos por Jordan (6/11/2026): compás de 12 (I) y Seguiriyas (II) solo en el
