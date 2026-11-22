@@ -159,6 +159,13 @@ export const PALMAS_METHOD: RhythmDefinition[] = [
       'A', 'R', 'R', 'P', 'A', 'R', 'R', 'P', 'A', 'R', 'A', 'R',
       'A', 'R', 'R', 'P', 'A', 'R', 'R', 'P', 'A', 'R', 'A', 'R',
     ],
+    // Cajón del ritmo IV (base de Jaleos, partitura de Jordan, sin video): 2 compases de 3/4 en semicorcheas, D-I-D-I…
+    // B = bajo · A = agudo · G = fantasma
+    cajon: [
+      'B', 'G', 'G', 'A', 'G', 'G', 'G', 'A', 'G', 'G', 'B', 'G',
+      'B', 'G', 'G', 'A', 'G', 'G', 'G', 'A', 'G', 'G', 'B', 'G',
+    ],
+    cajonBars: [3, 3],
     videoUrl: 'https://youtu.be/jeM-teScoIY?si=wBp3aPBCbyyyWA6j',
     videoEmbedUrl: 'https://www.youtube.com/embed/jeM-teScoIY',
   },
