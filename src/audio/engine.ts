@@ -1,6 +1,6 @@
 import { AudioSourceMode, PalmaTone, RhythmDefinition } from '../types';
 import { AGUDA_LENGTHS, PALMAS_URL, SAMPLE_RATE, SORDA_LENGTHS } from './palmasIndex';
-import { CAJON_LENGTHS, CAJON_SAMPLE_RATE, CAJON_TYPES, CAJON_URL } from './cajonIndex';
+import { CAJON_BANKS, CAJON_SAMPLE_RATE } from './cajonIndex';
 
 // Convierte un tramo de PCM 16 bits (little-endian) en un AudioBuffer
 function createAudioBufferFromPcm16(ctx: AudioContext, pcm: Int16Array, sampleRate = 44100): AudioBuffer {
@@ -28,18 +28,19 @@ function downloadPalmas(): Promise<ArrayBuffer> {
 }
 
 // Las muestras del cajón se descargan solo cuando se activa la capa «Cajón» (y el service worker las guarda)
-let cajonDownload: Promise<ArrayBuffer> | null = null;
-function downloadCajon(): Promise<ArrayBuffer> {
-  if (!cajonDownload) {
-    cajonDownload = fetch(CAJON_URL).then((res) => {
+const cajonDownloads: Record<string, Promise<ArrayBuffer>> = {};
+function downloadCajon(bankId: string): Promise<ArrayBuffer> {
+  if (!cajonDownloads[bankId]) {
+    const p = fetch(CAJON_BANKS[bankId].url).then((res) => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.arrayBuffer();
     });
-    cajonDownload.catch(() => {
-      cajonDownload = null; // permitir reintentar más tarde
+    p.catch(() => {
+      delete cajonDownloads[bankId]; // permitir reintentar más tarde
     });
+    cajonDownloads[bankId] = p;
   }
-  return cajonDownload;
+  return cajonDownloads[bankId];
 }
 
 interface ScheduledEvent {
@@ -132,7 +133,7 @@ export class FlamencoAudioEngine {
   private palmasEnabled: boolean = true;
   // Capa de cajón: los 24 golpes grabados por Jordan (bajo, agudo y fantasmas), en el orden de la partitura
   private cajonEnabled: boolean = false;
-  private cajonBuffers: AudioBuffer[] = [];
+  private cajonBuffers: Record<string, AudioBuffer[]> = {};
   private cajonLoading: Promise<boolean> | null = null;
   private lastCajonPick: Record<string, number> = {};
   private atStart: boolean = true;
@@ -349,21 +350,25 @@ export class FlamencoAudioEngine {
 
   /** Descarga y prepara las muestras del cajón. Devuelve true si quedaron listas. */
   public loadCajonSamples(): Promise<boolean> {
-    if (this.cajonBuffers.length > 0) return Promise.resolve(true);
+    const ids = Object.keys(CAJON_BANKS);
+    if (ids.every((id) => this.cajonBuffers[id]?.length)) return Promise.resolve(true);
     if (this.cajonLoading) return this.cajonLoading;
     this.init();
-    this.cajonLoading = downloadCajon()
-      .then((data) => {
-        if (!this.ctx) return false;
-        const ctx = this.ctx;
-        let offset = 0; // en muestras
-        this.cajonBuffers = CAJON_LENGTHS.map((len) => {
-          const view = new Int16Array(data, offset * 2, len);
-          offset += len;
-          return createAudioBufferFromPcm16(ctx, view, CAJON_SAMPLE_RATE);
-        });
-        return true;
-      })
+    this.cajonLoading = Promise.all(
+      ids.map((id) =>
+        downloadCajon(id).then((data) => {
+          if (!this.ctx) throw new Error('sin audio');
+          const ctx = this.ctx;
+          let offset = 0; // en muestras
+          this.cajonBuffers[id] = CAJON_BANKS[id].lengths.map((len) => {
+            const view = new Int16Array(data, offset * 2, len);
+            offset += len;
+            return createAudioBufferFromPcm16(ctx, view, CAJON_SAMPLE_RATE);
+          });
+        })
+      )
+    )
+      .then(() => true)
       .catch((err) => {
         console.warn('No se pudo cargar el cajón:', err);
         return false;
@@ -662,40 +667,48 @@ export class FlamencoAudioEngine {
     source.start(scheduleTime);
   }
 
-  // Cajón: cada paso del patrón suena con el golpe grabado en ese mismo lugar de la partitura
-  // (si algún día hay otro patrón, se elige al azar un golpe del mismo tipo: bajo, agudo o fantasma)
+  // Cajón: cada golpe del patrón suena con el golpe grabado en ese mismo lugar de su partitura (si el ritmo tiene banco propio);
+  // si no, se elige al azar un golpe grabado del mismo tipo (bajo, agudo o fantasma), sin repetir el anterior.
+  // El cajón puede ir más fino que las palmas (p. ej. semicorcheas): entonces hay varios golpes por paso.
   private scheduleCajonAudio(stepIdx: number, time: number) {
-    if (!this.ctx || !this.cajonEnabled || this.cajonBuffers.length === 0) return;
-    const hit = this.rhythm.cajon?.[stepIdx];
-    if (!hit || hit === 'R') return;
-    let buffer: AudioBuffer | undefined;
-    if (this.rhythm.id === 'r1' && CAJON_TYPES[stepIdx] === hit) {
-      // Ritmo I: el golpe grabado en ese mismo lugar de la partitura
-      buffer = this.cajonBuffers[stepIdx];
-    } else {
-      // Otros ritmos: un golpe grabado del mismo tipo (bajo, agudo o fantasma), sin repetir el anterior
-      const pool: number[] = [];
-      CAJON_TYPES.split('').forEach((t, i) => {
-        if (t === hit && this.cajonBuffers[i]) pool.push(i);
-      });
-      if (pool.length === 0) return;
-      let pick = pool[Math.floor(Math.random() * pool.length)];
-      if (pool.length > 1 && pick === this.lastCajonPick[hit]) pick = pool[(pool.indexOf(pick) + 1) % pool.length];
-      this.lastCajonPick[hit] = pick;
-      buffer = this.cajonBuffers[pick];
+    const cajon = this.rhythm.cajon;
+    if (!this.ctx || !this.cajonEnabled || !cajon || Object.keys(this.cajonBuffers).length === 0) return;
+    const sub = Math.max(1, Math.round(cajon.length / this.rhythm.steps.length));
+    const subDur = this.getStepDurationSeconds() / sub;
+    for (let k = 0; k < sub; k++) {
+      const idx = stepIdx * sub + k;
+      const hit = cajon[idx];
+      if (!hit || hit === 'R') continue;
+      const own = CAJON_BANKS[this.rhythm.id];
+      let buffer: AudioBuffer | undefined;
+      if (own && own.types[idx] === hit && this.cajonBuffers[this.rhythm.id]) {
+        buffer = this.cajonBuffers[this.rhythm.id][idx];
+      } else {
+        const pool: AudioBuffer[] = [];
+        Object.entries(CAJON_BANKS).forEach(([id, bank]) => {
+          bank.types.split('').forEach((t, i) => {
+            if (t === hit && this.cajonBuffers[id]?.[i]) pool.push(this.cajonBuffers[id][i]);
+          });
+        });
+        if (pool.length === 0) continue;
+        let n = Math.floor(Math.random() * pool.length);
+        if (pool.length > 1 && n === this.lastCajonPick[hit]) n = (n + 1) % pool.length;
+        this.lastCajonPick[hit] = n;
+        buffer = pool[n];
+      }
+      if (!buffer) continue;
+      if (this.ctx.state !== 'running') {
+        this.ctx.resume().catch(() => {});
+      }
+      const source = this.ctx.createBufferSource();
+      source.buffer = buffer;
+      const gainNode = this.ctx.createGain();
+      const when = Math.max(time + k * subDur, this.ctx.currentTime);
+      gainNode.gain.setValueAtTime(0.95, when);
+      source.connect(gainNode);
+      gainNode.connect(this.ctx.destination);
+      source.start(when);
     }
-    if (!buffer) return;
-    if (this.ctx.state !== 'running') {
-      this.ctx.resume().catch(() => {});
-    }
-    const source = this.ctx.createBufferSource();
-    source.buffer = buffer;
-    const gainNode = this.ctx.createGain();
-    const when = Math.max(time, this.ctx.currentTime);
-    gainNode.gain.setValueAtTime(0.95, when);
-    source.connect(gainNode);
-    gainNode.connect(this.ctx.destination);
-    source.start(when);
   }
 
   private scheduleStepAudio(stepIdx: number, time: number) {

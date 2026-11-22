@@ -2,9 +2,10 @@ import React, { useEffect, useRef } from 'react';
 import { CajonHit, RhythmDefinition } from '../types';
 import { useLang } from '../i18n';
 
-// Partitura del cajón: compases de 2 o 3 tiempos, dos corcheas por tiempo, siempre mano derecha (D) e izquierda (I) alternadas.
+// Partitura del cajón: compases de 2 o 3 tiempos, con 2 corcheas o 4 semicorcheas por tiempo, siempre mano derecha (D)
+// e izquierda (I) alternadas.
 //   Bajo = nota de abajo · Agudo = nota de arriba · Fantasma = cabeza de cruz (✕).
-const BEAT_W = 64;
+const NOTE_SP = 28; // separación entre golpes
 const LEFT = 52;
 const GAP = 14;
 const SIG_W = 30; // lugar para el cambio de compás (2/4 ↔ 3/4)
@@ -26,38 +27,39 @@ interface CajonScoreProps {
   countMode: 'phonetic' | 'traditional';
 }
 
-/** Posición de cada compás: dónde empieza, cuántos tiempos tiene y si hay que dibujar el cambio de compás */
-function layoutBars(bars: number[]) {
-  let x = LEFT;
-  return bars.map((beats, i) => {
-    const showSig = i > 0 && beats !== bars[i - 1];
-    if (showSig) x += SIG_W;
-    const bar = { start: x, beats, showSig };
-    x += beats * BEAT_W + GAP;
-    return bar;
-  });
-}
-
 const CajonScoreComponent: React.FC<CajonScoreProps> = ({ rhythm, activeStep, countMode }) => {
   const { L } = useLang();
   const boxRef = useRef<HTMLDivElement>(null);
   const steps = rhythm.cajon;
   const barsDef = rhythm.cajonBars ?? [3, 3, 3, 3];
-  const bars = layoutBars(barsDef);
+  const totalBeats = barsDef.reduce((a, b) => a + b, 0);
+  const notesPerBeat = steps ? Math.max(1, Math.round(steps.length / totalBeats)) : 2; // 2 = corcheas · 4 = semicorcheas
+  // Golpes de cajón por cada paso del ritmo (con semicorcheas, 2 golpes se iluminan a la vez)
+  const sub = steps ? Math.max(1, Math.round(steps.length / rhythm.steps.length)) : 1;
+  const beatW = notesPerBeat * NOTE_SP + 8;
 
-  // x del primer golpe de cada tiempo
+  // Posición de cada compás y de cada tiempo
+  let cursor = LEFT;
+  const bars = barsDef.map((beats, i) => {
+    const showSig = i > 0 && beats !== barsDef[i - 1];
+    if (showSig) cursor += SIG_W;
+    const bar = { start: cursor, beats, showSig };
+    cursor += beats * beatW + GAP;
+    return bar;
+  });
   const beatX: number[] = [];
   bars.forEach((b) => {
-    for (let k = 0; k < b.beats; k++) beatX.push(b.start + k * BEAT_W);
+    for (let k = 0; k < b.beats; k++) beatX.push(b.start + k * beatW);
   });
 
   // En pantallas angostas la partitura se desplaza sola para seguir el golpe que suena
   useEffect(() => {
     const box = boxRef.current;
     if (!box || activeStep < 0) return;
-    const bx = beatX[Math.floor(activeStep / 2)];
+    const note = activeStep * sub;
+    const bx = beatX[Math.floor(note / notesPerBeat)];
     if (bx === undefined) return;
-    const x = 12 + bx + 32; // centro del tiempo (12 = relleno del panel)
+    const x = 12 + bx + 18 + (note % notesPerBeat) * NOTE_SP; // x del golpe (12 = relleno del panel)
     if (x < box.scrollLeft + 60 || x > box.scrollLeft + box.clientWidth - 60) {
       box.scrollTo({ left: Math.max(0, x - box.clientWidth / 2), behavior: 'smooth' });
     }
@@ -67,58 +69,69 @@ const CajonScoreComponent: React.FC<CajonScoreProps> = ({ rhythm, activeStep, co
   if (!steps) return null;
   const counts = rhythm.has12CountToggle && countMode === 'traditional' ? rhythm.countsTrad : rhythm.countsPhon;
   const last = bars[bars.length - 1];
-  const totalW = last.start + last.beats * BEAT_W + 6;
+  const totalW = last.start + last.beats * beatW + 6;
 
   const headY = (hit: string) => (hit === 'B' ? Y_BAJO : hit === 'A' ? Y_AGUDO : Y_FANTASMA);
+  const isActive = (noteIdx: number) => activeStep >= 0 && Math.floor(noteIdx / sub) === activeStep;
 
   const nodes: React.ReactNode[] = [];
   for (let beat = 0; beat < beatX.length; beat++) {
     const x0 = beatX[beat];
-    const xs = [x0 + 18, x0 + 46];
-    const hits: CajonHit[] = [steps[beat * 2], steps[beat * 2 + 1]];
-    const active = [activeStep === beat * 2, activeStep === beat * 2 + 1];
-    const anyActive = active[0] || active[1];
-    const label = counts[beat] === '·' ? '' : counts[beat];
+    const group: { x: number; hit: CajonHit; idx: number }[] = [];
+    for (let i = 0; i < notesPerBeat; i++) {
+      const idx = beat * notesPerBeat + i;
+      group.push({ x: x0 + 18 + i * NOTE_SP, hit: steps[idx], idx });
+    }
+    const groupActive = group.some((n) => isActive(n.idx));
 
-    // Número del tiempo (se ilumina con el golpe)
-    nodes.push(
-      <text key={`c${beat}`} x={xs[0]} y={COUNT_Y} textAnchor="middle" fontFamily="Lora, serif" fontSize={anyActive ? 16 : 13.5} fontWeight={anyActive ? 800 : 600}
-        fill={anyActive ? '#FFFFFF' : 'rgba(243,244,246,0.92)'} style={anyActive ? { filter: 'drop-shadow(0 0 5px rgba(255,85,51,0.95))' } : undefined}>
-        {label}
-      </text>
-    );
-
-    // Dos corcheas unidas: plicas hacia arriba y una barra
-    const both = hits[0] !== 'R' && hits[1] !== 'R';
-    xs.forEach((x, i) => {
-      const hit = hits[i];
-      if (hit === 'R') return;
-      const col = active[i] ? ACTIVE : INK;
-      const y = headY(hit);
-      nodes.push(<line key={`s${beat}-${i}`} x1={x + 4.2} y1={y - 1} x2={x + 4.2} y2={BEAM_Y} stroke={col} strokeWidth={1.6} />);
-      if (hit === 'G') {
+    group.forEach((n) => {
+      const act = isActive(n.idx);
+      // Número del tiempo (cada 2 golpes; se ilumina con el golpe)
+      if (n.idx % 2 === 0) {
+        const raw = counts[n.idx / 2];
+        const label = raw === '·' || raw === undefined ? '' : raw;
+        const on = act || isActive(n.idx + 1);
         nodes.push(
-          <g key={`h${beat}-${i}`} stroke={col} strokeWidth={1.9} strokeLinecap="round">
-            <line x1={x - 4} y1={y - 4} x2={x + 4} y2={y + 4} />
-            <line x1={x - 4} y1={y + 4} x2={x + 4} y2={y - 4} />
+          <text key={`c${n.idx}`} x={n.x} y={COUNT_Y} textAnchor="middle" fontFamily="Lora, serif" fontSize={on ? 16 : 13.5} fontWeight={on ? 800 : 600}
+            fill={on ? '#FFFFFF' : 'rgba(243,244,246,0.92)'} style={on ? { filter: 'drop-shadow(0 0 5px rgba(255,85,51,0.95))' } : undefined}>
+            {label}
+          </text>
+        );
+      }
+      if (n.hit === 'R') return;
+      const col = act ? ACTIVE : INK;
+      const y = headY(n.hit);
+      nodes.push(<line key={`s${n.idx}`} x1={n.x + 4.2} y1={y - 1} x2={n.x + 4.2} y2={BEAM_Y} stroke={col} strokeWidth={1.6} />);
+      if (n.hit === 'G') {
+        nodes.push(
+          <g key={`h${n.idx}`} stroke={col} strokeWidth={1.9} strokeLinecap="round">
+            <line x1={n.x - 4} y1={y - 4} x2={n.x + 4} y2={y + 4} />
+            <line x1={n.x - 4} y1={y + 4} x2={n.x + 4} y2={y - 4} />
           </g>
         );
       } else {
-        nodes.push(<ellipse key={`h${beat}-${i}`} cx={x} cy={y} rx={5.4} ry={3.9} fill={col} transform={`rotate(-18 ${x} ${y})`} style={active[i] ? { filter: 'drop-shadow(0 0 5px rgba(255,85,51,0.9))' } : undefined} />);
+        nodes.push(<ellipse key={`h${n.idx}`} cx={n.x} cy={y} rx={5.4} ry={3.9} fill={col} transform={`rotate(-18 ${n.x} ${y})`} style={act ? { filter: 'drop-shadow(0 0 5px rgba(255,85,51,0.9))' } : undefined} />);
       }
-      // Mano: D (derecha) en el primer golpe del tiempo, I (izquierda) en el segundo
+      // Mano: D (derecha) en los golpes pares, I (izquierda) en los impares
       nodes.push(
-        <text key={`l${beat}-${i}`} x={x} y={LETTER_Y} textAnchor="middle" fontFamily="Lora, serif" fontSize={active[i] ? 17 : 15} fontWeight={active[i] ? 800 : 500} fill={active[i] ? ACTIVE : INK}>
-          {i === 0 ? 'D' : 'I'}
+        <text key={`l${n.idx}`} x={n.x} y={LETTER_Y} textAnchor="middle" fontFamily="Lora, serif" fontSize={act ? 17 : 15} fontWeight={act ? 800 : 500} fill={act ? ACTIVE : INK}>
+          {n.idx % 2 === 0 ? 'D' : 'I'}
         </text>
       );
     });
-    if (both) {
-      nodes.push(<rect key={`b${beat}`} x={xs[0] + 3.4} y={BEAM_Y} width={xs[1] - xs[0] + 1.6} height={4.2} fill={anyActive ? ACTIVE : INK} />);
-    } else {
-      // Una sola corchea: bandera sencilla
-      const i = hits[0] !== 'R' ? 0 : 1;
-      if (hits[i] !== 'R') nodes.push(<path key={`f${beat}`} d={`M ${xs[i] + 4.2} ${BEAM_Y} q 9 4 6 16`} fill="none" stroke={active[i] ? ACTIVE : INK} strokeWidth={2.2} />);
+
+    // Barras de unión del tiempo: una para corcheas, dos para semicorcheas
+    const present = group.filter((n) => n.hit !== 'R');
+    if (present.length > 1) {
+      const x1 = present[0].x + 3.4;
+      const w = present[present.length - 1].x - present[0].x + 1.6;
+      const beams = notesPerBeat >= 4 ? 2 : 1;
+      for (let b = 0; b < beams; b++) {
+        nodes.push(<rect key={`b${beat}-${b}`} x={x1} y={BEAM_Y + b * 6} width={w} height={4.2} fill={groupActive ? ACTIVE : INK} />);
+      }
+    } else if (present.length === 1) {
+      // Un solo golpe: bandera sencilla
+      nodes.push(<path key={`f${beat}`} d={`M ${present[0].x + 4.2} ${BEAM_Y} q 9 4 6 16`} fill="none" stroke={isActive(present[0].idx) ? ACTIVE : INK} strokeWidth={2.2} />);
     }
   }
 
@@ -146,7 +159,7 @@ const CajonScoreComponent: React.FC<CajonScoreProps> = ({ rhythm, activeStep, co
           {nodes}
           {/* Barras de compás */}
           {bars.slice(0, -1).map((b, i) => {
-            const x = b.start + b.beats * BEAT_W + GAP / 2 - 2;
+            const x = b.start + b.beats * beatW + GAP / 2 - 2;
             return <line key={i} x1={x} y1={LINES[0]} x2={x} y2={LINES[4]} stroke={LINE} strokeWidth={1.5} />;
           })}
           <line x1={totalW - 9} y1={LINES[0]} x2={totalW - 9} y2={LINES[4]} stroke={LINE} strokeWidth={1.5} />

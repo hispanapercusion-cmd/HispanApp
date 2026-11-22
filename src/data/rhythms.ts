@@ -116,6 +116,13 @@ export const PALMAS_METHOD: RhythmDefinition[] = [
       'R', 'A', 'P', 'A', 'P', 'P',
       'R', 'A', 'P', 'A', 'P', 'P',
     ],
+    // Cajón del ritmo III (partitura y video de Jordan): 2 compases de 3/4 en SEMICORCHEAS (24 golpes, 2 por cada paso de arriba),
+    // siempre D-I-D-I… B = bajo · A = agudo · G = fantasma
+    cajon: [
+      'B', 'G', 'G', 'A', 'G', 'G', 'A', 'G', 'G', 'A', 'G', 'G',
+      'B', 'G', 'G', 'A', 'G', 'G', 'A', 'G', 'G', 'A', 'G', 'G',
+    ],
+    cajonBars: [3, 3],
     videoUrl: 'https://youtu.be/CxFXWZDFj5s?si=yMOrdph4YnijL6Ph',
     videoEmbedUrl: 'https://www.youtube.com/embed/CxFXWZDFj5s',
   },
