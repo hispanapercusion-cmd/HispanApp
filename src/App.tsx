@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { PALMAS_METHOD, rhythmTitle, rhythmName, rhythmPalos, rhythmPaloShort } from './data/rhythms';
+import { PALMAS_METHOD, rhythmTitle, rhythmName, rhythmPalos, rhythmPaloShort, rhythmWithPattern, patternCount } from './data/rhythms';
 import { useLang, LangSwitch } from './i18n';
 import { FlamencoAudioEngine } from './audio/engine';
 import { HispanaLogo } from './components/HispanaLogo';
@@ -103,6 +103,11 @@ const SAVED_BPM =
 export default function App() {
   const { lang, L } = useLang();
   const [rhythmIndex, setRhythmIndex] = useState<number>(SAVED_RHYTHM_INDEX);
+  // Patrón de palmas del ritmo (0 = el oficial, con video). Solo el ritmo I tiene más de uno por ahora.
+  const [patternIndex, setPatternIndex] = useState<number>(() => {
+    const r = PALMAS_METHOD[SAVED_RHYTHM_INDEX];
+    return SAVED.rhythmId === r.id && SAVED.pattern !== undefined && SAVED.pattern < patternCount(r) ? SAVED.pattern : 0;
+  });
   const [bpm, setBpmState] = useState<number>(SAVED_BPM);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [activeStep, setActiveStep] = useState<number>(-1);
@@ -153,8 +158,8 @@ export default function App() {
 
   // Guardar la sesión cada vez que cambia algo
   useEffect(() => {
-    saveSession({ rhythmId: PALMAS_METHOD[rhythmIndex].id, bpm, palmaTone, countMode, viewMode, countIn: countInEnabled });
-  }, [rhythmIndex, bpm, palmaTone, countMode, viewMode, countInEnabled]);
+    saveSession({ rhythmId: PALMAS_METHOD[rhythmIndex].id, bpm, palmaTone, countMode, viewMode, countIn: countInEnabled, pattern: patternIndex });
+  }, [rhythmIndex, patternIndex, bpm, palmaTone, countMode, viewMode, countInEnabled]);
 
   // Racha de práctica: se suma el tiempo que suena el ritmo (cada 10 s y al parar)
   const [practice, setPractice] = useState<PracticeStats>(() => getPracticeStats());
@@ -372,7 +377,7 @@ export default function App() {
   const tapTimesRef = useRef<number[]>([]);
 
   // Current Rhythm
-  const currentRhythm = useMemo(() => PALMAS_METHOD[rhythmIndex], [rhythmIndex]);
+  const currentRhythm = useMemo(() => rhythmWithPattern(PALMAS_METHOD[rhythmIndex], patternIndex), [rhythmIndex, patternIndex]);
 
   // Audio Engine reference
   const engineRef = useRef<FlamencoAudioEngine | null>(null);
@@ -621,6 +626,7 @@ export default function App() {
       return;
     }
     setRhythmIndex(newRhythmIdx);
+    setPatternIndex(0); // al cambiar de ritmo se vuelve al patrón oficial
     const nextRhythm = PALMAS_METHOD[newRhythmIdx];
     track('select_rhythm', { rhythm: nextRhythm.id });
     const defaultBpm = nextRhythm.bpmRange.default;
@@ -634,6 +640,20 @@ export default function App() {
       engineRef.current.setRhythm(nextRhythm);
       engineRef.current.setBpm(defaultBpm);
     }
+  };
+
+  // Cambiar el patrón de palmas del ritmo (mismo ritmo y misma cuenta, otro dibujo de golpes y silencios)
+  const handlePatternSelect = (idx: number) => {
+    if (idx === patternIndex) return;
+    const base = PALMAS_METHOD[rhythmIndex];
+    if (idx < 0 || idx >= patternCount(base)) return;
+    setPatternIndex(idx);
+    setActiveStep(-1);
+    setCountInText(null);
+    setCycleCount(1);
+    setCanRestart(false);
+    engineRef.current?.setRhythm(rhythmWithPattern(base, idx));
+    track('select_pattern', { rhythm: base.id, pattern: idx + 1 });
   };
 
   const handlePrevRhythm = () => {
@@ -1137,6 +1157,36 @@ export default function App() {
               })}
             </div>
           </div>
+
+          {/* Patrón de palmas (solo en los ritmos que tienen más de uno) */}
+          {patternCount(PALMAS_METHOD[rhythmIndex]) > 1 && (
+            <div className="pt-2 border-t border-white/[0.06] space-y-1.5" data-testid="pattern-picker">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-[13px] font-sans font-medium text-gray-300">{L('Patrón de palmas', 'Clap pattern')}</span>
+                <div className="flex segmented p-0.5 rounded-full text-[13px]" role="group" aria-label={L('Patrón de palmas', 'Clap pattern')}>
+                  {Array.from({ length: patternCount(PALMAS_METHOD[rhythmIndex]) }, (_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handlePatternSelect(i)}
+                      aria-pressed={patternIndex === i}
+                      className={`min-w-[2.5rem] px-3 py-1.5 rounded-full font-sans transition cursor-pointer ${
+                        patternIndex === i ? 'seg-active text-white font-semibold' : 'text-gray-300 hover:text-white'
+                      }`}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <p className="text-[11.5px] leading-snug text-gray-400 font-sans">
+                {patternIndex === 0
+                  ? L('Patrón oficial, el del video.', 'Official pattern, the one in the video.')
+                  : lang === 'en'
+                    ? PALMAS_METHOD[rhythmIndex].patterns?.[patternIndex - 1]?.noteEn
+                    : PALMAS_METHOD[rhythmIndex].patterns?.[patternIndex - 1]?.note}
+              </p>
+            </div>
+          )}
 
           {/* Ajustes de sonido: plegados por defecto para que la pantalla quede limpia */}
           <div className="pt-2 border-t border-white/[0.06]">

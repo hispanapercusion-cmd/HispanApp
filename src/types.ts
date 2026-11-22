@@ -1,5 +1,13 @@
 export type PalmaHit = 'P' | 'A' | 'R'; // P = Palma regular, A = Acento (>), R = Silencio / Rest
 
+/** Variante de palmas de un ritmo (misma cuenta, otro dibujo de golpes y silencios) */
+export interface RhythmPattern {
+  /** Qué tiene de distinto, para explicarlo en pocas palabras */
+  note: string;
+  noteEn: string;
+  steps: PalmaHit[];
+}
+
 export interface RhythmDefinition {
   id: string;
   roman: string;
@@ -22,6 +30,10 @@ export interface RhythmDefinition {
   metroDownbeats?: number[];
   stepsPerBeat: number;
   steps: PalmaHit[];
+  /** Otros patrones de palmas sobre el mismo ritmo (el patrón 1 es siempre `steps`, el oficial con video) */
+  patterns?: RhythmPattern[];
+  /** Patrón en uso: 0 = el oficial (`steps`); 1, 2… = `patterns[n-1]`. Lo rellena rhythmWithPattern */
+  patternIndex?: number;
   videoUrl: string;
   videoEmbedUrl: string;
 }

@@ -415,33 +415,25 @@ const MonogramScoreComponent: React.FC<MonogramScoreProps> = ({
           style={{ top: STAFF_Y * S - 0.65, height: 1.3, background: 'rgba(255,255,255,0.28)' }}
         />
         {rhythm.id === 'r1' && (
-          // RITMO I: 4 compases de 3/4 (Alegrías / Soleá por Bulería)
+          // RITMO I: 4 compases de 3/4 (Alegrías / Soleá por Bulería). Se dibuja desde los pasos del patrón en uso:
+          // cada tiempo son 2 pasos de corchea → negra, silencio + corchea, dos corcheas (o silencio de negra)
           <>
-            <div className="flex items-start shrink-0">
-              <ClefAndTimeSig num="3" den="4" includeClef={true} />
-              <QuarterNote stepIdx={0} label={counts[0]} accent={true} />
-              <EighthRestAndEighth stepRest={2} stepNote={3} label1={counts[1]} label2="" accentNote={false} />
-              <QuarterNote stepIdx={4} label={counts[2]} accent={false} />
-              <Barline />
-            </div>
-            <div className="flex items-start shrink-0">
-              <QuarterNote stepIdx={6} label={counts[3]} accent={true} />
-              <QuarterNote stepIdx={8} label={counts[4]} accent={false} />
-              <QuarterNote stepIdx={10} label={counts[5]} accent={false} />
-              <Barline />
-            </div>
-            <div className="flex items-start shrink-0">
-              <QuarterNote stepIdx={12} label={counts[6]} accent={true} />
-              <TwoBeamedEighths step1={14} step2={15} label1={counts[7]} label2="" accent1={false} accent2={false} />
-              <QuarterNote stepIdx={16} label={counts[8]} accent={true} />
-              <Barline />
-            </div>
-            <div className="flex items-start shrink-0">
-              <TwoBeamedEighths step1={18} step2={19} label1={counts[9]} label2="" accent1={false} accent2={false} />
-              <QuarterNote stepIdx={20} label={counts[10]} accent={true} />
-              <QuarterNote stepIdx={22} label={counts[11]} accent={false} />
-              <Barline isFinal={true} />
-            </div>
+            {[0, 1, 2, 3].map((bar) => (
+              <div key={bar} className="flex items-start shrink-0">
+                {bar === 0 && <ClefAndTimeSig num="3" den="4" includeClef={true} />}
+                {[0, 1, 2].map((k) => {
+                  const beat = bar * 3 + k;
+                  const s0 = rhythm.steps[beat * 2];
+                  const s1 = rhythm.steps[beat * 2 + 1];
+                  const label = counts[beat];
+                  if (s0 !== 'R' && s1 === 'R') return <QuarterNote key={beat} stepIdx={beat * 2} label={label} accent={s0 === 'A'} />;
+                  if (s0 === 'R' && s1 !== 'R') return <EighthRestAndEighth key={beat} stepRest={beat * 2} stepNote={beat * 2 + 1} label1={label} label2="" accentNote={s1 === 'A'} />;
+                  if (s0 !== 'R' && s1 !== 'R') return <TwoBeamedEighths key={beat} step1={beat * 2} step2={beat * 2 + 1} label1={label} label2="" accent1={s0 === 'A'} accent2={s1 === 'A'} />;
+                  return <QuarterRest key={beat} stepIdx={beat * 2} label={label} />;
+                })}
+                <Barline isFinal={bar === 3} />
+              </div>
+            ))}
           </>
         )}
 

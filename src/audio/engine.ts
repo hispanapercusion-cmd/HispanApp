@@ -657,7 +657,8 @@ export class FlamencoAudioEngine {
       // --- MODO PALMA AGUDA / SECA (Grabación real de Jordan Migues de Ritmo I) ---
       if (!isSorda && this.jordanAgudaBuffers.length > 0) {
         // En Ritmo I (compás de 12), mapeo exacto 1-a-1 idéntico a la partitura y video
-        if (this.rhythm.id === 'r1') {
+        // (solo con el patrón oficial: los otros patrones no tienen grabación propia y usan las palmas sueltas)
+        if (this.rhythm.id === 'r1' && !this.rhythm.patternIndex) {
           const hitIdx = RITMO_I_STEP_TO_HIT_INDEX[stepIdx];
           if (hitIdx !== undefined && this.jordanAgudaBuffers[hitIdx]) {
             // Tiempos 12, 3, 6, 8 y 10 del compás de 12
