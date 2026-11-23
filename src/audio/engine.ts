@@ -537,11 +537,12 @@ export class FlamencoAudioEngine {
         this.atStart = false;
         this.scheduleMetronome(this.currentStep, this.nextNoteTime);
         this.scheduleStepAudio(this.currentStep, this.nextNoteTime);
+        this.scheduleContraAudio(this.currentStep, this.nextNoteTime);
         this.scheduleCajonAudio(this.currentStep, this.nextNoteTime);
         this.visualQueue.push({ step: this.currentStep, time: this.nextNoteTime, sub: 0 });
         // Cajón más fino que las palmas (semicorcheas): un aviso visual por cada golpe de más, a su hora
         const cajonLen = this.cajonEnabled && this.rhythm.cajon ? this.rhythm.cajon.length : 0;
-        const subCount = Math.max(1, Math.round(cajonLen / this.rhythm.steps.length));
+        const subCount = Math.max(this.rhythm.contra ? 2 : 1, Math.round(cajonLen / this.rhythm.steps.length));
         for (let k = 1; k < subCount; k++) {
           this.visualQueue.push({ step: this.currentStep, time: this.nextNoteTime + (k * this.getStepDurationSeconds()) / subCount, sub: k });
         }
@@ -652,7 +653,7 @@ export class FlamencoAudioEngine {
   }
 
   // Reproduce una muestra de audio real de Jordan Migues (sin filtros artificiales para preservar el timbre acústico real)
-  private playJordanSample(buffer: AudioBuffer, time: number, isAccent: boolean) {
+  private playJordanSample(buffer: AudioBuffer, time: number, isAccent: boolean, gainScale: number = 1) {
     if (!this.ctx) return;
 
     if (this.ctx.state !== 'running') {
@@ -665,13 +666,33 @@ export class FlamencoAudioEngine {
     const gainNode = this.ctx.createGain();
     // Dinámica: los acentos suenan bastante más fuertes que el resto para que se sienta el groove
     // (las muestras llegan como mucho al 65 % de la escala, así que 1,3 no satura)
-    const volume = isAccent ? ACCENT_GAIN : NORMAL_GAIN;
+    const volume = (isAccent ? ACCENT_GAIN : NORMAL_GAIN) * gainScale;
     const scheduleTime = Math.max(time, this.ctx.currentTime);
     gainNode.gain.setValueAtTime(volume, scheduleTime);
 
     source.connect(gainNode);
     gainNode.connect(this.ctx.destination);
     source.start(scheduleTime);
+  }
+
+  // Contrapalma (segunda palma de algunos patrones): una posición por medio paso. Suena con el timbre contrario al elegido
+  // (sorda si las palmas son brillantes y al revés) para que se distinga de la palma principal. El 1.er golpe es suave y el 2.º fuerte.
+  private scheduleContraAudio(stepIdx: number, time: number) {
+    const contra = this.rhythm.contra;
+    if (!this.ctx || !contra || !this.palmasEnabled) return;
+    const half = this.getStepDurationSeconds() / 2;
+    for (let k = 0; k < 2; k++) {
+      const hit = contra[stepIdx * 2 + k];
+      if (!hit || hit === 'R') continue;
+      const when = time + k * half;
+      const isAccent = hit === 'A';
+      const useSorda = this.palmaTone !== 'sordas' && this.jordanSordaBuffers.length > 0;
+      const pool = useSorda ? this.jordanSordaBuffers : this.jordanAgudaBuffers;
+      const idxs = useSorda ? (isAccent ? [0, 2, 5] : [1, 3, 4]) : isAccent ? [0, 3, 6, 9, 12, 13] : [1, 2, 4, 5, 7, 8, 10, 11];
+      const buf = pool[idxs[Math.floor(Math.random() * idxs.length)]];
+      if (this.audioSourceMode === 'jordan' && buf) this.playJordanSample(buf, when, isAccent, isAccent ? 0.85 : 0.6);
+      else this.synthesizePalma(when, isAccent);
+    }
   }
 
   // Cajón: cada golpe del patrón suena con el golpe grabado en ese mismo lugar de su partitura (si el ritmo tiene banco propio);
@@ -906,6 +927,7 @@ export class FlamencoAudioEngine {
     this.palmasEnabled = true;
     for (let i = 0; i < length; i++) {
       this.scheduleStepAudio(startStep + i, now + i * stepDur);
+      this.scheduleContraAudio(startStep + i, now + i * stepDur);
       this.scheduleCajonAudio(startStep + i, now + i * stepDur);
     }
     this.palmasEnabled = wasOn;

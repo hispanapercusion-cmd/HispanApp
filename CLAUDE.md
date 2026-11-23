@@ -237,6 +237,11 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   los acentos de las palmas (1, 3, 7 y 9) siguen en los pasos y en la partitura, sin círculo rojo. Comprobado con el audio real: metrónomo fuerte y bajo del cajón en
   el 12 y el 6, acentos de palma en 1, 3, 7 y 9. Lo que SÍ estaba corrido era la **partitura del cajón con semicorcheas**: iluminaba a la vez los 2 golpes de cada paso
   aunque el segundo suena media corchea después. Ahora el motor avisa cada golpe de cajón a su hora (`sub` en `onStep`, `activeSub` en `App.tsx`/`CajonScore`).
+- **Patrones de palmas de las bulerías (III)** (24/11/2026, partituras de Jordan): ahora hay 3 («Patrón de palmas 1·2·3»): el 1 es el oficial (el del video); el 2 tiene
+  acentos en el 12, 2, 4, 6, 8 y 10 (corcheas en el 12 y el 1, negras acentuadas en el 2 y el 4; igual en el 2.º compás); el 3 es el patrón 1 **más una contrapalma** en una segunda
+  línea de la partitura. La contra va en `contra` del patrón (`rhythms.ts`, una posición por MEDIO paso): golpe **suave** (semicorchea, a mitad de la corchea del 1 y del 7) y golpe **fuerte**
+  (corchea acentuada, en el 3 y el 9). Suena con palma de timbre contrario al elegido (sorda si las palmas son brillantes y al revés) para distinguirla: `scheduleContraAudio` en `engine.ts`.
+  `MonogramScore` dibuja el ritmo III desde los pasos y la contra en una 2.ª línea; el motor avisa los medios pasos (`sub`) también cuando hay contra, para iluminarla a su hora.
 - **Jaleos / Abandolaos (IV)** (24/11/2026): igual que las bulerías, los círculos rojos del reloj están solo en el 12 (arriba) y el 6 (abajo) (`clockAccents: [0, 6]`; antes 8 círculos).
 - **Entrenador progresivo** (`TrainerModal.tsx`, 23/11/2026, queja de alumnos: «los números quedaban clavados»): el campo se reponía solo
   al borrar y no se podía escribir otro valor. Ahora cada campo se puede **borrar y escribir** (se aplica en cuanto es un número

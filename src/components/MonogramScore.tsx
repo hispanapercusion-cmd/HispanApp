@@ -15,6 +15,8 @@ interface MonogramScoreProps {
   countMode: 'phonetic' | 'traditional';
   /** Marca roja suave bajo el golpe que suena (opcional) */
   guide?: boolean;
+  /** Golpe dentro del paso (0 o 1) para iluminar la contrapalma a su hora */
+  activeSub?: number;
   onPreviewBeat?: (startStep: number, length: number) => void;
 }
 
@@ -23,6 +25,7 @@ const MonogramScoreComponent: React.FC<MonogramScoreProps> = ({
   activeStep,
   countMode,
   guide = true,
+  activeSub = 0,
   onPreviewBeat,
 }) => {
   const { L } = useLang();
@@ -107,9 +110,9 @@ const MonogramScoreComponent: React.FC<MonogramScoreProps> = ({
   );
 
   // Banderín de corchea suelta
-  const Flag = ({ cx, active }: { cx: number; active: boolean }) => {
+  const Flag = ({ cx, active, dy = 0 }: { cx: number; active: boolean; dy?: number }) => {
     const x = cx + 5;
-    const t = STEM_TOP;
+    const t = STEM_TOP + dy;
     return (
       <path
         d={`M ${x} ${t} C ${x + 0.6} ${t + 6} ${x + 8.5} ${t + 8} ${x + 7.2} ${t + 18} C ${x + 6.8} ${t + 12} ${x + 3} ${t + 10.5} ${x} ${t + 9} Z`}
@@ -230,16 +233,20 @@ const MonogramScoreComponent: React.FC<MonogramScoreProps> = ({
     </Svg>
   );
 
-  // 1. Negra
-  const QuarterNote = ({ stepIdx, label, accent = false }: { stepIdx: number; label: string; accent?: boolean }) => {
+  // 1. Negra (con `label2`, ocupa 2 pasos y muestra los dos números de la cuenta)
+  const QuarterNote = ({ stepIdx, label, label2, accent = false }: { stepIdx: number; label: string; label2?: string; accent?: boolean }) => {
+    const wide = label2 !== undefined;
     const a = activeStep === stepIdx;
+    const a2 = wide && activeStep === stepIdx + 1;
+    const cx = wide ? 17 : 22;
     return (
-      <BeatBox id={`beatBox-${stepIdx}`} active={a} title={L(`Paso ${stepIdx + 1} - Clic para escuchar`, `Step ${stepIdx + 1} - tap to hear it`)} onClick={() => onPreviewBeat?.(stepIdx, 1)}>
-        <Svg w={48}>
-          <Label x={22} text={label} active={a} />
-          <Head cx={22} active={a} />
-          <Stem cx={22} active={a} />
-          {accent && <Accent x={22} active={a} />}
+      <BeatBox id={`beatBox-${stepIdx}`} active={a || a2} title={L(`Paso ${stepIdx + 1} - Clic para escuchar`, `Step ${stepIdx + 1} - tap to hear it`)} onClick={() => onPreviewBeat?.(stepIdx, wide ? 2 : 1)}>
+        <Svg w={wide ? 60 : 48}>
+          <Label x={cx} text={label} active={a} />
+          {wide && <Label x={41} text={label2} active={a2} />}
+          <Head cx={cx} active={a} />
+          <Stem cx={cx} active={a} />
+          {accent && <Accent x={cx} active={a} />}
         </Svg>
       </BeatBox>
     );
@@ -406,7 +413,7 @@ const MonogramScoreComponent: React.FC<MonogramScoreProps> = ({
       className="score-panel text-white rounded-2xl p-3 sm:p-4 overflow-x-auto select-none scroll-smooth"
       style={{ scrollBehavior: 'smooth' }}
     >
-      <div className="min-w-max flex justify-center">
+      <div className="min-w-max flex flex-col items-center">
       <div className="relative flex flex-nowrap items-start">
         {/* Línea del pentagrama: una sola, continua, por debajo de todas las figuras */}
         <div
@@ -474,21 +481,24 @@ const MonogramScoreComponent: React.FC<MonogramScoreProps> = ({
         )}
 
         {rhythm.id === 'r3' && (
-          // RITMO III: Bulerías de Jerez (2 compases de 3/4)
+          // RITMO III: Bulerías de Jerez (2 compases de 3/4). Se dibuja desde los pasos del patrón en uso:
+          // cada tiempo son 2 pasos de corchea → dos corcheas, silencio + corchea o negra
           <>
-            <div className="flex items-start shrink-0">
-              <ClefAndTimeSig num="3" den="4" includeClef={true} />
-              <EighthRestAndEighth stepRest={0} stepNote={1} label1={counts[0]} label2={counts[1]} accentNote={true} />
-              <TwoBeamedEighths step1={2} step2={3} label1={counts[2]} label2={counts[3]} accent1={false} accent2={true} />
-              <TwoBeamedEighths step1={4} step2={5} label1={counts[4]} label2={counts[5]} accent1={false} accent2={false} />
-              <Barline />
-            </div>
-            <div className="flex items-start shrink-0">
-              <EighthRestAndEighth stepRest={6} stepNote={7} label1={counts[6]} label2={counts[7]} accentNote={true} />
-              <TwoBeamedEighths step1={8} step2={9} label1={counts[8]} label2={counts[9]} accent1={false} accent2={true} />
-              <TwoBeamedEighths step1={10} step2={11} label1={counts[10]} label2={counts[11]} accent1={false} accent2={false} />
-              <Barline isFinal={true} />
-            </div>
+            {[0, 1].map((bar) => (
+              <div key={bar} className="flex items-start shrink-0">
+                {bar === 0 && <ClefAndTimeSig num="3" den="4" includeClef={true} />}
+                {[0, 1, 2].map((k) => {
+                  const a = bar * 6 + k * 2;
+                  const s0 = rhythm.steps[a];
+                  const s1 = rhythm.steps[a + 1];
+                  if (s0 !== 'R' && s1 === 'R') return <QuarterNote key={a} stepIdx={a} label={counts[a]} label2={counts[a + 1]} accent={s0 === 'A'} />;
+                  if (s0 === 'R' && s1 !== 'R') return <EighthRestAndEighth key={a} stepRest={a} stepNote={a + 1} label1={counts[a]} label2={counts[a + 1]} accentNote={s1 === 'A'} />;
+                  if (s0 !== 'R' && s1 !== 'R') return <TwoBeamedEighths key={a} step1={a} step2={a + 1} label1={counts[a]} label2={counts[a + 1]} accent1={s0 === 'A'} accent2={s1 === 'A'} />;
+                  return <QuarterRest key={a} stepIdx={a} label={counts[a]} />;
+                })}
+                <Barline isFinal={bar === 1} />
+              </div>
+            ))}
           </>
         )}
 
@@ -601,6 +611,51 @@ const MonogramScoreComponent: React.FC<MonogramScoreProps> = ({
           </>
         )}
       </div>
+      {/* Contrapalma (segunda línea): solo en los patrones que la tienen */}
+      {rhythm.id === 'r3' && rhythm.contra && (
+        <div className="relative flex flex-nowrap items-start">
+          <div
+            aria-hidden="true"
+            className="absolute left-0 right-[1px] pointer-events-none"
+            style={{ top: STAFF_Y * S - 0.65, height: 1.3, background: 'rgba(255,255,255,0.28)' }}
+          />
+          {[0, 1].map((bar) => {
+            // x de cada paso dentro del compás: cada tiempo mide 60 y sus 2 corcheas caen en 17 y 41
+            const X = (st: number) => Math.floor(st / 2) * 60 + (st % 2 ? 41 : 17);
+            const hits = [] as { j: number; hit: string; x: number; act: boolean }[];
+            for (let j = 0; j < 12; j++) {
+              const hit = rhythm.contra![bar * 12 + j];
+              if (!hit || hit === 'R') continue;
+              const g = bar * 12 + j;
+              const x = j % 2 === 0 ? X(j / 2) : (X((j - 1) / 2) + X((j + 1) / 2)) / 2;
+              hits.push({ j, hit, x, act: activeStep === Math.floor(g / 2) && activeSub === g % 2 });
+            }
+            const restActive = false;
+            return (
+              <div key={bar} className="flex items-start shrink-0">
+                {bar === 0 && <ClefAndTimeSig num="3" den="4" includeClef={true} />}
+                <Svg w={180}>
+                  {/* Silencios fijos de la contrapalma: corchea con puntillo, corchea y negra */}
+                  <EighthRestGlyph cx={X(0)} active={restActive} />
+                  <circle cx={X(0) + 8} cy={STAFF_Y - 5} r="1.7" fill={INK} />
+                  <EighthRestGlyph cx={X(2)} active={restActive} />
+                  <QuarterRestGlyph cx={150} active={restActive} />
+                  {hits.map((h) => (
+                    <g key={h.j}>
+                      <Head cx={h.x} active={h.act} />
+                      <Stem cx={h.x} active={h.act} />
+                      <Flag cx={h.x} active={h.act} />
+                      {h.hit === 'P' && <Flag cx={h.x} active={h.act} dy={6} />}
+                      {h.hit === 'A' && <Accent x={h.x} active={h.act} />}
+                    </g>
+                  ))}
+                </Svg>
+                <Barline isFinal={bar === 1} />
+              </div>
+            );
+          })}
+        </div>
+      )}
       </div>
     </div>
   );
