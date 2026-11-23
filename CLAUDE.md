@@ -237,6 +237,7 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   los acentos de las palmas (1, 3, 7 y 9) siguen en los pasos y en la partitura, sin círculo rojo. Comprobado con el audio real: metrónomo fuerte y bajo del cajón en
   el 12 y el 6, acentos de palma en 1, 3, 7 y 9. Lo que SÍ estaba corrido era la **partitura del cajón con semicorcheas**: iluminaba a la vez los 2 golpes de cada paso
   aunque el segundo suena media corchea después. Ahora el motor avisa cada golpe de cajón a su hora (`sub` en `onStep`, `activeSub` en `App.tsx`/`CajonScore`).
+- **Jaleos / Abandolaos (IV)** (24/11/2026): igual que las bulerías, los círculos rojos del reloj están solo en el 12 (arriba) y el 6 (abajo) (`clockAccents: [0, 6]`; antes 8 círculos).
 - **Entrenador progresivo** (`TrainerModal.tsx`, 23/11/2026, queja de alumnos: «los números quedaban clavados»): el campo se reponía solo
   al borrar y no se podía escribir otro valor. Ahora cada campo se puede **borrar y escribir** (se aplica en cuanto es un número
   válido y se ajusta al rango al salir), con botones − y +. Rangos: subir **1–10 BPM**, cada **1–16 vueltas** (una vuelta
