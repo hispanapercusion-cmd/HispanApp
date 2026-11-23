@@ -229,7 +229,11 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   **Cajón del ritmo VIII (Tanguillos)** (23/11/2026, partitura + video `ritmo_VIII_base_1.mov`): 2 compases de **6/8** (2 tiempos de 3 corcheas,
   `cajonBars: [2,2]`, `cajonSig: '6/8'` dibuja la cifra 6/8 y el número 1 2 cada 3 golpes): B A G | G A G | B A G | A B G. Los 12 golpes se cortaron
   del video (una vuelta, ~0,28 s por corchea, tempo algo irregular) y están en `public/audio/cajon-r8.bin` (305 KB, banco `r8`): suena **exacto**.
-  Con este, los ritmos con cajón exacto son I, III (patrón 1), VI y VIII. **Falta el cajón del ritmo VII (Tientos).**
+  Con este, los ritmos con cajón exacto son I, III (patrón 1), VI y VIII.
+  **Cajón del ritmo VII (Tientos / Farruca)** (23/11/2026, base de Jordan, solo partitura, sin video): 2 compases de 4/4 en semicorcheas (32 golpes,
+  `cajonBars: [4,4]`): B G G G | A G B G | B G G G | A G G G, dos veces. Suena con golpes grabados al azar según su tipo (sin banco propio). Si Jordan
+  manda el video, se corta como el I, III, VI y VIII (banco `r7`). `CajonScore` pone un número de la cuenta cada `cajon.length / counts.length` golpes
+  (2 en I–VI, 3 en el 6/8, 4 en los Tientos). Con esto **todos los ritmos tienen cajón**.
 - **Entrenador progresivo** (`TrainerModal.tsx`, 23/11/2026, queja de alumnos: «los números quedaban clavados»): el campo se reponía solo
   al borrar y no se podía escribir otro valor. Ahora cada campo se puede **borrar y escribir** (se aplica en cuanto es un número
   válido y se ajusta al rango al salir), con botones − y +. Rangos: subir **1–10 BPM**, cada **1–16 vueltas** (una vuelta

@@ -253,6 +253,12 @@ export const PALMAS_METHOD: RhythmDefinition[] = [
       'A', 'R', 'R', 'P', 'A', 'R', 'R', 'R',
       'A', 'R', 'R', 'P', 'A', 'R', 'R', 'R',
     ],
+    // Cajón (base de Jordan, solo partitura, sin video): 2 compases de 4/4 en semicorcheas
+    cajon: [
+      'B','G','G','G', 'A','G','B','G', 'B','G','G','G', 'A','G','G','G',
+      'B','G','G','G', 'A','G','B','G', 'B','G','G','G', 'A','G','G','G',
+    ],
+    cajonBars: [4, 4],
     videoUrl: 'https://youtu.be/rpXWQAUOjCA?si=kfIQ1N8aKdiZv_4Y',
     videoEmbedUrl: 'https://www.youtube.com/embed/rpXWQAUOjCA',
   },
