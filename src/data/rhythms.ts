@@ -153,7 +153,7 @@ export const PALMAS_METHOD: RhythmDefinition[] = [
     countsPhon: ['2', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '1'],
     countsTrad: ['12', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'],
     metroDownbeats: [0, 6], // Abandolaos: referencia en el 12 y en el 6
-    clockAccents: [0, 2, 4, 5, 6, 8, 10, 11],
+    clockAccents: [0, 6], // círculos rojos solo arriba (12) y abajo (6)
     stepsPerBeat: 2, // 24 pasos de semicorchea
     steps: [
       'A', 'R', 'R', 'P', 'A', 'R', 'R', 'P', 'A', 'R', 'A', 'R',
