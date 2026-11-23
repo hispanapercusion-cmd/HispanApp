@@ -36,10 +36,4 @@ export const CAJON_BANKS: Record<string, CajonBank> = {
     lengths: [11724, 10519, 10585, 12699, 10909, 12222, 13204, 10546, 11798, 14141, 10604, 17640],
     types: 'BAGGAGBAGABG',
   },
-  // Ritmo VII (video ritmo_VII_base_1): 32 semicorcheas en 4/4
-  r7: {
-    url: `${import.meta.env.BASE_URL}audio/cajon-r7-v1.bin`,
-    lengths: [10845,  11316,  11323,  12869,  11543,  11314,  11634,  13140,  10471,  12042,  11544,  12863,  11849,  11277,  11493,  12548,  10916,  12759,  11093,  12839,  11670,  11608,  11645,  12460,  11265,  11359,  11292,  12335,  11359,  12425,  12099,  13230],
-    types: 'BGGGAGBGBGGGAGGGBGGGAGBGBGGGAGGG',
-  },
 };

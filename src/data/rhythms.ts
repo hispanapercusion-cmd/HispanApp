@@ -259,6 +259,7 @@ export const PALMAS_METHOD: RhythmDefinition[] = [
       'B','G','G','G', 'A','G','B','G', 'B','G','G','G', 'A','G','G','G',
     ],
     cajonBars: [4, 4],
+    cajonSamplesFrom: 'r1', // suena con los golpes del compás de 12 (ritmo I), que Jordan prefirió a los de su video de los Tientos
     videoUrl: 'https://youtu.be/rpXWQAUOjCA?si=kfIQ1N8aKdiZv_4Y',
     videoEmbedUrl: 'https://www.youtube.com/embed/rpXWQAUOjCA',
   },
