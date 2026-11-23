@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { TrainerConfig } from '../types';
-import { X, TrendingUp, Zap } from 'lucide-react';
+import { X, TrendingUp, Zap, Minus, Plus } from 'lucide-react';
 import { useLang } from '../i18n';
 
 interface TrainerModalProps {
@@ -9,6 +9,106 @@ interface TrainerModalProps {
   config: TrainerConfig;
   onChange: (config: TrainerConfig) => void;
 }
+
+// Campo numérico que se puede borrar y volver a escribir con comodidad (también en el celular):
+// mientras se escribe se acepta lo que se ve; se aplica en cuanto es un número dentro del rango y,
+// al salir del campo, se ajusta al rango. Con botones − y + y valores rápidos.
+interface NumberFieldProps {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step?: number;
+  presets?: number[];
+  onCommit: (v: number) => void;
+}
+
+const NumberField: React.FC<NumberFieldProps> = ({ label, value, min, max, step = 1, presets, onCommit }) => {
+  const [text, setText] = useState(String(value));
+  const focused = useRef(false);
+
+  // Si el valor cambia desde afuera (botones, valores rápidos) y no se está escribiendo, se actualiza lo que se ve
+  useEffect(() => {
+    if (!focused.current) setText(String(value));
+  }, [value]);
+
+  const clamp = (n: number) => Math.max(min, Math.min(max, n));
+  const commit = (n: number) => {
+    const v = clamp(Math.round(n));
+    onCommit(v);
+    setText(String(v));
+  };
+
+  return (
+    <div className="inset-field p-3 rounded-2xl space-y-2">
+      <label className="block text-[11px] text-gray-400 font-brand uppercase tracking-wider">{label}</label>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => commit(value - step)}
+          disabled={value <= min}
+          aria-label="−"
+          className="shrink-0 w-9 h-9 rounded-full btn-3d text-white flex items-center justify-center disabled:opacity-35 cursor-pointer"
+        >
+          <Minus className="w-4 h-4" />
+        </button>
+        <input
+          type="text"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          value={text}
+          onFocus={(e) => {
+            focused.current = true;
+            e.currentTarget.select();
+          }}
+          onChange={(e) => {
+            const digits = e.target.value.replace(/[^0-9]/g, '').slice(0, 3);
+            setText(digits);
+            const n = parseInt(digits, 10);
+            // Se aplica solo cuando ya es un número válido (así se puede borrar y escribir de nuevo sin que se "pise")
+            if (!Number.isNaN(n) && n >= min && n <= max) onCommit(n);
+          }}
+          onBlur={() => {
+            focused.current = false;
+            const n = parseInt(text, 10);
+            commit(Number.isNaN(n) ? value : n);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') (e.currentTarget as HTMLInputElement).blur();
+          }}
+          aria-label={label}
+          className="min-w-0 flex-1 w-full bg-transparent text-center font-sans font-bold text-xl text-white tabular-nums focus:outline-none"
+        />
+        <button
+          type="button"
+          onClick={() => commit(value + step)}
+          disabled={value >= max}
+          aria-label="+"
+          className="shrink-0 w-9 h-9 rounded-full btn-3d text-white flex items-center justify-center disabled:opacity-35 cursor-pointer"
+        >
+          <Plus className="w-4 h-4" />
+        </button>
+      </div>
+      {presets && (
+        <div className="flex flex-wrap gap-1.5">
+          {presets.map((p) => (
+            <button
+              key={p}
+              type="button"
+              onClick={() => commit(p)}
+              aria-pressed={value === p}
+              className={`px-2.5 py-1 rounded-full text-xs font-sans font-semibold cursor-pointer transition ${
+                value === p ? 'seg-active text-white' : 'segmented text-gray-300 hover:text-white'
+              }`}
+            >
+              {p}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 export const TrainerModal: React.FC<TrainerModalProps> = ({
   isOpen,
@@ -73,49 +173,39 @@ export const TrainerModal: React.FC<TrainerModalProps> = ({
             </span>
           </label>
 
-          {/* Settings Grid */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="inset-field p-3 rounded-2xl">
-              <label className="block text-[11px] text-gray-400 font-brand uppercase tracking-wider mb-1">
-                {L('Aumentar (+BPM)', 'Increase (+BPM)')}
-              </label>
-              <input
-                type="number"
-                min="1"
-                max="20"
-                value={config.stepBpm}
-                onChange={(e) => onChange({ ...config, stepBpm: parseInt(e.target.value, 10) || 5 })}
-                className="w-full bg-transparent font-sans font-bold text-lg text-white tabular-nums focus:outline-none"
-              />
-            </div>
-
-            <div className="inset-field p-3 rounded-2xl">
-              <label className="block text-[11px] text-gray-400 font-brand uppercase tracking-wider mb-1">
-                {L('Cada (N Vueltas)', 'Every (N cycles)')}
-              </label>
-              <input
-                type="number"
-                min="1"
-                max="32"
-                value={config.everyCycles}
-                onChange={(e) => onChange({ ...config, everyCycles: parseInt(e.target.value, 10) || 4 })}
-                className="w-full bg-transparent font-sans font-bold text-lg text-white tabular-nums focus:outline-none"
-              />
-            </div>
-          </div>
-
-          <div className="inset-field p-3 rounded-2xl">
-            <label className="block text-[11px] text-gray-400 font-brand uppercase tracking-wider mb-1">
-              {L('BPM Límite Máximo', 'Maximum BPM')}
-            </label>
-            <input
-              type="number"
-              min="50"
-              max="240"
-              value={config.maxBpm}
-              onChange={(e) => onChange({ ...config, maxBpm: parseInt(e.target.value, 10) || 180 })}
-              className="w-full bg-transparent font-sans font-bold text-lg text-white tabular-nums focus:outline-none"
+          {/* Ajustes: cuántos BPM sube, cada cuántas vueltas y hasta dónde */}
+          <div className="space-y-3">
+            <NumberField
+              label={L('Aumentar (+BPM)', 'Increase (+BPM)')}
+              value={config.stepBpm}
+              min={1}
+              max={10}
+              presets={[1, 2, 3, 5, 10]}
+              onCommit={(v) => onChange({ ...config, stepBpm: v })}
             />
+            <NumberField
+              label={L('Cada (N vueltas)', 'Every (N cycles)')}
+              value={config.everyCycles}
+              min={1}
+              max={16}
+              presets={[1, 2, 4, 8, 16]}
+              onCommit={(v) => onChange({ ...config, everyCycles: v })}
+            />
+            <NumberField
+              label={L('BPM límite máximo', 'Maximum BPM')}
+              value={config.maxBpm}
+              min={50}
+              max={240}
+              step={5}
+              presets={[100, 120, 150, 180, 220]}
+              onCommit={(v) => onChange({ ...config, maxBpm: v })}
+            />
+            <p className="text-[11.5px] leading-snug text-gray-400 font-sans" data-testid="trainer-summary">
+              {L(
+                `Cada ${config.everyCycles} ${config.everyCycles === 1 ? 'vuelta' : 'vueltas'} del ritmo sube ${config.stepBpm} BPM, hasta ${config.maxBpm} BPM. Una vuelta es el ritmo completo, una vez.`,
+                `Every ${config.everyCycles} ${config.everyCycles === 1 ? 'cycle' : 'cycles'} of the rhythm the speed goes up ${config.stepBpm} BPM, up to ${config.maxBpm} BPM. One cycle is the whole rhythm, once.`
+              )}
+            </p>
           </div>
         </div>
 

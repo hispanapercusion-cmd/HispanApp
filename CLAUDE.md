@@ -220,6 +220,11 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   (`cajonBars: [3,3,3,3]`; 2 golpes de cajón por cada paso de las palmas): B G G A G G, cuatro veces. Suena con golpes grabados al azar
   según su tipo. La partitura del cajón muestra los números 1 2 3 de cada compás aunque la imagen de Jordan no los traía (coherente con
   la partitura de las palmas).
+- **Entrenador progresivo** (`TrainerModal.tsx`, 23/11/2026, queja de alumnos: «los números quedaban clavados»): el campo se reponía solo
+  al borrar y no se podía escribir otro valor. Ahora cada campo se puede **borrar y escribir** (se aplica en cuanto es un número
+  válido y se ajusta al rango al salir), con botones − y + y valores rápidos. Rangos: subir **1–10 BPM**, cada **1–16 vueltas** (una vuelta
+  = el ritmo completo una vez), límite máximo **50–240 BPM** (de 5 en 5 con los botones). Frase resumen debajo («Cada 4 vueltas del ritmo
+  sube 5 BPM, hasta 180 BPM»). Valores por defecto: +5 BPM cada 4 vueltas hasta 180.
 - **Metrónomo de fondo** (botón "⏱️ Metrónomo", activo por defecto, se recuerda en `hispanapp_metronome`):
   `scheduleMetronome` en `engine.ts` da un "tac" en cada tiempo con número en la cuenta y un "tum" grave en los
   tiempos de `metroDownbeats` del ritmo, definidos por Jordan (6/11/2026): compás de 12 (I) y Seguiriyas (II) solo en el
@@ -261,8 +266,8 @@ una compra real con Lemon), 23/11 (congelar cambios y preparar campaña), 30/11 
 - [x] Botón "Abrir HispanApp" del email de recibo de Lemon apunta a la dirección nueva (3/11/2026).
 - [x] Cuenta de Polar aprobada (20/11/2026). Primera compra de prueba de HispanApp PRO (código 100 %): pago y email OK,
   pero la app publicada aún no tenía Polar y en iPhone la app guardada empezó vacía → arreglado en el PR de Polar.
-- [ ] **Repetir la compra de prueba en iPhone con este PR publicado**: ¿llega `customer_session_token` y se activa solo?
-  Guardar la app → abrir desde el ícono → «Pegar mi clave y activar PRO». Y en Android.
+- [x] **iPhone real probado por Jordan (22/11/2026)**: registro y activación, app guardada en la pantalla de inicio y llamadas (Polar) funcionan.
+- [ ] Falta probar en **Android real** (compra + app guardada) y la entrada **desde un enlace de Instagram** (navegador interno de Instagram).
 - [x] Páginas legales (ES/EN) pasadas de Lemon Squeezy a Polar y `CONSENT_VERSION` subida (21/11/2026): la app pide aceptar de nuevo.
 - [ ] Quitar el código `lemon*` de `pro.ts`/`config.ts` después del 31/3/2027.
 - [ ] (antiguo, ya no aplica si se migra a Polar) **La tienda de Lemon está en revisión** ("Your application has been received"): sin aprobación solo funciona en
