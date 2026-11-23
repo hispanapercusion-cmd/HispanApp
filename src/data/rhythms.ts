@@ -276,6 +276,10 @@ export const PALMAS_METHOD: RhythmDefinition[] = [
       'R', 'A', 'P', 'P', 'A', 'R',
       'R', 'A', 'P', 'P', 'A', 'R',
     ],
+    // Cajón (base de Jordan, video ritmo_VIII_base_1): 2 compases de 6/8 (2 tiempos de 3 corcheas)
+    cajon: ['B', 'A', 'G', 'G', 'A', 'G', 'B', 'A', 'G', 'A', 'B', 'G'],
+    cajonBars: [2, 2],
+    cajonSig: '6/8',
     videoUrl: 'https://youtu.be/OWfJ0ujVU8c?si=aRw1DQTpQz17vZgz',
     videoEmbedUrl: 'https://www.youtube.com/embed/OWfJ0ujVU8c',
   },

@@ -36,6 +36,8 @@ const CajonScoreComponent: React.FC<CajonScoreProps> = ({ rhythm, activeStep, co
   const notesPerBeat = steps ? Math.max(1, Math.round(steps.length / totalBeats)) : 2; // 2 = corcheas · 4 = semicorcheas
   // Golpes de cajón por cada paso del ritmo (con semicorcheas, 2 golpes se iluminan a la vez)
   const sub = steps ? Math.max(1, Math.round(steps.length / rhythm.steps.length)) : 1;
+  // Cada cuántos golpes va un número de la cuenta: 3 en 6/8, si no 2
+  const labelEvery = notesPerBeat === 3 ? 3 : 2;
   const beatW = notesPerBeat * NOTE_SP + 8;
 
   // Posición de cada compás y de cada tiempo
@@ -88,10 +90,10 @@ const CajonScoreComponent: React.FC<CajonScoreProps> = ({ rhythm, activeStep, co
     group.forEach((n) => {
       const act = isActive(n.idx);
       // Número del tiempo (cada 2 golpes; se ilumina con el golpe)
-      if (n.idx % 2 === 0) {
-        const raw = counts[n.idx / 2];
+      if (n.idx % labelEvery === 0) {
+        const raw = counts[n.idx / labelEvery];
         const label = raw === '·' || raw === undefined ? '' : raw;
-        const on = act || isActive(n.idx + 1);
+        const on = Array.from({ length: labelEvery }, (_, k) => isActive(n.idx + k)).some(Boolean);
         nodes.push(
           <text key={`c${n.idx}`} x={n.x} y={COUNT_Y} textAnchor="middle" fontFamily="Lora, serif" fontSize={on ? 16 : 13.5} fontWeight={on ? 800 : 600}
             fill={on ? '#FFFFFF' : 'rgba(243,244,246,0.92)'} style={on ? { filter: 'drop-shadow(0 0 5px rgba(255,85,51,0.95))' } : undefined}>
@@ -143,12 +145,15 @@ const CajonScoreComponent: React.FC<CajonScoreProps> = ({ rhythm, activeStep, co
   }
 
   // Cifra del compás (arriba la cantidad de tiempos, abajo 4)
-  const sig = (x: number, beats: number, key: string) => (
+  const sig = (x: number, beats: number, key: string) => {
+    const [top, bottom] = rhythm.cajonSig ? rhythm.cajonSig.split('/') : [String(beats), '4'];
+    return (
     <g key={key} fontFamily="Lora, serif" fontSize={19} fontWeight={700} fill={INK} textAnchor="middle">
-      <text x={x} y={LINES[2] - 1}>{beats}</text>
-      <text x={x} y={LINES[4] - 1}>4</text>
+      <text x={x} y={LINES[2] - 1}>{top}</text>
+      <text x={x} y={LINES[4] - 1}>{bottom}</text>
     </g>
-  );
+    );
+  };
 
   return (
     <div ref={boxRef} className="score-panel text-white rounded-2xl p-3 sm:p-4 overflow-x-auto select-none" data-testid="cajon-score">
