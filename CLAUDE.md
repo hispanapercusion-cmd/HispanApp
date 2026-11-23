@@ -222,9 +222,11 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   la partitura de las palmas).
 - **Entrenador progresivo** (`TrainerModal.tsx`, 23/11/2026, queja de alumnos: «los números quedaban clavados»): el campo se reponía solo
   al borrar y no se podía escribir otro valor. Ahora cada campo se puede **borrar y escribir** (se aplica en cuanto es un número
-  válido y se ajusta al rango al salir), con botones − y + y valores rápidos. Rangos: subir **1–10 BPM**, cada **1–16 vueltas** (una vuelta
-  = el ritmo completo una vez), límite máximo **50–240 BPM** (de 5 en 5 con los botones). Frase resumen debajo («Cada 4 vueltas del ritmo
-  sube 5 BPM, hasta 180 BPM»). Valores por defecto: +5 BPM cada 4 vueltas hasta 180.
+  válido y se ajusta al rango al salir), con botones − y +. Rangos: subir **1–10 BPM**, cada **1–16 vueltas** (una vuelta
+  = el ritmo completo una vez), límite máximo **50–270 BPM** (de 5 en 5 con los botones). Frase resumen debajo («Cada 4 vueltas del ritmo
+  sube 5 BPM, hasta 180 BPM»). Valores por defecto: +5 BPM cada 4 vueltas hasta 180. **Desde el 23/11 se quitaron los valores rápidos de la
+  subida y de las vueltas** (solo − / + y el número); el máximo conserva valores rápidos 100·120·150·180·270. **El tope general de tempo de
+  la app es ahora 270 BPM** (antes 250; en `App.tsx`, `engine.ts` y `session.ts`).
 - **Metrónomo de fondo** (botón "⏱️ Metrónomo", activo por defecto, se recuerda en `hispanapp_metronome`):
   `scheduleMetronome` en `engine.ts` da un "tac" en cada tiempo con número en la cuenta y un "tum" grave en los
   tiempos de `metroDownbeats` del ritmo, definidos por Jordan (6/11/2026): compás de 12 (I) y Seguiriyas (II) solo en el
