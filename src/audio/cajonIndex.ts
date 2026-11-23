@@ -18,6 +18,12 @@ export const CAJON_BANKS: Record<string, CajonBank> = {
     lengths: [18158, 9702, 9702, 14112, 9702, 9702, 18022, 9702, 9702, 14112, 9702, 9702, 9702, 14112, 17992, 9702, 17205, 9702, 9702, 14112, 17605, 9702, 14112, 9702],
     types: 'BGGAGGBGGAGGGABGBGGABGAG',
   },
+  // Ritmo VI (video ritmo_VI_base_2): 16 corcheas
+  r6: {
+    url: `${import.meta.env.BASE_URL}audio/cajon-r6.bin`,
+    lengths: [9702, 9702, 12092, 11618, 9702, 9702, 12131, 9702, 9702, 9702, 12488, 11778, 9702, 9702, 12865, 9702],
+    types: 'GGABGGBGGGABGGBG',
+  },
   // Ritmo III (video ritmo_III_pt._1): 24 semicorcheas
   r3: {
     url: `${import.meta.env.BASE_URL}audio/cajon-r3.bin`,

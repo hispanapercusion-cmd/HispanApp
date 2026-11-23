@@ -220,6 +220,12 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   (`cajonBars: [3,3,3,3]`; 2 golpes de cajón por cada paso de las palmas): B G G A G G, cuatro veces. Suena con golpes grabados al azar
   según su tipo. La partitura del cajón muestra los números 1 2 3 de cada compás aunque la imagen de Jordan no los traía (coherente con
   la partitura de las palmas).
+  **Cajón del ritmo VI (Tangos / Rumbas)** (24/11/2026, partitura + video `ritmo_VI_base_2.mov`): 2 compases de **4/4** en corcheas (16 golpes,
+  D-I-D-I…, `cajonBars: [4,4]`): G G A B G G B G, dos veces. Los 16 golpes se cortaron del video (una vuelta, ~0,27 s por corchea, tempo algo
+  irregular: se siguió cada golpe) y están en `public/audio/cajon-r6.bin` (332 KB, banco `r6` de `CAJON_BANKS`): suena **exacto**. La partitura
+  une las corcheas **de a 4** (medio compás) como en la imagen de Jordan: `cajonBeamNotes: 4` (por defecto se unen las de un tiempo). Ahora los
+  ritmos con cajón exacto son I, III (patrón 1) y VI; el II, el IV, el V y el patrón 2 del III suenan al azar. Se descargan todos los bancos
+  al activar el cajón (~1,4 MB, una sola vez; el service worker los guarda).
 - **Entrenador progresivo** (`TrainerModal.tsx`, 23/11/2026, queja de alumnos: «los números quedaban clavados»): el campo se reponía solo
   al borrar y no se podía escribir otro valor. Ahora cada campo se puede **borrar y escribir** (se aplica en cuanto es un número
   válido y se ajusta al rango al salir), con botones − y +. Rangos: subir **1–10 BPM**, cada **1–16 vueltas** (una vuelta
