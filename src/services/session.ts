@@ -21,7 +21,7 @@ export function loadSession(): SavedSession {
     const raw = JSON.parse(localStorage.getItem(KEY) || '{}');
     const s: SavedSession = {};
     if (typeof raw.rhythmId === 'string') s.rhythmId = raw.rhythmId;
-    if (typeof raw.bpm === 'number' && raw.bpm >= 35 && raw.bpm <= 250) s.bpm = Math.round(raw.bpm);
+    if (typeof raw.bpm === 'number' && raw.bpm >= 35 && raw.bpm <= 270) s.bpm = Math.round(raw.bpm);
     if (raw.palmaTone === 'secas' || raw.palmaTone === 'sordas') s.palmaTone = raw.palmaTone;
     if (raw.countMode === 'phonetic' || raw.countMode === 'traditional') s.countMode = raw.countMode;
     if (raw.viewMode === 'split' || raw.viewMode === 'staff' || raw.viewMode === 'clock') s.viewMode = raw.viewMode;

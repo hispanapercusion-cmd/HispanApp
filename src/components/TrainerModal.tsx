@@ -180,7 +180,6 @@ export const TrainerModal: React.FC<TrainerModalProps> = ({
               value={config.stepBpm}
               min={1}
               max={10}
-              presets={[1, 2, 3, 5, 10]}
               onCommit={(v) => onChange({ ...config, stepBpm: v })}
             />
             <NumberField
@@ -188,16 +187,15 @@ export const TrainerModal: React.FC<TrainerModalProps> = ({
               value={config.everyCycles}
               min={1}
               max={16}
-              presets={[1, 2, 4, 8, 16]}
               onCommit={(v) => onChange({ ...config, everyCycles: v })}
             />
             <NumberField
               label={L('BPM límite máximo', 'Maximum BPM')}
               value={config.maxBpm}
               min={50}
-              max={240}
+              max={270}
               step={5}
-              presets={[100, 120, 150, 180, 220]}
+              presets={[100, 120, 150, 180, 270]}
               onCommit={(v) => onChange({ ...config, maxBpm: v })}
             />
             <p className="text-[11.5px] leading-snug text-gray-400 font-sans" data-testid="trainer-summary">

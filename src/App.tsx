@@ -518,7 +518,7 @@ export default function App() {
         // Valores del entrenador dentro de límites sensatos (el alumno puede escribir cualquier número)
         const every = Math.max(1, Math.min(64, Math.round(cfg.everyCycles) || 4));
         const stepUp = Math.max(1, Math.min(40, Math.round(cfg.stepBpm) || 5));
-        const maxBpm = Math.max(40, Math.min(250, Math.round(cfg.maxBpm) || 180));
+        const maxBpm = Math.max(40, Math.min(270, Math.round(cfg.maxBpm) || 180));
         if (cfg.enabled && newCycle > 1 && (newCycle - 1) % every === 0) {
           setBpmState((prevBpm) => {
             if (prevBpm >= maxBpm) return prevBpm;
@@ -737,7 +737,7 @@ export default function App() {
 
   // Sync BPM changes
   const updateBpm = (newBpm: number) => {
-    const clamped = Math.max(35, Math.min(250, newBpm));
+    const clamped = Math.max(35, Math.min(270, newBpm));
     setBpmState(clamped);
     if (engineRef.current) {
       engineRef.current.setBpm(clamped);

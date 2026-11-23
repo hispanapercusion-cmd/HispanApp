@@ -321,7 +321,7 @@ export class FlamencoAudioEngine {
   }
 
   public setBpm(bpm: number) {
-    this.bpm = Math.max(35, Math.min(250, bpm));
+    this.bpm = Math.max(35, Math.min(270, bpm));
   }
 
   public getBpm(): number {
