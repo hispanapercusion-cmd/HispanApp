@@ -228,7 +228,7 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   al activar el cajón (~1,4 MB, una sola vez; el service worker los guarda).
   **Cajón del ritmo VIII (Tanguillos)** (23/11/2026, partitura + video `ritmo_VIII_base_1.mov`): 2 compases de **6/8** (2 tiempos de 3 corcheas,
   `cajonBars: [2,2]`, `cajonSig: '6/8'` dibuja la cifra 6/8 y el número 1 2 cada 3 golpes): B A G | G A G | B A G | A B G. Los 12 golpes se cortaron
-  del video (una vuelta, ~0,28 s por corchea, tempo algo irregular) y están en `public/audio/cajon-r8.bin` (305 KB, banco `r8`): suena **exacto**.
+  del video (una vuelta, ~0,28 s por corchea, tempo algo irregular) y están en `public/audio/cajon-r8-v2.bin` (305 KB; se renombró «-v2» porque el service worker guarda los .bin «caché primero»: al corregir un banco hay que cambiarle el nombre o los móviles siguen con el viejo, banco `r8`): suena **exacto**.
   Con este, los ritmos con cajón exacto son I, III (patrón 1), VI y VIII.
   **Cajón del ritmo VII (Tientos / Farruca)** (23/11/2026, base de Jordan, solo partitura, sin video): 2 compases de 4/4 en semicorcheas (32 golpes,
   `cajonBars: [4,4]`): B G G G | A G B G | B G G G | A G G G, dos veces. Suena con golpes grabados al azar según su tipo (sin banco propio). Si Jordan
