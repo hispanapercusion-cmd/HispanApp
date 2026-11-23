@@ -37,7 +37,6 @@ const CajonScoreComponent: React.FC<CajonScoreProps> = ({ rhythm, activeStep, co
   // Golpes de cajón por cada paso del ritmo (con semicorcheas, 2 golpes se iluminan a la vez)
   const sub = steps ? Math.max(1, Math.round(steps.length / rhythm.steps.length)) : 1;
   // Cada cuántos golpes va un número de la cuenta: 3 en 6/8, si no 2
-  const labelEvery = notesPerBeat === 3 ? 3 : 2;
   const beatW = notesPerBeat * NOTE_SP + 8;
 
   // Posición de cada compás y de cada tiempo
@@ -70,6 +69,8 @@ const CajonScoreComponent: React.FC<CajonScoreProps> = ({ rhythm, activeStep, co
 
   if (!steps) return null;
   const counts = rhythm.has12CountToggle && countMode === 'traditional' ? rhythm.countsTrad : rhythm.countsPhon;
+  // Cada cuántos golpes va un número de la cuenta (2 en el I–VI, 3 en 6/8, 4 en los Tientos)
+  const labelEvery = Math.max(1, Math.round(steps.length / counts.length));
   const last = bars[bars.length - 1];
   const totalW = last.start + last.beats * beatW + 6;
 
