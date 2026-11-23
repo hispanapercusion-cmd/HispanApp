@@ -16,6 +16,10 @@ export interface RhythmPattern {
   steps: PalmaHit[];
   /** Segunda palma (contrapalma) en una línea aparte: una posición por MEDIO paso (el doble de largo que `steps`) */
   contra?: PalmaHit[];
+  /** Si el patrón va a otra resolución (p. ej. 2 pasos por tiempo para dibujar corcheas), la de este patrón */
+  stepsPerBeat?: number;
+  /** En la partitura, una corchea seguida de un silencio se dibuja como corchea + silencio de corchea (y no como negra) */
+  eighthRests?: boolean;
 }
 
 export interface RhythmDefinition {
@@ -61,6 +65,8 @@ export interface RhythmDefinition {
   patternIndex?: number;
   /** Contrapalma del patrón en uso (una posición por medio paso). La rellena rhythmWithPattern */
   contra?: PalmaHit[];
+  /** Ver RhythmPattern.eighthRests. Lo rellena rhythmWithPattern */
+  eighthRests?: boolean;
   videoUrl: string;
   videoEmbedUrl: string;
 }

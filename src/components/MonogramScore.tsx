@@ -331,6 +331,35 @@ const MonogramScoreComponent: React.FC<MonogramScoreProps> = ({
     );
   };
 
+  // 4b. Corchea con banderín + silencio de corchea
+  const EighthAndEighthRest = ({
+    stepNote,
+    label1,
+    label2 = '',
+    accent = false,
+  }: {
+    stepNote: number;
+    label1: string;
+    label2?: string;
+    accent?: boolean;
+  }) => {
+    const aN = activeStep === stepNote;
+    const aR = activeStep === stepNote + 1;
+    return (
+      <BeatBox id={`beatBox-${stepNote}`} active={aN || aR} title={L(`Corchea y silencio ${stepNote + 1}-${stepNote + 2}`, `Eighth note and rest ${stepNote + 1}-${stepNote + 2}`)} onClick={() => onPreviewBeat?.(stepNote, 2)}>
+        <Svg w={60}>
+          <Label x={17} text={label1} active={aN} />
+          <Label x={41} text={label2} active={aR} />
+          <Head cx={17} active={aN} />
+          <Stem cx={17} active={aN} />
+          <Flag cx={17} active={aN} />
+          <EighthRestGlyph cx={41} active={aR} />
+          {accent && <Accent x={17} active={aN} />}
+        </Svg>
+      </BeatBox>
+    );
+  };
+
   // 5. Corchea con puntillo + semicorchea (Ritmo IV - Jaleos / Abandolaos)
   const DottedEighthAndSixteenth = ({
     stepStart,
@@ -491,7 +520,11 @@ const MonogramScoreComponent: React.FC<MonogramScoreProps> = ({
                   const a = bar * 6 + k * 2;
                   const s0 = rhythm.steps[a];
                   const s1 = rhythm.steps[a + 1];
-                  if (s0 !== 'R' && s1 === 'R') return <QuarterNote key={a} stepIdx={a} label={counts[a]} label2={counts[a + 1]} accent={s0 === 'A'} />;
+                  if (s0 !== 'R' && s1 === 'R') {
+                    return rhythm.eighthRests
+                      ? <EighthAndEighthRest key={a} stepNote={a} label1={counts[a]} label2={counts[a + 1]} accent={s0 === 'A'} />
+                      : <QuarterNote key={a} stepIdx={a} label={counts[a]} label2={counts[a + 1]} accent={s0 === 'A'} />;
+                  }
                   if (s0 === 'R' && s1 !== 'R') return <EighthRestAndEighth key={a} stepRest={a} stepNote={a + 1} label1={counts[a]} label2={counts[a + 1]} accentNote={s1 === 'A'} />;
                   if (s0 !== 'R' && s1 !== 'R') return <TwoBeamedEighths key={a} step1={a} step2={a + 1} label1={counts[a]} label2={counts[a + 1]} accent1={s0 === 'A'} accent2={s1 === 'A'} />;
                   return <QuarterRest key={a} stepIdx={a} label={counts[a]} />;
@@ -521,7 +554,29 @@ const MonogramScoreComponent: React.FC<MonogramScoreProps> = ({
           </>
         )}
 
-        {rhythm.id === 'r5' && (
+        {rhythm.id === 'r5' && rhythm.stepsPerBeat === 2 && (
+          // RITMO V, patrón con corcheas (24 pasos): 4 compases de 3/4; cada tiempo son 2 pasos («1 y», «2 y»…)
+          <>
+            {[0, 1, 2, 3].map((bar) => (
+              <div key={bar} className="flex items-start shrink-0">
+                {bar === 0 && <ClefAndTimeSig num="3" den="4" includeClef={true} />}
+                {[0, 1, 2].map((k) => {
+                  const a = bar * 6 + k * 2;
+                  const label = counts[bar * 3 + k];
+                  const s0 = rhythm.steps[a];
+                  const s1 = rhythm.steps[a + 1];
+                  if (s0 !== 'R' && s1 === 'R') return <QuarterNote key={a} stepIdx={a} label={label} accent={s0 === 'A'} />;
+                  if (s0 === 'R' && s1 !== 'R') return <EighthRestAndEighth key={a} stepRest={a} stepNote={a + 1} label1={label} label2={L('y', '&')} accentNote={s1 === 'A'} />;
+                  if (s0 !== 'R' && s1 !== 'R') return <TwoBeamedEighths key={a} step1={a} step2={a + 1} label1={label} label2={L('y', '&')} accent1={s0 === 'A'} accent2={s1 === 'A'} />;
+                  return <QuarterRest key={a} stepIdx={a} label={label} />;
+                })}
+                <Barline isFinal={bar === 3} />
+              </div>
+            ))}
+          </>
+        )}
+
+        {rhythm.id === 'r5' && rhythm.stepsPerBeat === 1 && (
           // RITMO V: Fandangos / Sevillanas (4 compases de 3/4)
           <>
             <div className="flex items-start shrink-0">
@@ -579,14 +634,14 @@ const MonogramScoreComponent: React.FC<MonogramScoreProps> = ({
             <div className="flex items-start shrink-0">
               <ClefAndTimeSig num="4" den="4" includeClef={true} />
               <QuarterNote stepIdx={0} label="1" accent={false} />
-              <EighthRestAndEighth stepRest={2} stepNote={3} label1="2" label2="y" accentNote={false} />
+              <EighthRestAndEighth stepRest={2} stepNote={3} label1="2" label2={L('y', '&')} accentNote={false} />
               <QuarterNote stepIdx={4} label="3" accent={false} />
               <QuarterRest stepIdx={6} label="4" />
               <Barline />
             </div>
             <div className="flex items-start shrink-0">
               <QuarterNote stepIdx={8} label="1" accent={false} />
-              <EighthRestAndEighth stepRest={10} stepNote={11} label1="2" label2="y" accentNote={false} />
+              <EighthRestAndEighth stepRest={10} stepNote={11} label1="2" label2={L('y', '&')} accentNote={false} />
               <QuarterNote stepIdx={12} label="3" accent={false} />
               <QuarterRest stepIdx={14} label="4" />
               <Barline isFinal={true} />
