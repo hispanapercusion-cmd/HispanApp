@@ -11,6 +11,7 @@ interface AtrilLandscapeModeProps {
   bpm: number;
   isPlaying: boolean;
   activeStep: number;
+  activeSub?: number;
   cycleCount: number;
   countMode: CountMode;
   countInText: string | null;
@@ -30,6 +31,7 @@ export const AtrilLandscapeMode: React.FC<AtrilLandscapeModeProps> = ({
   bpm,
   isPlaying,
   activeStep,
+  activeSub = 0,
   cycleCount: _cycleCount,
   countMode,
   countInText,
@@ -200,6 +202,7 @@ export const AtrilLandscapeMode: React.FC<AtrilLandscapeModeProps> = ({
             <MonogramScore
               rhythm={rhythm}
               activeStep={activeStep}
+              activeSub={activeSub}
               countMode={countMode}
               onPreviewBeat={onPreviewBeat}
             />

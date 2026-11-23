@@ -1581,6 +1581,7 @@ export default function App() {
                   activeStep={activeStep}
                   countMode={countMode}
                   guide={guideOn}
+                  activeSub={activeSub}
                   onPreviewBeat={handlePreviewBeatGroup}
                 />
               </div>
@@ -1985,6 +1986,7 @@ export default function App() {
           bpm={bpm}
           isPlaying={isPlaying}
           activeStep={activeStep}
+          activeSub={activeSub}
           cycleCount={cycleCount}
           countMode={countMode}
           countInText={countInText}

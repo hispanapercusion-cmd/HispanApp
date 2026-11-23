@@ -136,6 +136,32 @@ export const PALMAS_METHOD: RhythmDefinition[] = [
         ],
       },
     ],
+    // Otros patrones de palmas de las bulerías (partituras de Jordan; el patrón 1 es el de arriba, el del video)
+    patterns: [
+      {
+        // Patrón 2: corcheas en el 12 y el 1 (y 6 y 7), y negras acentuadas en el 2, 4, 8 y 10
+        note: 'Acentos en el 12, 2, 4, 6, 8 y 10',
+        noteEn: 'Accents on 12, 2, 4, 6, 8 and 10',
+        steps: [
+          'A', 'P', 'A', 'R', 'A', 'R',
+          'A', 'P', 'A', 'R', 'A', 'R',
+        ],
+      },
+      {
+        // Patrón 3: la palma del patrón 1 más una contrapalma (segunda línea): un golpe suave a mitad de la corchea del 1
+        // (y del 7) y uno fuerte en el 3 (y el 9). La contra tiene una posición por medio paso.
+        note: 'Dos palmas: la del patrón 1 y una contrapalma (el 2.º golpe es el fuerte)',
+        noteEn: 'Two claps: the pattern 1 clap plus a counter-clap (the 2nd hit is the strong one)',
+        steps: [
+          'R', 'A', 'P', 'A', 'P', 'P',
+          'R', 'A', 'P', 'A', 'P', 'P',
+        ],
+        contra: [
+          'R', 'R', 'R', 'P', 'R', 'R', 'A', 'R', 'R', 'R', 'R', 'R',
+          'R', 'R', 'R', 'P', 'R', 'R', 'A', 'R', 'R', 'R', 'R', 'R',
+        ],
+      },
+    ],
     videoUrl: 'https://youtu.be/CxFXWZDFj5s?si=yMOrdph4YnijL6Ph',
     videoEmbedUrl: 'https://www.youtube.com/embed/CxFXWZDFj5s',
   },
@@ -328,7 +354,7 @@ export const patternCount = (r: RhythmDefinition): number => 1 + (r.patterns?.le
 /** El ritmo con el patrón elegido (0 = el oficial). El resto de datos (cuenta, acentos del reloj, video…) es el mismo. */
 export const rhythmWithPattern = (r: RhythmDefinition, patternIndex: number): RhythmDefinition => {
   const alt = patternIndex > 0 ? r.patterns?.[patternIndex - 1] : undefined;
-  return alt ? { ...r, steps: alt.steps, patternIndex } : r;
+  return alt ? { ...r, steps: alt.steps, contra: alt.contra, patternIndex } : r;
 };
 
 /** Cuántos patrones de cajón tiene un ritmo (el oficial más las variantes) */

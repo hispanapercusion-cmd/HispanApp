@@ -14,6 +14,8 @@ export interface RhythmPattern {
   note: string;
   noteEn: string;
   steps: PalmaHit[];
+  /** Segunda palma (contrapalma) en una línea aparte: una posición por MEDIO paso (el doble de largo que `steps`) */
+  contra?: PalmaHit[];
 }
 
 export interface RhythmDefinition {
@@ -57,6 +59,8 @@ export interface RhythmDefinition {
   patterns?: RhythmPattern[];
   /** Patrón en uso: 0 = el oficial (`steps`); 1, 2… = `patterns[n-1]`. Lo rellena rhythmWithPattern */
   patternIndex?: number;
+  /** Contrapalma del patrón en uso (una posición por medio paso). La rellena rhythmWithPattern */
+  contra?: PalmaHit[];
   videoUrl: string;
   videoEmbedUrl: string;
 }
