@@ -686,7 +686,8 @@ export class FlamencoAudioEngine {
       const idx = stepIdx * sub + k;
       const hit = cajon[idx];
       if (!hit || hit === 'R') continue;
-      const own = CAJON_BANKS[this.rhythm.id];
+      const only = this.rhythm.cajonSamplesFrom;
+      const own = only ? undefined : CAJON_BANKS[this.rhythm.id];
       let buffer: AudioBuffer | undefined;
       // (solo con el patrón oficial: los otros patrones de cajón no tienen grabación propia)
       if (own && !this.rhythm.cajonPatternIndex && own.types[idx] === hit && this.cajonBuffers[this.rhythm.id]) {
@@ -694,6 +695,7 @@ export class FlamencoAudioEngine {
       } else {
         const pool: AudioBuffer[] = [];
         Object.entries(CAJON_BANKS).forEach(([id, bank]) => {
+          if (only && id !== only) return;
           bank.types.split('').forEach((t, i) => {
             if (t === hit && this.cajonBuffers[id]?.[i]) pool.push(this.cajonBuffers[id][i]);
           });
