@@ -46,6 +46,7 @@ function downloadCajon(bankId: string): Promise<ArrayBuffer> {
 interface ScheduledEvent {
   step: number; // >= 0 for pattern steps, <= -100 for count-in steps
   time: number;
+  sub?: number; // golpe de cajón dentro del paso (0 = el primero) para iluminar la partitura del cajón a tiempo
 }
 
 export interface CountInBeat {
@@ -148,7 +149,7 @@ export class FlamencoAudioEngine {
   private cycleCount: number = 1;
   private visualQueue: ScheduledEvent[] = [];
 
-  private onStepCallback?: (step: number, cycle: number) => void;
+  private onStepCallback?: (step: number, cycle: number, sub?: number) => void;
   private onCycleCallback?: (cycle: number) => void;
   private onCountInStepCallback?: (num: string, beatIndex: number, totalBeats: number) => void;
   private onSamplesLoadedCallback?: (loaded: boolean) => void;
@@ -408,7 +409,7 @@ export class FlamencoAudioEngine {
   }
 
   public setCallbacks(
-    onStep: (step: number, cycle: number) => void,
+    onStep: (step: number, cycle: number, sub?: number) => void,
     onCycle: (cycle: number) => void,
     onCountInStep?: (num: string, beatIndex: number, totalBeats: number) => void,
     onSamplesLoaded?: (loaded: boolean) => void
@@ -537,7 +538,13 @@ export class FlamencoAudioEngine {
         this.scheduleMetronome(this.currentStep, this.nextNoteTime);
         this.scheduleStepAudio(this.currentStep, this.nextNoteTime);
         this.scheduleCajonAudio(this.currentStep, this.nextNoteTime);
-        this.visualQueue.push({ step: this.currentStep, time: this.nextNoteTime });
+        this.visualQueue.push({ step: this.currentStep, time: this.nextNoteTime, sub: 0 });
+        // Cajón más fino que las palmas (semicorcheas): un aviso visual por cada golpe de más, a su hora
+        const cajonLen = this.cajonEnabled && this.rhythm.cajon ? this.rhythm.cajon.length : 0;
+        const subCount = Math.max(1, Math.round(cajonLen / this.rhythm.steps.length));
+        for (let k = 1; k < subCount; k++) {
+          this.visualQueue.push({ step: this.currentStep, time: this.nextNoteTime + (k * this.getStepDurationSeconds()) / subCount, sub: k });
+        }
 
         this.nextNoteTime += this.getStepDurationSeconds();
         this.currentStep++;
@@ -831,7 +838,7 @@ export class FlamencoAudioEngine {
           }
         } else {
           // Normal pattern step
-          this.onStepCallback?.(evt.step, this.cycleCount);
+          this.onStepCallback?.(evt.step, this.cycleCount, evt.sub ?? 0);
         }
       }
     }

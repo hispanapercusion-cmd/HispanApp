@@ -117,6 +117,7 @@ export default function App() {
   const [bpm, setBpmState] = useState<number>(SAVED_BPM);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [activeStep, setActiveStep] = useState<number>(-1);
+  const [activeSub, setActiveSub] = useState<number>(0); // golpe de cajón dentro del paso (semicorcheas)
   const [cycleCount, setCycleCount] = useState<number>(1);
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
     // Pantalla principal: solo el reloj. Se respeta la vista guardada solo si el alumno la eligió desde el menú.
@@ -507,8 +508,9 @@ export default function App() {
     engine.setCajonEnabled(cajonOn);
 
     engine.setCallbacks(
-      (step, cycle) => {
+      (step, cycle, sub) => {
         setActiveStep(step);
+        setActiveSub(sub ?? 0);
         setCycleCount(cycle);
         setCountInText(null);
       },
@@ -1589,7 +1591,7 @@ export default function App() {
                   <span className="font-sans text-[11px] tracking-wider uppercase text-gray-400 font-semibold block">
                     🪘 {L('Cajón', 'Cajón')}
                   </span>
-                  <CajonScore rhythm={currentRhythm} activeStep={activeStep} countMode={countMode} />
+                  <CajonScore rhythm={currentRhythm} activeStep={activeStep} activeSub={activeSub} countMode={countMode} />
                 </div>
               )}
 

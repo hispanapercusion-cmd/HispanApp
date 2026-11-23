@@ -24,10 +24,11 @@ const LINE = 'rgba(255,255,255,0.28)';
 interface CajonScoreProps {
   rhythm: RhythmDefinition;
   activeStep: number;
+  activeSub?: number;
   countMode: 'phonetic' | 'traditional';
 }
 
-const CajonScoreComponent: React.FC<CajonScoreProps> = ({ rhythm, activeStep, countMode }) => {
+const CajonScoreComponent: React.FC<CajonScoreProps> = ({ rhythm, activeStep, activeSub = 0, countMode }) => {
   const { L } = useLang();
   const boxRef = useRef<HTMLDivElement>(null);
   const steps = rhythm.cajon;
@@ -75,7 +76,7 @@ const CajonScoreComponent: React.FC<CajonScoreProps> = ({ rhythm, activeStep, co
   const totalW = last.start + last.beats * beatW + 6;
 
   const headY = (hit: string) => (hit === 'B' ? Y_BAJO : hit === 'A' ? Y_AGUDO : Y_FANTASMA);
-  const isActive = (noteIdx: number) => activeStep >= 0 && Math.floor(noteIdx / sub) === activeStep;
+  const isActive = (noteIdx: number) => activeStep >= 0 && Math.floor(noteIdx / sub) === activeStep && noteIdx % sub === activeSub;
 
   const nodes: React.ReactNode[] = [];
   const allNotes: { x: number; hit: CajonHit; idx: number }[] = [];
