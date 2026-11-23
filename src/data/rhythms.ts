@@ -161,6 +161,16 @@ export const PALMAS_METHOD: RhythmDefinition[] = [
           'R', 'R', 'R', 'P', 'R', 'R', 'A', 'R', 'R', 'R', 'R', 'R',
         ],
       },
+      {
+        // Patrón 4 (partitura de Jordan): sin acentos; silencio + corchea en el 12 y el 1, corchea + silencio en el 2 y el 3, y dos corcheas en el 4 y el 5
+        note: 'Sin acentos: corcheas con silencios, y dos corcheas en el 4-5 y el 10-1',
+        noteEn: 'No accents: eighth notes with rests, and two eighth notes on 4-5 and 10-1',
+        eighthRests: true,
+        steps: [
+          'R', 'P', 'P', 'R', 'P', 'P',
+          'R', 'P', 'P', 'R', 'P', 'P',
+        ],
+      },
     ],
     videoUrl: 'https://youtu.be/CxFXWZDFj5s?si=yMOrdph4YnijL6Ph',
     videoEmbedUrl: 'https://www.youtube.com/embed/CxFXWZDFj5s',
@@ -225,6 +235,21 @@ export const PALMAS_METHOD: RhythmDefinition[] = [
       'B', 'G', 'G', 'A', 'G', 'G',
     ],
     cajonBars: [3, 3, 3, 3],
+    // Otro patrón de palmas (partitura de Jordan): con corcheas («1 y», «2 y»). Va a 2 pasos por tiempo (24 pasos de corchea);
+    // el cajón (24 golpes) sigue sonando igual. El patrón 1 (arriba) sigue siendo el oficial.
+    patterns: [
+      {
+        note: 'Con corcheas («1 y» en los compases 1 y 3, «2 y» en los 2 y 4); acento en el 1 de cada compás',
+        noteEn: 'With eighth notes («1 &» in bars 1 and 3, «2 &» in bars 2 and 4); accent on beat 1 of each bar',
+        stepsPerBeat: 2,
+        steps: [
+          'A', 'P', 'P', 'R', 'P', 'R',
+          'A', 'R', 'P', 'P', 'P', 'R',
+          'A', 'P', 'P', 'R', 'P', 'R',
+          'A', 'R', 'P', 'P', 'P', 'R',
+        ],
+      },
+    ],
     videoUrl: 'https://youtu.be/475btji9NK0?si=7a1A29jM8botFRuv',
     videoEmbedUrl: 'https://www.youtube.com/embed/475btji9NK0',
   },
@@ -354,7 +379,7 @@ export const patternCount = (r: RhythmDefinition): number => 1 + (r.patterns?.le
 /** El ritmo con el patrón elegido (0 = el oficial). El resto de datos (cuenta, acentos del reloj, video…) es el mismo. */
 export const rhythmWithPattern = (r: RhythmDefinition, patternIndex: number): RhythmDefinition => {
   const alt = patternIndex > 0 ? r.patterns?.[patternIndex - 1] : undefined;
-  return alt ? { ...r, steps: alt.steps, contra: alt.contra, patternIndex } : r;
+  return alt ? { ...r, steps: alt.steps, contra: alt.contra, stepsPerBeat: alt.stepsPerBeat ?? r.stepsPerBeat, eighthRests: alt.eighthRests, patternIndex } : r;
 };
 
 /** Cuántos patrones de cajón tiene un ritmo (el oficial más las variantes) */
