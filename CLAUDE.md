@@ -234,6 +234,10 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   `cajonBars: [4,4]`): B G G G | A G B G | B G G G | A G G G, dos veces. Suena con golpes grabados al azar según su tipo (sin banco propio). Si Jordan
   manda el video, se corta como el I, III, VI y VIII (banco `r7`). `CajonScore` pone un número de la cuenta cada `cajon.length / counts.length` golpes
   (2 en I–VI, 3 en el 6/8, 4 en los Tientos). Con esto **todos los ritmos tienen cajón**.
+- **Bulerías (III) — ajustes del 23/11/2026**: los círculos rojos del reloj están solo en el 12 (arriba) y el 6 (abajo), donde cae el bajo (`clockAccents: [0, 6]`);
+  los acentos de las palmas (1, 3, 7 y 9) siguen en los pasos y en la partitura, sin círculo rojo. Comprobado con el audio real: metrónomo fuerte y bajo del cajón en
+  el 12 y el 6, acentos de palma en 1, 3, 7 y 9. Lo que SÍ estaba corrido era la **partitura del cajón con semicorcheas**: iluminaba a la vez los 2 golpes de cada paso
+  aunque el segundo suena media corchea después. Ahora el motor avisa cada golpe de cajón a su hora (`sub` en `onStep`, `activeSub` en `App.tsx`/`CajonScore`).
 - **Entrenador progresivo** (`TrainerModal.tsx`, 23/11/2026, queja de alumnos: «los números quedaban clavados»): el campo se reponía solo
   al borrar y no se podía escribir otro valor. Ahora cada campo se puede **borrar y escribir** (se aplica en cuanto es un número
   válido y se ajusta al rango al salir), con botones − y +. Rangos: subir **1–10 BPM**, cada **1–16 vueltas** (una vuelta

@@ -110,7 +110,7 @@ export const PALMAS_METHOD: RhythmDefinition[] = [
     countsPhon: ['2', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '1'],
     countsTrad: ['12', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'],
     metroDownbeats: [0, 6], // Bulería: referencia en el 12 y en el 6
-    clockAccents: [1, 3, 7, 9],
+    clockAccents: [0, 6], // círculos rojos solo arriba (12) y abajo (6), donde cae el bajo; los acentos de palma (1, 3, 7, 9) van en la partitura
     stepsPerBeat: 1, // 12 corcheas = 12 pasos
     steps: [
       'R', 'A', 'P', 'A', 'P', 'P',
