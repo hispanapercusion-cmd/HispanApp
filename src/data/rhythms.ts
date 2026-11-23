@@ -222,6 +222,14 @@ export const PALMAS_METHOD: RhythmDefinition[] = [
       'R', 'R', 'A', 'P', 'P', 'R', 'A', 'R',
       'R', 'R', 'A', 'P', 'P', 'R', 'A', 'R',
     ],
+    // Cajón del ritmo VI (base de Tangos; partitura y video `ritmo_VI_base_2` de Jordan): 2 compases de 4/4 en corcheas,
+    // D-I-D-I… B = bajo · A = agudo · G = fantasma
+    cajon: [
+      'G', 'G', 'A', 'B', 'G', 'G', 'B', 'G',
+      'G', 'G', 'A', 'B', 'G', 'G', 'B', 'G',
+    ],
+    cajonBars: [4, 4],
+    cajonBeamNotes: 4, // las corcheas se unen de a 4 (medio compás)
     videoUrl: 'https://youtu.be/7wStNQX9tJ8?si=tR5_Zn5kvHsAJxdj',
     videoEmbedUrl: 'https://www.youtube.com/embed/7wStNQX9tJ8',
   },

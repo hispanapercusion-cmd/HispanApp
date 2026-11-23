@@ -42,6 +42,8 @@ export interface RhythmDefinition {
   cajon?: CajonHit[];
   /** Tiempos (negras) de cada compás de la partitura del cajón, p. ej. [3,3,3,3] o [2,2,3,3,2]. Por defecto, compases de 3. */
   cajonBars?: number[];
+  /** Cuántos golpes se unen con una misma barra en la partitura del cajón (por defecto, los de un tiempo; p. ej. 4 en 4/4) */
+  cajonBeamNotes?: number;
   /** Otros patrones de cajón del mismo ritmo (el patrón 1 es siempre `cajon`, el oficial con video) */
   cajonPatterns?: CajonPattern[];
   /** Qué tiene el patrón de cajón oficial (para mostrarlo junto al selector de patrones) */

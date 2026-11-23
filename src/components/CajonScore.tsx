@@ -75,6 +75,7 @@ const CajonScoreComponent: React.FC<CajonScoreProps> = ({ rhythm, activeStep, co
   const isActive = (noteIdx: number) => activeStep >= 0 && Math.floor(noteIdx / sub) === activeStep;
 
   const nodes: React.ReactNode[] = [];
+  const allNotes: { x: number; hit: CajonHit; idx: number }[] = [];
   for (let beat = 0; beat < beatX.length; beat++) {
     const x0 = beatX[beat];
     const group: { x: number; hit: CajonHit; idx: number }[] = [];
@@ -82,7 +83,7 @@ const CajonScoreComponent: React.FC<CajonScoreProps> = ({ rhythm, activeStep, co
       const idx = beat * notesPerBeat + i;
       group.push({ x: x0 + 18 + i * NOTE_SP, hit: steps[idx], idx });
     }
-    const groupActive = group.some((n) => isActive(n.idx));
+    allNotes.push(...group);
 
     group.forEach((n) => {
       const act = isActive(n.idx);
@@ -120,18 +121,24 @@ const CajonScoreComponent: React.FC<CajonScoreProps> = ({ rhythm, activeStep, co
       );
     });
 
-    // Barras de unión del tiempo: una para corcheas, dos para semicorcheas
-    const present = group.filter((n) => n.hit !== 'R');
+  }
+
+  // Barras de unión: una para corcheas, dos para semicorcheas. Se unen de a `beamNotes` golpes
+  // (por defecto los de un tiempo; en 4/4 las corcheas se unen de a 4, medio compás).
+  const beamNotes = Math.max(2, rhythm.cajonBeamNotes ?? notesPerBeat);
+  const beams = notesPerBeat >= 4 ? 2 : 1;
+  for (let c = 0; c * beamNotes < allNotes.length; c++) {
+    const present = allNotes.slice(c * beamNotes, (c + 1) * beamNotes).filter((n) => n.hit !== 'R');
+    const groupActive = present.some((n) => isActive(n.idx));
     if (present.length > 1) {
       const x1 = present[0].x + 3.4;
       const w = present[present.length - 1].x - present[0].x + 1.6;
-      const beams = notesPerBeat >= 4 ? 2 : 1;
       for (let b = 0; b < beams; b++) {
-        nodes.push(<rect key={`b${beat}-${b}`} x={x1} y={BEAM_Y + b * 6} width={w} height={4.2} fill={groupActive ? ACTIVE : INK} />);
+        nodes.push(<rect key={`b${c}-${b}`} x={x1} y={BEAM_Y + b * 6} width={w} height={4.2} fill={groupActive ? ACTIVE : INK} />);
       }
     } else if (present.length === 1) {
       // Un solo golpe: bandera sencilla
-      nodes.push(<path key={`f${beat}`} d={`M ${present[0].x + 4.2} ${BEAM_Y} q 9 4 6 16`} fill="none" stroke={isActive(present[0].idx) ? ACTIVE : INK} strokeWidth={2.2} />);
+      nodes.push(<path key={`f${c}`} d={`M ${present[0].x + 4.2} ${BEAM_Y} q 9 4 6 16`} fill="none" stroke={groupActive ? ACTIVE : INK} strokeWidth={2.2} />);
     }
   }
 
