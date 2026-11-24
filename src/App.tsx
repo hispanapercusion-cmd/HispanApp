@@ -263,23 +263,6 @@ export default function App() {
       if (!ok) setCajonError(true);
     }
   };
-  // Marca roja de la partitura (opcional; activada por defecto)
-  const [guideOn, setGuideOn] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem('hispanapp_guide') !== 'off';
-    } catch {
-      return true;
-    }
-  });
-  const toggleGuide = () => {
-    const next = !guideOn;
-    setGuideOn(next);
-    try {
-      localStorage.setItem('hispanapp_guide', next ? 'on' : 'off');
-    } catch {
-      // Ignorar
-    }
-  };
   const [menuOpen, setMenuOpen] = useState(false);
   const [controlsOpen, setControlsOpen] = useState(false);
   const [isStreakOpen, setIsStreakOpen] = useState(false);
@@ -1566,7 +1549,6 @@ export default function App() {
                   rhythm={currentRhythm}
                   activeStep={activeStep}
                   countMode={countMode}
-                  guide={guideOn}
                   activeSub={activeSub}
                   onPreviewBeat={handlePreviewBeatGroup}
                 />
@@ -1767,21 +1749,6 @@ export default function App() {
                       ))}
                     </div>
                   </div>
-                  <button
-                    role="menuitemcheckbox"
-                    aria-checked={guideOn}
-                    onClick={toggleGuide}
-                    className="flex items-center justify-between gap-2.5 px-3 py-2.5 rounded-xl text-left text-[13px] font-sans font-medium text-gray-100 hover:bg-white/[0.06] cursor-pointer"
-                    title={L('Resalta en rojo el golpe que suena en la partitura', 'Highlights in red the beat that is playing on the score')}
-                  >
-                    <span className="flex items-center gap-2.5">
-                      <span className="text-base w-5 text-center" aria-hidden="true">🔴</span>
-                      <span>{L('Marca roja en la partitura', 'Red marker on the score')}</span>
-                    </span>
-                    <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${guideOn ? 'bg-[#E84A27]/25 text-[#FF8A6B]' : 'bg-white/[0.08] text-gray-400'}`}>
-                      {guideOn ? L('Sí', 'On') : L('No', 'Off')}
-                    </span>
-                  </button>
                 </div>
               </>
             )}
