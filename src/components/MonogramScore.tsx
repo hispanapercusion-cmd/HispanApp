@@ -24,7 +24,7 @@ const MonogramScoreComponent: React.FC<MonogramScoreProps> = ({
   rhythm,
   activeStep,
   countMode,
-  guide = true,
+  guide = false,
   activeSub = 0,
   onPreviewBeat,
 }) => {

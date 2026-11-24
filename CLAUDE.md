@@ -257,6 +257,8 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   `isChristmasPromo()` decide). Comprobar en Polar que el código `NAVIDAD` esté activo para el método en esas fechas y en los dos idiomas (ES y EN).
 - **Nombre del método en inglés** (24/11/2026): en inglés el método se llama **«The Rhythms of Flamenco»** (en plural, como en el producto de Polar «The Rhythms of Flamenco — Complete Method») en la app (menú, banner, Comunidad, recorrido, texto de compartir) y en los
   términos en inglés; en español sigue «Los Ritmos del Flamenco». El nombre de la app (`HispanApp — Los Ritmos del Flamenco`: título, manifest, vista previa) se dejó en español.
+- **Quitada la «Marca roja en la partitura»** (24/11/2026, Jordan: «no va»): ya no está la opción en el menú ni la marca roja suave bajo el golpe que suena (`guide` en `MonogramScore` ahora es `false` por defecto).
+  El número del golpe sigue agrandándose e iluminándose. `hispanapp_guide` ya no se usa.
 - **Entrenador progresivo** (`TrainerModal.tsx`, 23/11/2026, queja de alumnos: «los números quedaban clavados»): el campo se reponía solo
   al borrar y no se podía escribir otro valor. Ahora cada campo se puede **borrar y escribir** (se aplica en cuanto es un número
   válido y se ajusta al rango al salir), con botones − y +. Rangos: subir **1–10 BPM**, cada **1–16 vueltas** (una vuelta
