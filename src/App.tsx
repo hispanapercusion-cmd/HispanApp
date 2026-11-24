@@ -5,6 +5,7 @@ import { FlamencoAudioEngine } from './audio/engine';
 import { HispanaLogo } from './components/HispanaLogo';
 import { FlamencoClock } from './components/FlamencoClock';
 import { MonogramScore } from './components/MonogramScore';
+import { CajonIcon } from './components/CajonIcon';
 import { TrainerModal } from './components/TrainerModal';
 import { CommunityModal } from './components/CommunityModal';
 import { VocabularioModal } from './components/VocabularioModal';
@@ -1263,7 +1264,7 @@ export default function App() {
           {cajonOn && cajonPatternCount(PALMAS_METHOD[rhythmIndex]) > 1 && (
             <div className="pt-2 border-t border-white/[0.06] space-y-1.5" data-testid="cajon-pattern-picker">
               <div className="flex items-center justify-between gap-3">
-                <span className="text-[13px] font-sans font-medium text-gray-300">🪘 {L('Patrón de cajón', 'Cajón pattern')}</span>
+                <span className="text-[13px] font-sans font-medium text-gray-300"><CajonIcon /> {L('Patrón de cajón', 'Cajón pattern')}</span>
                 <div className="flex segmented p-0.5 rounded-full text-[13px]" role="group" aria-label={L('Patrón de cajón', 'Cajón pattern')}>
                   {Array.from({ length: cajonPatternCount(PALMAS_METHOD[rhythmIndex]) }, (_, i) => (
                     <button
@@ -1359,7 +1360,7 @@ export default function App() {
                   title={L('Cajón: suma el cajón grabado por Jordan (bajo, agudo y golpes fantasma)', 'Cajón: adds the cajón recorded by Jordan (bass, high and ghost notes)')}
                 >
                   <span className={`w-1.5 h-1.5 rounded-full ${cajonOn ? 'bg-[#FF5533] shadow-[0_0_6px_rgba(255,85,51,0.9)]' : 'bg-gray-500'}`} />
-                  <span>🪘 {L('Cajón', 'Cajón')}{cajonLoading ? '…' : ''}</span>
+                  <span><CajonIcon /> {L('Cajón', 'Cajón')}{cajonLoading ? '…' : ''}</span>
                   {CAJON_REQUIRES_PRO && !isPro && <Lock className="w-3 h-3 text-gray-400" />}
                 </button>
               )}
@@ -1590,7 +1591,7 @@ export default function App() {
               {cajonActive && (
                 <div className="space-y-1.5">
                   <span className="font-sans text-[11px] tracking-wider uppercase text-gray-400 font-semibold block">
-                    🪘 {L('Cajón', 'Cajón')}
+                    <CajonIcon /> {L('Cajón', 'Cajón')}
                   </span>
                   <CajonScore rhythm={currentRhythm} activeStep={activeStep} activeSub={activeSub} countMode={countMode} />
                 </div>
