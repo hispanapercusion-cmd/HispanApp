@@ -1230,66 +1230,6 @@ export default function App() {
             </div>
           </div>
 
-          {/* Patrón de palmas (solo en los ritmos que tienen más de uno) */}
-          {patternCount(PALMAS_METHOD[rhythmIndex]) > 1 && (
-            <div className="pt-2 border-t border-white/[0.06] space-y-1.5" data-testid="pattern-picker">
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-[13px] font-sans font-medium text-gray-300">{L('Patrón de palmas', 'Clap pattern')}</span>
-                <div className="flex segmented p-0.5 rounded-full text-[13px]" role="group" aria-label={L('Patrón de palmas', 'Clap pattern')}>
-                  {Array.from({ length: patternCount(PALMAS_METHOD[rhythmIndex]) }, (_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => handlePatternSelect(i)}
-                      aria-pressed={patternIndex === i}
-                      className={`min-w-[2.5rem] px-3 py-1.5 rounded-full font-sans transition cursor-pointer ${
-                        patternIndex === i ? 'seg-active text-white font-semibold' : 'text-gray-300 hover:text-white'
-                      }`}
-                    >
-                      {i + 1}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <p className="text-[11.5px] leading-snug text-gray-400 font-sans">
-                {patternIndex === 0
-                  ? L('Patrón oficial, el del video.', 'Official pattern, the one in the video.')
-                  : lang === 'en'
-                    ? PALMAS_METHOD[rhythmIndex].patterns?.[patternIndex - 1]?.noteEn
-                    : PALMAS_METHOD[rhythmIndex].patterns?.[patternIndex - 1]?.note}
-              </p>
-            </div>
-          )}
-
-          {/* Patrón de cajón (solo con el cajón activo y en los ritmos que tienen más de uno) */}
-          {cajonOn && cajonPatternCount(PALMAS_METHOD[rhythmIndex]) > 1 && (
-            <div className="pt-2 border-t border-white/[0.06] space-y-1.5" data-testid="cajon-pattern-picker">
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-[13px] font-sans font-medium text-gray-300"><CajonIcon /> {L('Patrón de cajón', 'Cajón pattern')}</span>
-                <div className="flex segmented p-0.5 rounded-full text-[13px]" role="group" aria-label={L('Patrón de cajón', 'Cajón pattern')}>
-                  {Array.from({ length: cajonPatternCount(PALMAS_METHOD[rhythmIndex]) }, (_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => handleCajonPatternSelect(i)}
-                      aria-pressed={cajonPatternIndex === i}
-                      className={`min-w-[2.5rem] px-3 py-1.5 rounded-full font-sans transition cursor-pointer ${
-                        cajonPatternIndex === i ? 'seg-active text-white font-semibold' : 'text-gray-300 hover:text-white'
-                      }`}
-                    >
-                      {i + 1}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <p className="text-[11.5px] leading-snug text-gray-400 font-sans">
-                {cajonPatternIndex === 0
-                  ? (lang === 'en' ? PALMAS_METHOD[rhythmIndex].cajonNoteEn : PALMAS_METHOD[rhythmIndex].cajonNote) ?? L('Patrón oficial, el del video.', 'Official pattern, the one in the video.')
-                  : lang === 'en'
-                    ? PALMAS_METHOD[rhythmIndex].cajonPatterns?.[cajonPatternIndex - 1]?.noteEn
-                    : PALMAS_METHOD[rhythmIndex].cajonPatterns?.[cajonPatternIndex - 1]?.note}
-              </p>
-            </div>
-          )}
-
           {/* Ajustes de sonido: plegados por defecto para que la pantalla quede limpia */}
           <div className="pt-2 border-t border-white/[0.06]">
             <button
@@ -1437,6 +1377,51 @@ export default function App() {
                 </button>
               </div>
             </div>
+              {/* Patrón de palmas (solo en los ritmos que tienen más de uno) */}
+              {patternCount(PALMAS_METHOD[rhythmIndex]) > 1 && (
+                <div className="pt-3 space-y-2" data-testid="pattern-picker">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-[13px] font-sans font-medium text-gray-300">{L('Patrón de palmas', 'Clap pattern')}</span>
+                    <div className="flex segmented p-0.5 rounded-full text-[13px]" role="group" aria-label={L('Patrón de palmas', 'Clap pattern')}>
+                      {Array.from({ length: patternCount(PALMAS_METHOD[rhythmIndex]) }, (_, i) => (
+                        <button
+                          key={i}
+                          onClick={() => handlePatternSelect(i)}
+                          aria-pressed={patternIndex === i}
+                          className={`min-w-[2.5rem] px-3 py-1.5 rounded-full font-sans transition cursor-pointer ${
+                            patternIndex === i ? 'seg-active text-white font-semibold' : 'text-gray-300 hover:text-white'
+                          }`}
+                        >
+                          {i + 1}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Patrón de cajón (solo con el cajón activo y en los ritmos que tienen más de uno) */}
+              {cajonOn && cajonPatternCount(PALMAS_METHOD[rhythmIndex]) > 1 && (
+                <div className="pt-3 space-y-2" data-testid="cajon-pattern-picker">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-[13px] font-sans font-medium text-gray-300"><CajonIcon /> {L('Patrón de cajón', 'Cajón pattern')}</span>
+                    <div className="flex segmented p-0.5 rounded-full text-[13px]" role="group" aria-label={L('Patrón de cajón', 'Cajón pattern')}>
+                      {Array.from({ length: cajonPatternCount(PALMAS_METHOD[rhythmIndex]) }, (_, i) => (
+                        <button
+                          key={i}
+                          onClick={() => handleCajonPatternSelect(i)}
+                          aria-pressed={cajonPatternIndex === i}
+                          className={`min-w-[2.5rem] px-3 py-1.5 rounded-full font-sans transition cursor-pointer ${
+                            cajonPatternIndex === i ? 'seg-active text-white font-semibold' : 'text-gray-300 hover:text-white'
+                          }`}
+                        >
+                          {i + 1}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
             </div>
           </div>

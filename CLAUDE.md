@@ -250,6 +250,8 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   Si se añade un sonido nuevo al motor, conectarlo a `this.out()` y no a `ctx.destination`.
 - **Ícono del cajón** (24/11/2026): el emoji 🪘 se cambió por la imagen del cajón de Hispana (`public/cajon-emoji.png`, fondo transparente, 149×192) con el componente `CajonIcon`
   (botón «Cajón» de Ajustes de sonido, «Patrón de cajón» y el título de la partitura del cajón). El 🥁 del perfil y del rol «Percusionista» no se tocó.
+- **Pantalla más minimalista** (24/11/2026): los selectores «Patrón de palmas» y «Patrón de cajón» están dentro de «Ajustes de sonido» (plegado), al final, y se quitaron los textos que explicaban cada
+  patrón («Patrón oficial, el del video», etc.). Los textos `note`/`noteEn`/`cajonNote` siguen en `rhythms.ts` pero ya no se muestran.
 - **Entrenador progresivo** (`TrainerModal.tsx`, 23/11/2026, queja de alumnos: «los números quedaban clavados»): el campo se reponía solo
   al borrar y no se podía escribir otro valor. Ahora cada campo se puede **borrar y escribir** (se aplica en cuanto es un número
   válido y se ajusta al rango al salir), con botones − y +. Rangos: subir **1–10 BPM**, cada **1–16 vueltas** (una vuelta
