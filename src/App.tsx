@@ -1605,6 +1605,8 @@ export default function App() {
       </main>
 
       {/* 3. DOCK INFERIOR: METRÓNOMO Y ACCESOS A COMUNIDAD / EXPLICACIONES DE FLAMENCO */}
+      {/* Al tocar fuera del menú se cierra. Va FUERA del footer: el footer tiene backdrop-filter y ahí un elemento "fixed" quedaría del tamaño del footer, no de la pantalla */}
+      {menuOpen && <div className="fixed inset-0 z-[29] cursor-pointer" onClick={() => setMenuOpen(false)} aria-hidden="true" data-testid="menu-backdrop" />}
       <footer className="fixed bottom-0 inset-x-0 dock-glass z-30">
         <div className="max-w-5xl mx-auto px-3 sm:px-4 pt-2 sm:pt-2.5 pb-[calc(0.9rem+env(safe-area-inset-bottom,0px))] sm:pb-2.5 flex flex-col gap-2">
           {/* Fila 1: Metrónomo Centrado (Menos - a la izquierda, Play y BPM al centro, Más + a la derecha) */}
@@ -1685,7 +1687,6 @@ export default function App() {
 
           {/* Fila 2: Menú desplegable (Método, Vocabulario, Comunidad y recorrido de la app) */}
           <div data-tour="comunidad" className="pt-1.5 border-t border-white/[0.06]">
-            {menuOpen && <div className="fixed inset-0 z-30" onClick={() => setMenuOpen(false)} aria-hidden="true" />}
             {(
               <>
                 <div
