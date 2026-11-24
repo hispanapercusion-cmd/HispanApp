@@ -62,7 +62,18 @@ export const whatsappLink = (lang: Lang, topic: 'support' | 'access' = 'support'
   return `${APP_CONFIG.whatsappUrl}?text=${encodeURIComponent(text)}`;
 };
 
-export const methodUrl = (lang: Lang): string => (lang === 'en' ? METHOD_URL_EN : METHOD_URL_ES);
+/** ¿Estamos en la campaña de Navidad (1 al 31 de diciembre de 2026, hora de Argentina)? */
+export const isChristmasPromo = (now: number = Date.now()): boolean => now >= LAUNCH_FROM && now < LAUNCH_TO;
+
+// Descuento del método «Los Ritmos del Flamenco» (40 %: −39,91 USD → 59,99 USD), creado en Polar con el código NAVIDAD
+const METHOD_CODE = 'NAVIDAD';
+
+/** Enlace de compra del método en el idioma de la app (con el descuento de Navidad solo mientras dura la campaña) */
+export const methodUrl = (lang: Lang, now: number = Date.now()): string => {
+  const base = lang === 'en' ? METHOD_URL_EN : METHOD_URL_ES;
+  if (!isChristmasPromo(now)) return base;
+  return `${base}${base.includes('?') ? '&' : '?'}discount_code=${METHOD_CODE}`;
+};
 
 /** Páginas legales en el idioma de la app */
 export const legalUrl = (doc: 'privacy' | 'terms' | 'withdrawal', lang: Lang): string => {
