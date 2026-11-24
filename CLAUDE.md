@@ -227,9 +227,8 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   ritmos con cajón exacto son I, III (patrón 1) y VI; el II, el IV, el V y el patrón 2 del III suenan al azar. Se descargan todos los bancos
   al activar el cajón (~1,4 MB, una sola vez; el service worker los guarda).
   **Cajón del ritmo VIII (Tanguillos)** (23/11/2026, partitura + video `ritmo_VIII_base_1.mov`): 2 compases de **6/8** (2 tiempos de 3 corcheas,
-  `cajonBars: [2,2]`, `cajonSig: '6/8'` dibuja la cifra 6/8 y el número 1 2 cada 3 golpes): B A G | G A G | B A G | A B G. Los 12 golpes se cortaron
-  del video (una vuelta, ~0,28 s por corchea, tempo algo irregular) y están en `public/audio/cajon-r8-v2.bin` (305 KB; se renombró «-v2» porque el service worker guarda los .bin «caché primero»: al corregir un banco hay que cambiarle el nombre o los móviles siguen con el viejo, banco `r8`): suena **exacto**.
-  Con este, los ritmos con cajón exacto son I, III (patrón 1), VI y VIII (al azar: el II, el IV, el V, el VII y el patrón 2 del III).
+  `cajonBars: [2,2]`, `cajonSig: '6/8'` dibuja la cifra 6/8 y el número 1 2 cada 3 golpes): B A G | G A G | B A G | A B G. **Desde el 24/11/2026 suena con los golpes del ritmo I** (`cajonSamplesFrom: 'r1'`, al azar según su tipo): los 12 golpes cortados del video `ritmo_VIII_base_1` sonaban con clics y Jordan pidió usar los del compás de 12 (se quitó el banco `r8`).
+  Ritmos con cajón exacto (video propio): I, III (patrón 1) y VI. Al azar con golpes del I: el II, IV, V, VII, VIII y el patrón 2 del III.
   **Cajón del ritmo VII (Tientos / Farruca)** (23/11/2026, base de Jordan, solo partitura, sin video): 2 compases de 4/4 en semicorcheas (32 golpes,
   `cajonBars: [4,4]`): B G G G | A G B G | B G G G | A G G G, dos veces. **Desde el 24/11/2026 suena con los golpes del ritmo I** (`cajonSamplesFrom: 'r1'`: Jordan probó cortar los 32 golpes de su video `ritmo_VII_base_1` y sonaba mal; prefirió los del compás de 12, que suenan orgánicos; al azar según su tipo). `CajonScore` pone un número de la cuenta cada `cajon.length / counts.length` golpes
   (2 en I–VI, 3 en el 6/8, 4 en los Tientos). Con esto **todos los ritmos tienen cajón**.
