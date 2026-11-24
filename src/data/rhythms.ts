@@ -338,6 +338,7 @@ export const PALMAS_METHOD: RhythmDefinition[] = [
     cajon: ['B', 'A', 'G', 'G', 'A', 'G', 'B', 'A', 'G', 'A', 'B', 'G'],
     cajonBars: [2, 2],
     cajonSig: '6/8',
+    cajonSamplesFrom: 'r1', // suena con los golpes del compás de 12 (ritmo I): los cortados del video de los Tanguillos tenían clics
     videoUrl: 'https://youtu.be/OWfJ0ujVU8c?si=aRw1DQTpQz17vZgz',
     videoEmbedUrl: 'https://www.youtube.com/embed/OWfJ0ujVU8c',
   },

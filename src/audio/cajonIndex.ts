@@ -30,10 +30,4 @@ export const CAJON_BANKS: Record<string, CajonBank> = {
     lengths: [11935, 9702, 9702, 13108, 9702, 9702, 12415, 9702, 9702, 12881, 9702, 9702, 12223, 9702, 9702, 12670, 9702, 9702, 12357, 9702, 9702, 12951, 9702, 9702],
     types: 'BGGAGGAGGAGGBGGAGGAGGAGG',
   },
-  // Ritmo VIII (video ritmo_VIII_base_1): 12 corcheas en 6/8
-  r8: {
-    url: `${import.meta.env.BASE_URL}audio/cajon-r8-v2.bin`,
-    lengths: [11724, 10519, 10585, 12699, 10909, 12222, 13204, 10546, 11798, 14141, 10604, 17640],
-    types: 'BAGGAGBAGABG',
-  },
 };
