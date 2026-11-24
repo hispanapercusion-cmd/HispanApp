@@ -13,7 +13,7 @@ export function getShareUrl(): string {
   return `${origin}${base}?utm_source=compartir&utm_medium=app`;
 }
 
-export const SHARE_TITLE = 'HispanApp — Los Ritmos del Flamenco';
+export const SHARE_TITLE = (): string => L('HispanApp — Los Ritmos del Flamenco', 'HispanApp — The Rhythms of Flamenco');
 
 export function getShareText(): string {
   return L(
@@ -21,7 +21,7 @@ export function getShareText(): string {
       '«Los Ritmos del Flamenco» de Jordan Migues: partituras, metrónomo y palmas reales. ' +
       'Ideal para guitarristas, bailaoras, cantaores y percusionistas. Es gratis para empezar:',
     '🎶 Check out HispanApp, the app to practise flamenco palmas (hand claps) and compás with ' +
-      'Jordan Migues\' «Los Ritmos del Flamenco» method: scores, metronome and real palmas. ' +
+      'Jordan Migues\' «The Rhythms of Flamenco» method: scores, metronome and real palmas. ' +
       'Great for guitarists, dancers, singers and percussionists. Free to start:'
   );
 }
@@ -34,7 +34,7 @@ export function canUseNativeShare(): boolean {
 export async function nativeShare(): Promise<boolean> {
   if (!canUseNativeShare()) return false;
   try {
-    await navigator.share({ title: SHARE_TITLE, text: getShareText(), url: getShareUrl() });
+    await navigator.share({ title: SHARE_TITLE(), text: getShareText(), url: getShareUrl() });
     return true;
   } catch {
     return false;

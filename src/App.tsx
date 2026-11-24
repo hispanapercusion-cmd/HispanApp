@@ -26,7 +26,7 @@ import { FeedbackModal } from './components/FeedbackModal';
 import { track } from './services/analytics';
 import { hasValidConsent, onConsentChange, saveConsent, CONSENT_VERSION } from './services/consent';
 import { CountMode, PalmaTone, TrainerConfig, ViewMode, UserProfile } from './types';
-import { APP_CONFIG, methodUrl } from './config';
+import { APP_CONFIG, methodUrl, isChristmasPromo } from './config';
 import { verifyProCode, ProCheckResult } from './services/pro';
 import { Play, Pause, Lock, CheckCircle2, Maximize2, User, Menu, RotateCcw } from 'lucide-react';
 import { Hint } from './components/Hint';
@@ -991,7 +991,7 @@ export default function App() {
       target: 'comunidad',
       icon: '🤝',
       title: L('El menú', 'The menu'),
-      text: L('Aquí abajo está el menú: el método Los Ritmos del Flamenco, el Vocabulario con los términos del flamenco explicados, la Comunidad (compartir la app, tu código PRO) y este recorrido para repetirlo cuando quieras.', 'The menu is down here: the method Los Ritmos del Flamenco, the Vocabulary with flamenco terms explained, the Community (share the app, your PRO code) and this tour, to repeat whenever you like.'),
+      text: L('Aquí abajo está el menú: el método Los Ritmos del Flamenco, el Vocabulario con los términos del flamenco explicados, la Comunidad (compartir la app, tu código PRO) y este recorrido para repetirlo cuando quieras.', 'The menu is down here: the method The Rhythms of Flamenco, the Vocabulary with flamenco terms explained, the Community (share the app, your PRO code) and this tour, to repeat whenever you like.'),
     },
   ];
 
@@ -1592,7 +1592,7 @@ export default function App() {
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="text-sm shrink-0">📘</span>
                   <span className="font-sans font-semibold text-xs text-gray-200 group-hover:text-white transition">
-                    {L('Consigue el método: Los Ritmos del Flamenco', 'Get the method: Los Ritmos del Flamenco')}
+                    {L('Consigue el método: Los Ritmos del Flamenco', 'Get the method: The Rhythms of Flamenco')}
                   </span>
                 </div>
                 <span className="text-sm shrink-0 group-hover:scale-110 group-hover:-translate-x-0.5 transition-transform">
@@ -1719,7 +1719,7 @@ export default function App() {
                     {
                       key: 'metodo',
                       icon: '📘',
-                      label: L('Método: Los Ritmos del Flamenco', 'Method: Los Ritmos del Flamenco'),
+                      label: L('Método: Los Ritmos del Flamenco', 'Method: The Rhythms of Flamenco') + (isChristmasPromo() ? ' 40% OFF 🎄' : ''),
                       run: () => window.open(methodUrl(lang), '_blank', 'noopener,noreferrer'),
                     },
                     { key: 'vocab', icon: '📖', label: L('Vocabulario', 'Vocabulary'), run: () => setIsTheoryModalOpen(true) },

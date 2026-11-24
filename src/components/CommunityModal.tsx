@@ -120,7 +120,7 @@ export const CommunityModal: React.FC<CommunityModalProps> = ({
           </div>
           <div>
             <h4 className="font-serif font-bold text-sm sm:text-base text-white">
-              {L('Método completo: Los Ritmos del Flamenco', 'Full method: Los Ritmos del Flamenco')}
+              {L('Método completo: Los Ritmos del Flamenco', 'Full method: The Rhythms of Flamenco')}
             </h4>
             <p className="text-xs text-gray-300 font-sans leading-relaxed mt-0.5">
               {L('Incluye los 3 volúmenes completos: Compás de 12, 3/4, y 4/4 - 6/8 en cajón y palmas, con demostraciones en video.', 'Includes the 3 full volumes: 12-beat compás, 3/4, and 4/4 - 6/8 on cajón and palmas, with video demos.')}
