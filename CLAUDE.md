@@ -255,7 +255,7 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
 - **Promoción de Navidad del método** (24/11/2026): del 1 al 31 de diciembre de 2026 (hora de Argentina) el menú dice «Método: Los Ritmos del Flamenco 40% OFF 🎄» (en inglés «Method: … 40% OFF 🎄»)
   y **todos** los enlaces al método (`methodUrl()` en `config.ts`) llevan `?discount_code=NAVIDAD`. Fuera de esas fechas no sale ni el texto ni el código (no hay que tocar nada en enero;
   `isChristmasPromo()` decide). Comprobar en Polar que el código `NAVIDAD` esté activo para el método en esas fechas y en los dos idiomas (ES y EN).
-- **Nombre del método en inglés** (24/11/2026): en inglés el método se llama **«The Rhythm of Flamenco»** (como en el libro) en la app (menú, banner, Comunidad, recorrido, texto de compartir) y en los
+- **Nombre del método en inglés** (24/11/2026): en inglés el método se llama **«The Rhythms of Flamenco»** (en plural, como en el producto de Polar «The Rhythms of Flamenco — Complete Method») en la app (menú, banner, Comunidad, recorrido, texto de compartir) y en los
   términos en inglés; en español sigue «Los Ritmos del Flamenco». El nombre de la app (`HispanApp — Los Ritmos del Flamenco`: título, manifest, vista previa) se dejó en español.
 - **Entrenador progresivo** (`TrainerModal.tsx`, 23/11/2026, queja de alumnos: «los números quedaban clavados»): el campo se reponía solo
   al borrar y no se podía escribir otro valor. Ahora cada campo se puede **borrar y escribir** (se aplica en cuanto es un número

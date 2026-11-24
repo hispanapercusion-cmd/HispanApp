@@ -13,7 +13,7 @@ export function getShareUrl(): string {
   return `${origin}${base}?utm_source=compartir&utm_medium=app`;
 }
 
-export const SHARE_TITLE = (): string => L('HispanApp — Los Ritmos del Flamenco', 'HispanApp — The Rhythm of Flamenco');
+export const SHARE_TITLE = (): string => L('HispanApp — Los Ritmos del Flamenco', 'HispanApp — The Rhythms of Flamenco');
 
 export function getShareText(): string {
   return L(
@@ -21,7 +21,7 @@ export function getShareText(): string {
       '«Los Ritmos del Flamenco» de Jordan Migues: partituras, metrónomo y palmas reales. ' +
       'Ideal para guitarristas, bailaoras, cantaores y percusionistas. Es gratis para empezar:',
     '🎶 Check out HispanApp, the app to practise flamenco palmas (hand claps) and compás with ' +
-      'Jordan Migues\' «The Rhythm of Flamenco» method: scores, metronome and real palmas. ' +
+      'Jordan Migues\' «The Rhythms of Flamenco» method: scores, metronome and real palmas. ' +
       'Great for guitarists, dancers, singers and percussionists. Free to start:'
   );
 }
