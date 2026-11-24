@@ -245,6 +245,9 @@ Actualízalo cada vez que cambie algo importante (decisiones, servicios, fechas,
   (no negra) gracias a `eighthRests: true` del patrón. **Fandangos / Sevillanas (V) patrón 2** («1 y», «2 y»): va a 2 pasos por tiempo (`stepsPerBeat: 2` dentro del patrón, 24 pasos;
   `rhythmWithPattern` lo aplica), con acento solo en el 1 de cada compás; el cajón del V sigue igual (24 golpes, 1 por paso). `MonogramScore` dibuja el V desde los pasos cuando va a 2 pasos por tiempo.
 - **Jaleos / Abandolaos (IV)** (24/11/2026): igual que las bulerías, los círculos rojos del reloj están solo en el 12 (arriba) y el 6 (abajo) (`clockAccents: [0, 6]`; antes 8 círculos).
+- **Limitador de salida** (24/11/2026, «clics en los graves» del Abandolaos): cuando coinciden palma acentuada + bajo del cajón + «tum» del metrónomo, la suma pasaba de 1 y el audio se
+  recortaba (clic). Ahora todo el sonido sale por `out()` en `engine.ts`: un limitador suave (`tanh`, `WaveShaper`) que redondea los picos (máximo ~0,92) y casi no cambia nada por debajo de 0,5.
+  Si se añade un sonido nuevo al motor, conectarlo a `this.out()` y no a `ctx.destination`.
 - **Entrenador progresivo** (`TrainerModal.tsx`, 23/11/2026, queja de alumnos: «los números quedaban clavados»): el campo se reponía solo
   al borrar y no se podía escribir otro valor. Ahora cada campo se puede **borrar y escribir** (se aplica en cuanto es un número
   válido y se ajusta al rango al salir), con botones − y +. Rangos: subir **1–10 BPM**, cada **1–16 vueltas** (una vuelta

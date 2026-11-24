@@ -176,6 +176,28 @@ export class FlamencoAudioEngine {
     }
   }
 
+  // Salida común: todo el sonido pasa por un limitador suave (tanh) antes de llegar a los altavoces. Cuando coinciden
+  // palma acentuada + bajo del cajón + «tum» del metrónomo la suma pasa de 1 y se recortaba de golpe (clics, sobre todo
+  // en los graves). Con el limitador los picos se redondean y nunca pasan de ~0,92; por debajo de 0,5 casi no cambia nada.
+  private masterIn: AudioNode | null = null;
+  private out(): AudioNode {
+    const ctx = this.ctx as AudioContext;
+    if (!this.masterIn) {
+      const pre = ctx.createGain();
+      pre.gain.value = 0.5; // el limitador mira de -1 a 1: así cubre sumas de hasta 2
+      const shaper = ctx.createWaveShaper();
+      const n = 4096;
+      const curve = new Float32Array(n);
+      for (let i = 0; i < n; i++) curve[i] = 0.95 * Math.tanh(2 * ((i / (n - 1)) * 2 - 1));
+      shaper.curve = curve;
+      shaper.oversample = '2x';
+      pre.connect(shaper);
+      shaper.connect(ctx.destination);
+      this.masterIn = pre;
+    }
+    return this.masterIn;
+  }
+
   public init() {
     this.configureAudioSession();
     if (!this.ctx) {
@@ -596,7 +618,7 @@ export class FlamencoAudioEngine {
     gain.gain.linearRampToValueAtTime(peak, t + 0.002);
     gain.gain.exponentialRampToValueAtTime(0.0001, t + len);
     osc.connect(gain);
-    gain.connect(this.ctx.destination);
+    gain.connect(this.out());
     osc.start(t);
     osc.stop(t + len + 0.02);
   }
@@ -617,7 +639,7 @@ export class FlamencoAudioEngine {
     gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.018);
 
     osc.connect(gain);
-    gain.connect(this.ctx.destination);
+    gain.connect(this.out());
     osc.start(time);
     osc.stop(time + 0.02);
 
@@ -647,7 +669,7 @@ export class FlamencoAudioEngine {
 
     noise.connect(filter);
     filter.connect(noiseGain);
-    noiseGain.connect(this.ctx.destination);
+    noiseGain.connect(this.out());
     noise.start(time);
     noise.stop(time + dur + 0.005);
   }
@@ -671,7 +693,7 @@ export class FlamencoAudioEngine {
     gainNode.gain.setValueAtTime(volume, scheduleTime);
 
     source.connect(gainNode);
-    gainNode.connect(this.ctx.destination);
+    gainNode.connect(this.out());
     source.start(scheduleTime);
   }
 
@@ -737,7 +759,7 @@ export class FlamencoAudioEngine {
       const when = Math.max(time + k * subDur, this.ctx.currentTime);
       gainNode.gain.setValueAtTime(0.95, when);
       source.connect(gainNode);
-      gainNode.connect(this.ctx.destination);
+      gainNode.connect(this.out());
       source.start(when);
     }
   }
@@ -908,7 +930,7 @@ export class FlamencoAudioEngine {
 
       src.connect(filter);
       filter.connect(gain);
-      gain.connect(this.ctx.destination);
+      gain.connect(this.out());
       src.start(time + offset);
       src.stop(time + offset + dur + 0.01);
     });
