@@ -96,7 +96,7 @@ export const APP_CONFIG: AppConfig = {
   lemonLicenseApiUrl: "https://api.lemonsqueezy.com/v1/licenses/validate",
   lemonStoreId: null,
   leadWebhookUrl: "",
-  contactEmail: "hispanapercusion@gmail.com",
+  contactEmail: "info@hispanapercusion.com",
   privacyUrl: "./legal/privacidad.html",
   termsUrl: "./legal/terminos.html",
   withdrawalUrl: "./legal/arrepentimiento.html",
